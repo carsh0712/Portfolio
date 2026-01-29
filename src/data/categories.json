@@ -1,0 +1,25 @@
+{
+  "categories": [
+    {
+      "id": "cat-apps",
+      "name": "내가 만든 앱",
+      "description": "직접 개발한 애플리케이션 모음",
+      "imageUrl": "https://placehold.co/400x300/3b82f6/white?text=Apps",
+      "order": 1
+    },
+    {
+      "id": "cat-games",
+      "name": "내가 깬 게임",
+      "description": "클리어한 게임 목록과 플레이 후기",
+      "imageUrl": "https://placehold.co/400x300/10b981/white?text=Games",
+      "order": 2
+    },
+    {
+      "id": "cat-artworks",
+      "name": "내가 그린 그림",
+      "description": "디지털 아트 및 일러스트 작품",
+      "imageUrl": "https://placehold.co/400x300/8b5cf6/white?text=Artworks",
+      "order": 3
+    }
+  ]
+}
