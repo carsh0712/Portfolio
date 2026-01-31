@@ -14,7 +14,7 @@ function publicPortfolioItemToProject(item: PublicPortfolioItem): Project {
     description: '',
     techStack: item.tags,
     tags: item.tags,
-    imageUrl: item.thumbnail_url,
+    thumbnailFileId: item.thumbnail?.file_id,
     startDate: item.created_at,
     features: [],
     isPublic: item.is_public,

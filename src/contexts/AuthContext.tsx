@@ -61,7 +61,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const data: AuthTokens = await response.json();
 
         localStorage.setItem(STORAGE_KEYS.TOKENS, JSON.stringify(data));
-        const userData: AuthUser = { username: email, email };
+        // TODO: 로그인 후 getCurrentUser API를 호출하여 정확한 사용자 정보 가져오기
+        const userData: AuthUser = { id: 0, username: email, email };
         localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userData));
 
         setTokens(data);

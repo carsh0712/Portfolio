@@ -4,7 +4,7 @@ export interface Category {
   code: string;
   name: string;
   description: string;
-  image_url: string;
+  screenshot: { file_id: number } | null;
   order: number;
   is_public: boolean;
   created_at: string;
@@ -29,3 +29,25 @@ export interface PortfolioCategory {
   imageUrl?: string;
   order: number;
 }
+
+export interface CreateCategoryRequest {
+  code: string;
+  name: string;
+  description: string;
+  screenshot_file_id: number | null;
+  order: number;
+  is_public: boolean;
+}
+
+export type CreateCategoryResponse = Category;
+
+export interface UpdateCategoryRequest {
+  code: string;
+  name: string;
+  description: string;
+  screenshot_file_id: number | null;
+  order: number;
+  is_public: boolean;
+}
+
+export type UpdateCategoryResponse = Category;

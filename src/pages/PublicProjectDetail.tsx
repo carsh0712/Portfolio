@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import AuthImage from '../components/AuthImage';
 import { getPublicProjectDetail } from '../utils/api';
 import type { Project, PublicProjectDetail as PublicProjectDetailType } from '../types/project';
 
@@ -18,7 +19,7 @@ function publicProjectDetailToProject(detail: PublicProjectDetailType): Project 
     description: detail.description,
     techStack: detail.tech_stack || [],
     tags: detail.tags,
-    imageUrl: detail.thumbnail_url,
+    thumbnailFileId: detail.thumbnail?.file_id,
     screenshots: detail.screenshots,
     githubUrl: githubLink?.url,
     demoUrl: demoLink?.url,
@@ -262,8 +263,8 @@ export default function PublicProjectDetail() {
                         onClick={() => setSelectedIndex(index)}
                         className="group relative overflow-hidden rounded-lg aspect-video bg-gray-100 hover:ring-2 hover:ring-blue-500 transition-all"
                       >
-                        <img
-                          src={screenshot.url}
+                        <AuthImage
+                          fileId={screenshot.file_id}
                           alt={screenshot.caption || `스크린샷 ${index + 1}`}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                         />
@@ -391,8 +392,8 @@ export default function PublicProjectDetail() {
                 />
               </svg>
             </button>
-            <img
-              src={selectedImage.url}
+            <AuthImage
+              fileId={selectedImage.file_id}
               alt={selectedImage.caption || '스크린샷'}
               className="max-w-full max-h-[85vh] object-contain rounded-lg"
               onClick={(e) => e.stopPropagation()}

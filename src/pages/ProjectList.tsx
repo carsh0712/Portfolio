@@ -1,9 +1,14 @@
-import { useState, useMemo, useEffect } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import ActionCard from '../components/ActionCard';
+import PlusIcon from '../components/svg/PlusIcon';
 import ProjectCard from '../components/ProjectCard';
-import { getPortfolios, getCategories } from '../utils/api';
-import type { Project, PortfolioItem } from '../types/project';
+import SettingsIcon from '../components/svg/SettingsIcon';
+import ShareIcon from '../components/svg/ShareIcon';
+import type { AuthUser } from '../types/auth';
 import type { Category } from '../types/category';
+import type { PortfolioItem, Project } from '../types/project';
+import { getCategories, getCurrentUser, getPortfolios } from '../utils/api';
 
 // Helper function to convert PortfolioItem to Project
 function portfolioItemToProject(item: PortfolioItem): Project {
@@ -15,7 +20,7 @@ function portfolioItemToProject(item: PortfolioItem): Project {
     description: '',
     techStack: item.tags,
     tags: item.tags,
-    imageUrl: item.thumbnail_url,
+    thumbnailFileId: item.thumbnail?.file_id,
     startDate: item.created_at,
     features: [],
     isPublic: item.is_public,
@@ -37,7 +42,22 @@ export default function ProjectList() {
   const isCurator = true;
   const [tagInput, setTagInput] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [showPrivate, setShowPrivate] = useState(false);
+
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
+  const [showCopiedMessage, setShowCopiedMessage] = useState(false);
+
+  // Load current user from API
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const user = await getCurrentUser();
+        setCurrentUser(user);
+      } catch (err) {
+        console.error('Failed to fetch current user:', err);
+      }
+    };
+    fetchUser();
+  }, []);
 
   // Fetch category and portfolios from API
   useEffect(() => {
@@ -95,11 +115,6 @@ export default function ProjectList() {
   const filteredProjects = useMemo(() => {
     let result = projects;
 
-    // 비공개 프로젝트 필터링 (showPrivate가 false면 공개 프로젝트만)
-    if (!showPrivate) {
-      result = result.filter((project) => project.isPublic !== false);
-    }
-
     // 태그 필터링
     if (selectedTags.length > 0) {
       result = result.filter((project) =>
@@ -108,7 +123,7 @@ export default function ProjectList() {
     }
 
     return result;
-  }, [projects, selectedTags, showPrivate]);
+  }, [projects, selectedTags]);
 
   const handleAddTag = (tag: string) => {
     if (tag && !selectedTags.includes(tag)) {
@@ -132,6 +147,21 @@ export default function ProjectList() {
 
   const handleAddProject = () => {
     navigate(`/category/${categoryId}/project/add`);
+  };
+
+  const handleShareClick = async () => {
+    if (!category || !currentUser) return;
+
+    const publicUrl = `${window.location.origin}/public/${currentUser.username}/${category.code}`;
+
+    try {
+      await navigator.clipboard.writeText(publicUrl);
+      setShowCopiedMessage(true);
+      setTimeout(() => setShowCopiedMessage(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      alert('링크 복사에 실패했습니다.');
+    }
   };
 
   // Loading state
@@ -199,22 +229,33 @@ export default function ProjectList() {
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-4 mb-4">
             <h1 className="text-4xl font-bold text-gray-900">{category.name}</h1>
-            {isCurator && (
-              <button
-                onClick={handleAddProject}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                새 프로젝트
-              </button>
-            )}
+            <div className="flex items-center gap-2">
+              {category.is_public && currentUser && (
+                <div className="relative">
+                  <button
+                    onClick={handleShareClick}
+                    className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                    title="공유 링크 복사"
+                  >
+                    <ShareIcon className="w-6 h-6" />
+                  </button>
+                  {showCopiedMessage && (
+                    <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-sm px-3 py-1 rounded whitespace-nowrap">
+                      링크가 복사되었습니다!
+                    </div>
+                  )}
+                </div>
+              )}
+              {isCurator && (
+                <button
+                  onClick={() => navigate(`/category/${categoryId}/edit`)}
+                  className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                  title="카테고리 편집"
+                >
+                  <SettingsIcon className="w-6 h-6" />
+                </button>
+              )}
+            </div>
           </div>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">{category.description}</p>
         </div>
@@ -292,87 +333,14 @@ export default function ProjectList() {
 
           {/* Curator 권한: 새 프로젝트 추가 카드 */}
           {isCurator && (
-            <button
+            <ActionCard
+              icon={
+                <PlusIcon className="w-16 h-16 text-gray-400 group-hover:text-blue-500 transition-colors" />
+              }
+              title="새 프로젝트 추가"
+              description="클릭하여 새 프로젝트를 만드세요"
               onClick={handleAddProject}
-              className="group block bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 border-2 border-dashed border-gray-300 hover:border-blue-500"
-            >
-              <div className="aspect-video flex items-center justify-center bg-gray-50 group-hover:bg-blue-50 transition-colors">
-                <svg
-                  className="w-16 h-16 text-gray-400 group-hover:text-blue-500 transition-colors"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-              </div>
-              <div className="p-6">
-                <h2 className="text-xl font-bold text-gray-500 mb-2 group-hover:text-blue-600 transition-colors">
-                  새 프로젝트 추가
-                </h2>
-                <p className="text-gray-400">클릭하여 새 프로젝트를 만드세요</p>
-              </div>
-            </button>
-          )}
-
-          {/* Curator 권한: 비공개 프로젝트 보기 카드 */}
-          {isCurator && (
-            <button
-              onClick={() => setShowPrivate(!showPrivate)}
-              className={`group block rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 border-2 border-dashed ${
-                showPrivate
-                  ? 'bg-gray-800 border-gray-600 hover:border-gray-500'
-                  : 'bg-white border-gray-300 hover:border-gray-500'
-              }`}
-            >
-              <div
-                className={`aspect-video flex items-center justify-center transition-colors ${
-                  showPrivate ? 'bg-gray-700' : 'bg-gray-50 group-hover:bg-gray-100'
-                }`}
-              >
-                <svg
-                  className={`w-16 h-16 transition-colors ${
-                    showPrivate ? 'text-gray-400' : 'text-gray-400 group-hover:text-gray-600'
-                  }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  {showPrivate ? (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  ) : (
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"
-                    />
-                  )}
-                </svg>
-              </div>
-              <div className="p-6">
-                <h2
-                  className={`text-xl font-bold mb-2 transition-colors ${
-                    showPrivate ? 'text-gray-300' : 'text-gray-500 group-hover:text-gray-700'
-                  }`}
-                >
-                  {showPrivate ? '비공개 보는 중' : '비공개 프로젝트'}
-                </h2>
-                <p className={showPrivate ? 'text-gray-500' : 'text-gray-400'}>
-                  {showPrivate ? '클릭하여 숨기기' : '클릭하여 비공개 프로젝트 보기'}
-                </p>
-              </div>
-            </button>
+            />
           )}
         </div>
 

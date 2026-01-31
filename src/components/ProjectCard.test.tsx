@@ -44,10 +44,16 @@ describe('ProjectCard', () => {
     expect(screen.getByText('T')).toBeInTheDocument();
   });
 
-  it('올바른 링크 경로를 가져야 한다', () => {
+  it('기본 링크 경로를 가져야 한다', () => {
     render(<ProjectCard project={mockProject} />);
     const link = screen.getByRole('link');
     expect(link).toHaveAttribute('href', '/category/web/project/1');
+  });
+
+  it('커스텀 linkPath가 전달되면 해당 경로를 사용해야 한다', () => {
+    render(<ProjectCard project={mockProject} linkPath="/custom/path" />);
+    const link = screen.getByRole('link');
+    expect(link).toHaveAttribute('href', '/custom/path');
   });
 
   it('기술 스택이 4개 이하일 때 +N 표시가 없어야 한다', () => {
@@ -57,5 +63,23 @@ describe('ProjectCard', () => {
     };
     render(<ProjectCard project={projectWithFewTechs} />);
     expect(screen.queryByText(/^\+/)).not.toBeInTheDocument();
+  });
+
+  it('isPublic이 true이면 공개 배지가 표시되어야 한다', () => {
+    const publicProject: Project = { ...mockProject, isPublic: true };
+    render(<ProjectCard project={publicProject} />);
+    expect(screen.getByText('공개')).toBeInTheDocument();
+  });
+
+  it('isPublic이 false이면 비공개 배지가 표시되어야 한다', () => {
+    const privateProject: Project = { ...mockProject, isPublic: false };
+    render(<ProjectCard project={privateProject} />);
+    expect(screen.getByText('비공개')).toBeInTheDocument();
+  });
+
+  it('isPublic이 undefined이면 배지가 표시되지 않아야 한다', () => {
+    render(<ProjectCard project={mockProject} />);
+    expect(screen.queryByText('공개')).not.toBeInTheDocument();
+    expect(screen.queryByText('비공개')).not.toBeInTheDocument();
   });
 });

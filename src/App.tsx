@@ -8,6 +8,7 @@ import Register from './pages/Register';
 import Profile from './pages/Profile';
 import CategoryList from './pages/CategoryList';
 import CategoryAdd from './pages/CategoryAdd';
+import CategoryEdit from './pages/CategoryEdit';
 import ProjectList from './pages/ProjectList';
 import ProjectAdd from './pages/ProjectAdd';
 import ProjectDetail from './pages/ProjectDetail';
@@ -84,6 +85,17 @@ function App() {
                 <div className="min-h-screen bg-slate-50">
                   <Header />
                   <Profile />
+                </div>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/category/:categoryId/edit"
+            element={
+              <ProtectedRoute>
+                <div className="min-h-screen bg-slate-50">
+                  <Header />
+                  <CategoryEdit />
                 </div>
               </ProtectedRoute>
             }

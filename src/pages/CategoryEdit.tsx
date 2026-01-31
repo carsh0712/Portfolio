@@ -1,0 +1,145 @@
+import { useCallback, useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { getCategories, updateCategory } from '../utils/api';
+import type { Category } from '../types/category';
+import CategoryForm, { type CategoryFormData } from '../components/CategoryForm';
+
+export default function CategoryEdit() {
+  const { categoryId } = useParams<{ categoryId: string }>();
+  const navigate = useNavigate();
+  const [category, setCategory] = useState<Category | null>(null);
+  const [formData, setFormData] = useState<CategoryFormData>({
+    name: '',
+    description: '',
+    screenshotFileId: null,
+    code: '',
+    isPublic: false,
+    order: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchCategory = useCallback(async () => {
+    if (!categoryId) return;
+    try {
+      setLoading(true);
+      const response = await getCategories(1, 100);
+      const found = response.items.find((c) => c.id === Number(categoryId));
+      if (found) {
+        setCategory(found);
+        setFormData({
+          code: found.code,
+          name: found.name,
+          description: found.description,
+          screenshotFileId: found.screenshot?.file_id ?? null,
+          order: found.order,
+          isPublic: found.is_public,
+        });
+      } else {
+        setError('카테고리를 찾을 수 없습니다.');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '카테고리를 불러오는데 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  }, [categoryId]);
+
+  useEffect(() => {
+    fetchCategory();
+  }, [fetchCategory]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!category) return;
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      await updateCategory(category.id, {
+        code: formData.code,
+        name: formData.name,
+        description: formData.description,
+        screenshot_file_id: formData.screenshotFileId,
+        order: formData.order ?? category.order,
+        is_public: formData.isPublic,
+      });
+      navigate(`/category/${categoryId}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '카테고리 수정에 실패했습니다.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">카테고리를 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!category) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">카테고리를 찾을 수 없습니다</h2>
+          <Link to="/home" className="text-blue-600 hover:text-blue-800">
+            홈으로 돌아가기
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto px-4 py-12">
+      <Link
+        to={`/category/${categoryId}`}
+        className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-8"
+      >
+        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+        카테고리로 돌아가기
+      </Link>
+
+      <div className="bg-white rounded-xl shadow-lg p-8">
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">카테고리 편집</h1>
+
+        {error && (
+          <div className="p-4 mb-6 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-600 text-sm">{error}</p>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <CategoryForm formData={formData} onChange={setFormData} showOrder />
+
+          <div className="flex gap-4 pt-4">
+            <button
+              type="button"
+              onClick={() => navigate(`/category/${categoryId}`)}
+              disabled={submitting}
+              className="flex-1 py-3 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              취소
+            </button>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="flex-1 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
+            >
+              {submitting ? '저장 중...' : '저장'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

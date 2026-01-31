@@ -1,5 +1,5 @@
 export interface Screenshot {
-  url: string;
+  file_id: number;
   caption?: string;
 }
 
@@ -12,8 +12,9 @@ export interface Project {
   description: string;
   techStack: string[];
   tags: string[];
-  imageUrl?: string;
+  thumbnailFileId?: number;
   screenshots?: Screenshot[];
+  links?: ProjectLink[];
   githubUrl?: string;
   demoUrl?: string;
   downloadUrl?: string;
@@ -31,7 +32,7 @@ export interface PortfolioItem {
   code: string;
   title: string;
   summary: string;
-  thumbnail_url: string;
+  thumbnail: { file_id: number } | null;
   tags: string[];
   order: number;
   is_public: boolean;
@@ -60,23 +61,50 @@ export interface ProjectLink {
   icon?: string;
 }
 
-export interface PortfolioItemDetail {
-  id: string;
-  categoryId: string;
-  code?: string;
+export interface Portfolio {
+  id: number;
+  category_id: number;
+  code: string;
   title: string;
   summary: string;
   description: string;
-  techStack: string[];
+  tech_stack: string[];
   tags: string[];
-  imageUrl?: string;
+  thumbnail_file_id?: number;
   screenshots?: Screenshot[];
   links?: ProjectLink[];
-  startDate: string;
-  endDate?: string;
+  order: number;
+  is_public: boolean;
+  start_date?: string;
+  end_date?: string;
+  features?: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+// Portfolio Update Request Type
+export interface UpdatePortfolioRequest {
+  category_id: number;
+  code: string;
+  title: string;
+  summary: string;
+  thumbnail: { file_id: number } | null;
+  tags: string[];
+  order: number;
+  is_public: boolean;
+  description: string;
+  tech_stack: string[];
+  screenshots: { file_id: number; caption?: string }[];
+  links: {
+    name: string;
+    url: string;
+    backgroundColor?: string;
+    textColor?: string;
+    icon?: string;
+  }[];
+  start_date: string;
+  end_date: string;
   features: string[];
-  createdAt: string;
-  updatedAt: string;
 }
 
 // Public Portfolio API Response Types
@@ -89,10 +117,11 @@ export interface PublicProjectDetail {
   title: string;
   summary: string;
   description: string;
-  thumbnail_url: string;
+  thumbnail: { file_id: number } | null;
   tags: string[];
   tech_stack: string[];
   screenshots?: Screenshot[];
+  thumbnail_file_id?: number;
   links?: ProjectLink[];
   order: number;
   is_public: boolean;
