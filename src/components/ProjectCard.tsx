@@ -6,9 +6,10 @@ import PublicStatusBadge from './PublicStatusBadge';
 interface ProjectCardProps {
   project: Project;
   linkPath?: string;
+  thumbnailUrl?: string;
 }
 
-export default function ProjectCard({ project, linkPath }: ProjectCardProps) {
+export default function ProjectCard({ project, linkPath, thumbnailUrl }: ProjectCardProps) {
   const defaultPath = `/category/${project.categoryId}/project/${project.id}`;
   const path = linkPath || defaultPath;
 
@@ -19,11 +20,19 @@ export default function ProjectCard({ project, linkPath }: ProjectCardProps) {
     >
       {project.thumbnailFileId ? (
         <div className="h-48 overflow-hidden">
-          <AuthImage
-            fileId={project.thumbnailFileId}
-            alt={project.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
+          {thumbnailUrl ? (
+            <img
+              src={thumbnailUrl}
+              alt={project.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          ) : (
+            <AuthImage
+              fileId={project.thumbnailFileId}
+              alt={project.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          )}
         </div>
       ) : (
         <div className="h-48 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">

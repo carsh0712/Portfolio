@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import ProjectCard from '../components/ProjectCard';
-import { getPublicPortfolios } from '../utils/api';
+import { getPublicPortfolios, getPublicFileUrl } from '../utils/api';
 import type { Project, PublicPortfolioItem } from '../types/project';
 
 function publicPortfolioItemToProject(item: PublicPortfolioItem): Project {
@@ -206,6 +206,11 @@ export default function PublicPortfolioList() {
               key={project.id}
               project={project}
               linkPath={`/public/${username}/${categoryCode}/${project.code}`}
+              thumbnailUrl={
+                project.thumbnailFileId && username
+                  ? getPublicFileUrl(username, project.thumbnailFileId)
+                  : undefined
+              }
             />
           ))}
         </div>

@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { AuthTokens, AuthUser } from '../types/auth';
-import { API_BASE_URL } from '../utils/api';
+import { API_BASE_URL, getCurrentUser } from '../utils/api';
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -61,8 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const data: AuthTokens = await response.json();
 
         localStorage.setItem(STORAGE_KEYS.TOKENS, JSON.stringify(data));
-        // TODO: 로그인 후 getCurrentUser API를 호출하여 정확한 사용자 정보 가져오기
-        const userData: AuthUser = { id: 0, username: email, email };
+        const userData = await getCurrentUser();
         localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userData));
 
         setTokens(data);

@@ -1,5 +1,6 @@
 import type { AuthTokens, AuthUser } from '../types/auth';
 import type {
+  Category,
   CategoryListResponse,
   CreateCategoryRequest,
   CreateCategoryResponse,
@@ -159,6 +160,19 @@ export async function createCategory(data: CreateCategoryRequest): Promise<Creat
   return response.json();
 }
 
+// Category Detail API
+export async function getCategoryDetail(categoryId: number): Promise<Category> {
+  const response = await apiFetch(`/api/v1/categories/${categoryId}`, {
+    method: 'GET',
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch category: ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
 // Category Update API
 export async function updateCategory(
   categoryId: number,
@@ -224,6 +238,10 @@ export async function uploadImage(file: File): Promise<UploadFileResponse> {
 
 export function getFileUrl(fileId: number): string {
   return `${API_BASE_URL}/api/v1/files/${fileId}`;
+}
+
+export function getPublicFileUrl(username: string, fileId: number): string {
+  return `${API_BASE_URL}/api/v1/public/${username}/file/${fileId}`;
 }
 
 export async function fetchFileAsObjectUrl(fileId: number): Promise<string> {

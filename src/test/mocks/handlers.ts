@@ -36,7 +36,7 @@ const mockPortfolioDetail = {
   description: 'Detailed description',
   tech_stack: ['React', 'TypeScript'],
   tags: ['frontend'],
-  thumbnail_file_id: 1,
+  thumbnail: { file_id: 1 },
   screenshots: [],
   links: [],
   order: 0,
@@ -120,5 +120,12 @@ export const handlers = [
 
   http.get('*/api/v1/public/:username/:categoryCode/:portfolioCode/', () => {
     return HttpResponse.json(mockPortfolioDetail);
+  }),
+
+  // Public Files
+  http.get('*/api/v1/public/:username/file/:fileId', () => {
+    return new HttpResponse(new Blob(['mock-image'], { type: 'image/png' }), {
+      headers: { 'Content-Type': 'image/png' },
+    });
   }),
 ];

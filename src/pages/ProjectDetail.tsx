@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import AuthImage from '../components/AuthImage';
 import ProjectEditForm from '../components/ProjectEditForm';
+import ProjectLinks from '../components/ProjectLinks';
+import { useAuth } from '../contexts/AuthContext';
 import type { Portfolio, Project } from '../types/project';
-import { getPortfolioDetail, updatePortfolio } from '../utils/api';
-import { renderIconByName } from '../utils/icons';
+import { getCategoryDetail, getPortfolioDetail, updatePortfolio } from '../utils/api';
 
 // Helper function to convert Portfolio to Project
 function portfolioDetailToProject(detail: Portfolio): Project {
@@ -22,9 +23,13 @@ function portfolioDetailToProject(detail: Portfolio): Project {
     description: detail.description,
     techStack: detail.tech_stack || [],
     tags: detail.tags || [],
-    thumbnailFileId: detail.thumbnail_file_id,
+    thumbnailFileId: detail.thumbnail?.file_id,
     screenshots: detail.screenshots,
-    links: detail.links || [],
+    links: (detail.links || []).map((link) => ({
+      ...link,
+      backgroundColor: link.backgroundColor || link.background_color,
+      textColor: link.textColor || link.text_color,
+    })),
     githubUrl: githubLink?.url,
     demoUrl: demoLink?.url,
     downloadUrl: downloadLink?.url,
@@ -44,9 +49,12 @@ export default function ProjectDetail() {
   const [error, setError] = useState<string | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
+  const { user } = useAuth();
   // TODO: 실제 사용자 권한은 API나 Context에서 가져와야 함
   const isCurator = true;
   const [isEditing, setIsEditing] = useState(false);
+  const [categoryCode, setCategoryCode] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -56,9 +64,15 @@ export default function ProjectDetail() {
       setError(null);
 
       try {
-        const detailResponse = await getPortfolioDetail(Number(id));
+        const [detailResponse, categoryResponse] = await Promise.all([
+          getPortfolioDetail(Number(id)),
+          categoryId ? getCategoryDetail(Number(categoryId)) : Promise.resolve(null),
+        ]);
         const projectData = portfolioDetailToProject(detailResponse);
         setProject(projectData);
+        if (categoryResponse) {
+          setCategoryCode(categoryResponse.code);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : '데이터를 불러오는데 실패했습니다.');
         console.error('Failed to fetch portfolio data:', err);
@@ -85,6 +99,14 @@ export default function ProjectDetail() {
     if (selectedIndex !== null && selectedIndex < screenshots.length - 1) {
       setSelectedIndex(selectedIndex + 1);
     }
+  };
+
+  const handleShare = async () => {
+    if (!user?.username || !categoryCode || !project?.code) return;
+    const shareUrl = `${window.location.origin}/public/${user.username}/${categoryCode}/${project.code}/`;
+    await navigator.clipboard.writeText(shareUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleSave = async (editData: {
@@ -238,10 +260,11 @@ export default function ProjectDetail() {
               <>
                 <div className="flex items-start justify-between mb-2">
                   <h1 className="text-3xl font-bold text-gray-900">{project.title}</h1>
-                  {isCurator && (
+                  <div className="flex items-center gap-2 ml-4 flex-shrink-0">
                     <button
-                      onClick={() => setIsEditing(true)}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors ml-4 flex-shrink-0"
+                      onClick={handleShare}
+                      disabled={!user?.username || !categoryCode || !project.code}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <svg
                         className="w-4 h-4"
@@ -253,21 +276,34 @@ export default function ProjectDetail() {
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth={2}
-                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                          d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
                         />
                       </svg>
-                      편집
+                      {copied ? '복사됨!' : '공유'}
                     </button>
-                  )}
-                </div>
-
-                {project.code && (
-                  <div className="mb-4">
-                    <span className="inline-block px-3 py-1 bg-gray-100 text-gray-700 text-sm font-mono rounded">
-                      {project.code}
-                    </span>
+                    {isCurator && (
+                      <button
+                        onClick={() => setIsEditing(true)}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                      >
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                          />
+                        </svg>
+                        편집
+                      </button>
+                    )}
                   </div>
-                )}
+                </div>
 
                 <div className="flex flex-wrap gap-2 mb-4">
                   {project.tags.map((tag) => (
@@ -283,29 +319,7 @@ export default function ProjectDetail() {
                 <p className="text-lg text-gray-600 mb-6">{project.summary}</p>
 
                 {project.links && project.links.length > 0 && (
-                  <div className="mb-8">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">링크</h3>
-                    <div className="flex flex-wrap gap-3">
-                      {project.links.map((link, index) => (
-                        <a
-                          key={index}
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center px-4 py-2 rounded-lg transition-colors"
-                          style={{
-                            backgroundColor: link.backgroundColor || '#3B82F6',
-                            color: link.textColor || '#FFFFFF',
-                          }}
-                        >
-                          {link.icon && (
-                            <span className="mr-2">{renderIconByName(link.icon) || link.icon}</span>
-                          )}
-                          {link.name}
-                        </a>
-                      ))}
-                    </div>
-                  </div>
+                  <ProjectLinks links={project.links} />
                 )}
 
                 <div className="border-t border-gray-200 pt-8">

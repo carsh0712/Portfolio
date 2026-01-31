@@ -11,6 +11,8 @@ import {
   updatePortfolio,
   getPublicPortfolios,
   getPublicProjectDetail,
+  getPublicFileUrl,
+  API_BASE_URL,
 } from './api';
 
 describe('API 유틸리티', () => {
@@ -184,6 +186,13 @@ describe('API 유틸리티', () => {
     it('공개 프로젝트 상세를 가져와야 한다', async () => {
       const result = await getPublicProjectDetail('testuser', 'web', 'test-project');
       expect(result.title).toBe('Test Project');
+    });
+  });
+
+  describe('getPublicFileUrl', () => {
+    it('공개 파일 URL을 올바르게 생성해야 한다', () => {
+      const url = getPublicFileUrl('testuser', 123);
+      expect(url).toBe(`${API_BASE_URL}/api/v1/public/testuser/file/123`);
     });
   });
 });

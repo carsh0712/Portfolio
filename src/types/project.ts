@@ -58,6 +58,8 @@ export interface ProjectLink {
   url: string;
   backgroundColor?: string;
   textColor?: string;
+  background_color?: string;
+  text_color?: string;
   icon?: string;
 }
 
@@ -70,7 +72,7 @@ export interface Portfolio {
   description: string;
   tech_stack: string[];
   tags: string[];
-  thumbnail_file_id?: number;
+  thumbnail: { file_id: number } | null;
   screenshots?: Screenshot[];
   links?: ProjectLink[];
   order: number;
@@ -121,7 +123,6 @@ export interface PublicProjectDetail {
   tags: string[];
   tech_stack: string[];
   screenshots?: Screenshot[];
-  thumbnail_file_id?: number;
   links?: ProjectLink[];
   order: number;
   is_public: boolean;

@@ -1,15 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import AuthImage from '../components/AuthImage';
-import { getPublicProjectDetail } from '../utils/api';
+import ProjectLinks from '../components/ProjectLinks';
+import { getPublicProjectDetail, getPublicFileUrl } from '../utils/api';
 import type { Project, PublicProjectDetail as PublicProjectDetailType } from '../types/project';
 
 function publicProjectDetailToProject(detail: PublicProjectDetailType): Project {
-  const githubLink = detail.links?.find((l) => l.name.toLowerCase().includes('github'));
-  const demoLink = detail.links?.find((l) => l.name.toLowerCase().includes('demo'));
-  const downloadLink = detail.links?.find((l) => l.name.toLowerCase().includes('download'));
-  const blogLink = detail.links?.find((l) => l.name.toLowerCase().includes('blog'));
-
   return {
     id: String(detail.id),
     categoryId: String(detail.category_id),
@@ -21,10 +16,11 @@ function publicProjectDetailToProject(detail: PublicProjectDetailType): Project 
     tags: detail.tags,
     thumbnailFileId: detail.thumbnail?.file_id,
     screenshots: detail.screenshots,
-    githubUrl: githubLink?.url,
-    demoUrl: demoLink?.url,
-    downloadUrl: downloadLink?.url,
-    blogUrl: blogLink?.url,
+    links: (detail.links || []).map((link) => ({
+      ...link,
+      backgroundColor: link.backgroundColor || link.background_color,
+      textColor: link.textColor || link.text_color,
+    })),
     startDate: detail.start_date || detail.created_at,
     endDate: detail.end_date,
     features: detail.features || [],
@@ -146,11 +142,21 @@ export default function PublicProjectDetail() {
         </Link>
 
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-          <div className="h-64 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-            <span className="text-white text-8xl font-bold opacity-30">
-              {project.title.charAt(0)}
-            </span>
-          </div>
+          {project.thumbnailFileId && username ? (
+            <div className="h-64 overflow-hidden">
+              <img
+                src={getPublicFileUrl(username, project.thumbnailFileId)}
+                alt={project.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          ) : (
+            <div className="h-64 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+              <span className="text-white text-8xl font-bold opacity-30">
+                {project.title.charAt(0)}
+              </span>
+            </div>
+          )}
 
           <div className="p-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">{project.title}</h1>
@@ -168,89 +174,9 @@ export default function PublicProjectDetail() {
 
             <p className="text-lg text-gray-600 mb-6">{project.summary}</p>
 
-            <div className="flex gap-4 mb-8">
-              {project.githubUrl && (
-                <a
-                  href={project.githubUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
-                  </svg>
-                  GitHub
-                </a>
-              )}
-              {project.demoUrl && (
-                <a
-                  href={project.demoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <svg
-                    className="w-5 h-5 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                    />
-                  </svg>
-                  Live Demo
-                </a>
-              )}
-              {project.downloadUrl && (
-                <a
-                  href={project.downloadUrl}
-                  download
-                  className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                >
-                  <svg
-                    className="w-5 h-5 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                    />
-                  </svg>
-                  Download
-                </a>
-              )}
-              {project.blogUrl && (
-                <a
-                  href={project.blogUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
-                >
-                  <svg
-                    className="w-5 h-5 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                    />
-                  </svg>
-                  개발 일지
-                </a>
-              )}
-            </div>
+            {project.links && project.links.length > 0 && (
+              <ProjectLinks links={project.links} />
+            )}
 
             <div className="border-t border-gray-200 pt-8">
               {project.screenshots && project.screenshots.length > 0 && (
@@ -263,8 +189,8 @@ export default function PublicProjectDetail() {
                         onClick={() => setSelectedIndex(index)}
                         className="group relative overflow-hidden rounded-lg aspect-video bg-gray-100 hover:ring-2 hover:ring-blue-500 transition-all"
                       >
-                        <AuthImage
-                          fileId={screenshot.file_id}
+                        <img
+                          src={username ? getPublicFileUrl(username, screenshot.file_id) : ''}
                           alt={screenshot.caption || `스크린샷 ${index + 1}`}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                         />
@@ -392,8 +318,8 @@ export default function PublicProjectDetail() {
                 />
               </svg>
             </button>
-            <AuthImage
-              fileId={selectedImage.file_id}
+            <img
+              src={username ? getPublicFileUrl(username, selectedImage.file_id) : ''}
               alt={selectedImage.caption || '스크린샷'}
               className="max-w-full max-h-[85vh] object-contain rounded-lg"
               onClick={(e) => e.stopPropagation()}
