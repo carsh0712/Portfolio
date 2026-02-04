@@ -5,10 +5,10 @@ import ProjectEditForm from '../components/ProjectEditForm';
 import ProjectLinks from '../components/ProjectLinks';
 import { useAuth } from '../contexts/AuthContext';
 import type { Portfolio, Project } from '../types/project';
-import { getCategoryDetail, getPortfolioDetail, updatePortfolio } from '../utils/api';
+import { getPortfolioDetail, updatePortfolio } from '../utils/api';
 
 // Helper function to convert Portfolio to Project
-function portfolioDetailToProject(detail: Portfolio): Project {
+function portfolioDetailToProject(detail: Portfolio, categoryCode: string): Project {
   const githubLink = detail.links?.find((l) => l.name.toLowerCase().includes('github'));
   const demoLink = detail.links?.find((l) => l.name.toLowerCase().includes('demo'));
   const downloadLink = detail.links?.find((l) => l.name.toLowerCase().includes('download'));
@@ -16,7 +16,7 @@ function portfolioDetailToProject(detail: Portfolio): Project {
 
   return {
     id: String(detail.id),
-    categoryId: String(detail.category_id),
+    categoryId: categoryCode,
     code: detail.code,
     title: detail.title,
     summary: detail.summary,
@@ -42,7 +42,7 @@ function portfolioDetailToProject(detail: Portfolio): Project {
 }
 
 export default function ProjectDetail() {
-  const { categoryId, id } = useParams<{ categoryId: string; id: string }>();
+  const { portfolioCode, id } = useParams<{ portfolioCode: string; id: string }>();
 
   const [project, setProject] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -53,7 +53,7 @@ export default function ProjectDetail() {
   // TODO: 실제 사용자 권한은 API나 Context에서 가져와야 함
   const isCurator = true;
   const [isEditing, setIsEditing] = useState(false);
-  const [categoryCode, setCategoryCode] = useState<string | null>(null);
+  const [portfolioId, setPortfolioId] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -64,15 +64,10 @@ export default function ProjectDetail() {
       setError(null);
 
       try {
-        const [detailResponse, categoryResponse] = await Promise.all([
-          getPortfolioDetail(Number(id)),
-          categoryId ? getCategoryDetail(Number(categoryId)) : Promise.resolve(null),
-        ]);
-        const projectData = portfolioDetailToProject(detailResponse);
+        const detailResponse = await getPortfolioDetail(portfolioCode!, id);
+        const projectData = portfolioDetailToProject(detailResponse, portfolioCode || '');
         setProject(projectData);
-        if (categoryResponse) {
-          setCategoryCode(categoryResponse.code);
-        }
+        setPortfolioId(detailResponse.portfolio_id);
       } catch (err) {
         setError(err instanceof Error ? err.message : '데이터를 불러오는데 실패했습니다.');
         console.error('Failed to fetch portfolio data:', err);
@@ -82,7 +77,7 @@ export default function ProjectDetail() {
     };
 
     fetchData();
-  }, [id]);
+  }, [id, portfolioCode]);
 
   const screenshots = project?.screenshots || [];
   const selectedImage = selectedIndex !== null ? screenshots[selectedIndex] : null;
@@ -102,8 +97,8 @@ export default function ProjectDetail() {
   };
 
   const handleShare = async () => {
-    if (!user?.username || !categoryCode || !project?.code) return;
-    const shareUrl = `${window.location.origin}/public/${user.username}/${categoryCode}/${project.code}/`;
+    if (!user?.username || !portfolioCode || !project?.code) return;
+    const shareUrl = `${window.location.origin}/public/${user.username}/${portfolioCode}/${project.code}/`;
     await navigator.clipboard.writeText(shareUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -136,7 +131,7 @@ export default function ProjectDetail() {
 
     try {
       const requestBody = {
-        category_id: Number(categoryId),
+        portfolio_id: portfolioId!,
         code: editData.code,
         title: editData.title,
         summary: editData.summary,
@@ -162,8 +157,8 @@ export default function ProjectDetail() {
           .filter(Boolean),
       };
 
-      const updated = await updatePortfolio(Number(id), requestBody);
-      setProject(portfolioDetailToProject(updated));
+      const updated = await updatePortfolio(portfolioCode!, id!, requestBody);
+      setProject(portfolioDetailToProject(updated, portfolioCode || ''));
       setIsEditing(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : '포트폴리오 수정에 실패했습니다.');
@@ -188,7 +183,7 @@ export default function ProjectDetail() {
           <h1 className="text-2xl font-bold text-red-600 mb-4">오류가 발생했습니다</h1>
           <p className="text-gray-600 mb-4">{error}</p>
           <Link
-            to={categoryId ? `/category/${categoryId}` : '/home'}
+            to={portfolioCode ? `/portfolio/${portfolioCode}` : '/home'}
             className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             목록으로 돌아가기
@@ -204,7 +199,7 @@ export default function ProjectDetail() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">프로젝트를 찾을 수 없습니다</h1>
           <Link
-            to={categoryId ? `/category/${categoryId}` : '/home'}
+            to={portfolioCode ? `/portfolio/${portfolioCode}` : '/home'}
             className="text-blue-600 hover:text-blue-800 underline"
           >
             목록으로 돌아가기
@@ -218,7 +213,7 @@ export default function ProjectDetail() {
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-4xl mx-auto px-4 py-12">
         <Link
-          to={`/category/${categoryId}`}
+          to={`/portfolio/${portfolioCode}`}
           className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-8"
         >
           <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -263,7 +258,7 @@ export default function ProjectDetail() {
                   <div className="flex items-center gap-2 ml-4 flex-shrink-0">
                     <button
                       onClick={handleShare}
-                      disabled={!user?.username || !categoryCode || !project.code}
+                      disabled={!user?.username || !portfolioCode || !project.code}
                       className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <svg

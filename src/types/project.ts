@@ -28,7 +28,7 @@ export interface Project {
 // Portfolio API Response Types
 export interface PortfolioItem {
   id: number;
-  category_id: number;
+  portfolio_id: number;
   code: string;
   title: string;
   summary: string;
@@ -65,7 +65,7 @@ export interface ProjectLink {
 
 export interface Portfolio {
   id: number;
-  category_id: number;
+  portfolio_id: number;
   code: string;
   title: string;
   summary: string;
@@ -86,7 +86,7 @@ export interface Portfolio {
 
 // Portfolio Update Request Type
 export interface UpdatePortfolioRequest {
-  category_id: number;
+  portfolio_id: number;
   code: string;
   title: string;
   summary: string;
@@ -114,7 +114,7 @@ export type PublicPortfolioItem = PortfolioItem;
 
 export interface PublicProjectDetail {
   id: number;
-  category_id: number;
+  portfolio_id: number;
   code: string;
   title: string;
   summary: string;

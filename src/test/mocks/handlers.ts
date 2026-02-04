@@ -15,7 +15,7 @@ const mockCategory = {
 
 const mockPortfolioItem = {
   id: 1,
-  category_id: 1,
+  portfolio_id: 1,
   code: 'test-project',
   title: 'Test Project',
   summary: 'A test project',
@@ -29,7 +29,7 @@ const mockPortfolioItem = {
 
 const mockPortfolioDetail = {
   id: 1,
-  category_id: 1,
+  portfolio_id: 1,
   code: 'test-project',
   title: 'Test Project',
   summary: 'A test project',
@@ -69,7 +69,7 @@ export const handlers = [
     return HttpResponse.json({ message: 'Logged out' });
   }),
 
-  http.get('*/api/v1/auth/me', () => {
+  http.get('*/api/v1/user/me', () => {
     return HttpResponse.json({
       id: 1,
       username: 'testuser',
@@ -77,8 +77,15 @@ export const handlers = [
     });
   }),
 
-  // Categories
-  http.get('*/api/v1/categories/', () => {
+  // Categories (Portfolios 엔드포인트 사용)
+  http.get('*/api/v1/portfolios/:code', ({ params }) => {
+    if (params.code === mockCategory.code) {
+      return HttpResponse.json(mockCategory);
+    }
+    return HttpResponse.json({ detail: 'Not found' }, { status: 404 });
+  }),
+
+  http.get('*/api/v1/portfolios/', () => {
     return HttpResponse.json({
       items: [mockCategory],
       meta: { total: 1, page: 1, page_size: 10, total_pages: 1 },
@@ -89,23 +96,30 @@ export const handlers = [
     return HttpResponse.json(mockCategory, { status: 201 });
   }),
 
-  http.put('*/api/v1/categories/:id', () => {
+  http.put('*/api/v1/portfolios/:code', () => {
     return HttpResponse.json(mockCategory);
   }),
 
-  // Portfolios
-  http.get('*/api/v1/portfolios/', () => {
+  http.delete('*/api/v1/portfolios/:code', ({ params }) => {
+    if (params.code === mockCategory.code) {
+      return new HttpResponse(null, { status: 204 });
+    }
+    return HttpResponse.json({ detail: 'Not found' }, { status: 404 });
+  }),
+
+  // Projects (portfolio_code 기반 조회)
+  http.get('*/api/v1/projects/', () => {
     return HttpResponse.json({
       items: [mockPortfolioItem],
       meta: { total: 1, page: 1, page_size: 10, total_pages: 1 },
     });
   }),
 
-  http.get('*/api/v1/portfolios/:id', () => {
+  http.get('*/api/v1/projects/:portfolioCode/:projectCode', () => {
     return HttpResponse.json(mockPortfolioDetail);
   }),
 
-  http.put('*/api/v1/portfolios/:id', async ({ request }) => {
+  http.put('*/api/v1/projects/:portfolioCode/:projectCode', async ({ request }) => {
     const body = await request.json();
     return HttpResponse.json({
       ...mockPortfolioDetail,

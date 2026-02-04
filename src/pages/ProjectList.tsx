@@ -8,13 +8,14 @@ import ShareIcon from '../components/svg/ShareIcon';
 import type { AuthUser } from '../types/auth';
 import type { Category } from '../types/category';
 import type { PortfolioItem, Project } from '../types/project';
-import { getCategories, getCurrentUser, getPortfolios } from '../utils/api';
+import { getCategoryDetail, getCurrentUser, getPortfolios } from '../utils/api';
 
 // Helper function to convert PortfolioItem to Project
-function portfolioItemToProject(item: PortfolioItem): Project {
+function portfolioItemToProject(item: PortfolioItem, categoryCode: string): Project {
   return {
     id: String(item.id),
-    categoryId: String(item.category_id),
+    categoryId: categoryCode,
+    code: item.code,
     title: item.title,
     summary: item.summary,
     description: '',
@@ -28,7 +29,7 @@ function portfolioItemToProject(item: PortfolioItem): Project {
 }
 
 export default function ProjectList() {
-  const { categoryId } = useParams<{ categoryId: string }>();
+  const { portfolioCode } = useParams<{ portfolioCode: string }>();
   const navigate = useNavigate();
 
   // State
@@ -61,27 +62,22 @@ export default function ProjectList() {
 
   // Fetch category and portfolios from API
   useEffect(() => {
-    if (!categoryId) return;
+    if (!portfolioCode) return;
 
     const fetchData = async () => {
       setIsLoading(true);
       setError(null);
 
       try {
-        // Fetch category info
-        const categoriesResponse = await getCategories(1, 100);
-        const foundCategory = categoriesResponse.items.find((c) => c.id === Number(categoryId));
-
-        if (!foundCategory) {
-          setError('카테고리를 찾을 수 없습니다.');
-          return;
-        }
-
+        // Fetch category info by code
+        const foundCategory = await getCategoryDetail(portfolioCode);
         setCategory(foundCategory);
 
-        // Fetch portfolios
-        const portfoliosResponse = await getPortfolios(Number(categoryId), page, 100);
-        const convertedProjects = portfoliosResponse.items.map(portfolioItemToProject);
+        // Fetch portfolios using category ID
+        const portfoliosResponse = await getPortfolios(foundCategory.code, page, 100);
+        const convertedProjects = portfoliosResponse.items.map((item) =>
+          portfolioItemToProject(item, foundCategory.code)
+        );
         setProjects(convertedProjects);
         // TODO: 페이지네이션 UI 추가 시 totalPages 사용
       } catch (err) {
@@ -93,7 +89,7 @@ export default function ProjectList() {
     };
 
     fetchData();
-  }, [categoryId, page]);
+  }, [portfolioCode, page]);
 
   const allTags = useMemo(() => {
     const tagSet = new Set<string>();
@@ -146,7 +142,7 @@ export default function ProjectList() {
   };
 
   const handleAddProject = () => {
-    navigate(`/category/${categoryId}/project/add`);
+    navigate(`/portfolio/${portfolioCode}/project/add`);
   };
 
   const handleShareClick = async () => {
@@ -248,7 +244,7 @@ export default function ProjectList() {
               )}
               {isCurator && (
                 <button
-                  onClick={() => navigate(`/category/${categoryId}/edit`)}
+                  onClick={() => navigate(`/portfolio/${portfolioCode}/edit`)}
                   className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                   title="카테고리 편집"
                 >

@@ -7,7 +7,7 @@ import type { Project, PublicProjectDetail as PublicProjectDetailType } from '..
 function publicProjectDetailToProject(detail: PublicProjectDetailType): Project {
   return {
     id: String(detail.id),
-    categoryId: String(detail.category_id),
+    categoryId: String(detail.portfolio_id),
     code: detail.code,
     title: detail.title,
     summary: detail.summary,
@@ -174,9 +174,7 @@ export default function PublicProjectDetail() {
 
             <p className="text-lg text-gray-600 mb-6">{project.summary}</p>
 
-            {project.links && project.links.length > 0 && (
-              <ProjectLinks links={project.links} />
-            )}
+            {project.links && project.links.length > 0 && <ProjectLinks links={project.links} />}
 
             <div className="border-t border-gray-200 pt-8">
               {project.screenshots && project.screenshots.length > 0 && (

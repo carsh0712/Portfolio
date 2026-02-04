@@ -34,7 +34,7 @@ export default function CategoryEditDialog({
     setError(null);
 
     try {
-      await updateCategory(category.id, {
+      await updateCategory(category.code, {
         code: formData.code,
         name: formData.name,
         description: formData.description,

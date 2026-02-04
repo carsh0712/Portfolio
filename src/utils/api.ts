@@ -109,7 +109,7 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}): Pro
 
 // Auth API
 export async function getCurrentUser(): Promise<AuthUser> {
-  const response = await apiFetch('/api/v1/auth/me', {
+  const response = await apiFetch('/api/v1/user/me', {
     method: 'GET',
   });
 
@@ -125,7 +125,7 @@ export async function getCategories(
   page: number = 1,
   pageSize: number = 10
 ): Promise<CategoryListResponse> {
-  const response = await apiFetch(`/api/v1/categories/?page=${page}&page_size=${pageSize}`, {
+  const response = await apiFetch(`/api/v1/portfolios/?page=${page}&page_size=${pageSize}`, {
     method: 'GET',
   });
 
@@ -160,9 +160,9 @@ export async function createCategory(data: CreateCategoryRequest): Promise<Creat
   return response.json();
 }
 
-// Category Detail API
-export async function getCategoryDetail(categoryId: number): Promise<Category> {
-  const response = await apiFetch(`/api/v1/categories/${categoryId}`, {
+// Category Detail API (by portfolio code)
+export async function getCategoryDetail(code: string): Promise<Category> {
+  const response = await apiFetch(`/api/v1/portfolios/${code}`, {
     method: 'GET',
   });
 
@@ -173,12 +173,12 @@ export async function getCategoryDetail(categoryId: number): Promise<Category> {
   return response.json();
 }
 
-// Category Update API
+// Category Update API (by portfolio code)
 export async function updateCategory(
-  categoryId: number,
+  code: string,
   data: UpdateCategoryRequest
 ): Promise<UpdateCategoryResponse> {
-  const response = await apiFetch(`/api/v1/categories/${categoryId}`, {
+  const response = await apiFetch(`/api/v1/portfolios/${code}`, {
     method: 'PUT',
     body: JSON.stringify(data),
   });
@@ -198,6 +198,27 @@ export async function updateCategory(
   }
 
   return response.json();
+}
+
+// Category Delete API (by portfolio code)
+export async function deleteCategory(code: string): Promise<void> {
+  const response = await apiFetch(`/api/v1/portfolios/${code}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    if (errorData) {
+      const message =
+        typeof errorData.detail === 'string'
+          ? errorData.detail
+          : Array.isArray(errorData.detail)
+            ? errorData.detail.map((d: { msg: string }) => d.msg).join(', ')
+            : '카테고리 삭제에 실패했습니다.';
+      throw new Error(message);
+    }
+    throw new Error('카테고리 삭제에 실패했습니다.');
+  }
 }
 
 // File Upload API
@@ -255,12 +276,12 @@ export async function fetchFileAsObjectUrl(fileId: number): Promise<string> {
 
 // Portfolios API
 export async function getPortfolios(
-  categoryId: number,
+  categoryCode: string,
   page: number = 1,
   pageSize: number = 10
 ): Promise<PortfolioListResponse> {
   const response = await apiFetch(
-    `/api/v1/portfolios/?category_id=${categoryId}&page=${page}&page_size=${pageSize}`,
+    `/api/v1/projects/?portfolio_code=${categoryCode}&page=${page}&page_size=${pageSize}`,
     {
       method: 'GET',
     }
@@ -274,8 +295,11 @@ export async function getPortfolios(
 }
 
 // Portfolio Detail API
-export async function getPortfolioDetail(itemId: number): Promise<Portfolio> {
-  const response = await apiFetch(`/api/v1/portfolios/${itemId}`, {
+export async function getPortfolioDetail(
+  portfolioCode: string,
+  projectCode: string
+): Promise<Portfolio> {
+  const response = await apiFetch(`/api/v1/projects/${portfolioCode}/${projectCode}`, {
     method: 'GET',
   });
 
@@ -288,10 +312,11 @@ export async function getPortfolioDetail(itemId: number): Promise<Portfolio> {
 
 // Portfolio Update API
 export async function updatePortfolio(
-  portfolioId: number,
+  portfolioCode: string,
+  projectCode: string,
   data: UpdatePortfolioRequest
 ): Promise<Portfolio> {
-  const response = await apiFetch(`/api/v1/portfolios/${portfolioId}`, {
+  const response = await apiFetch(`/api/v1/projects/${portfolioCode}/${projectCode}`, {
     method: 'PUT',
     body: JSON.stringify(data),
   });

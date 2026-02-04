@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { getCategories, updateCategory } from '../utils/api';
+import { getCategoryDetail, updateCategory } from '../utils/api';
 import type { Category } from '../types/category';
 import CategoryForm, { type CategoryFormData } from '../components/CategoryForm';
 
 export default function CategoryEdit() {
-  const { categoryId } = useParams<{ categoryId: string }>();
+  const { portfolioCode } = useParams<{ portfolioCode: string }>();
   const navigate = useNavigate();
   const [category, setCategory] = useState<Category | null>(null);
   const [formData, setFormData] = useState<CategoryFormData>({
@@ -21,30 +21,25 @@ export default function CategoryEdit() {
   const [error, setError] = useState<string | null>(null);
 
   const fetchCategory = useCallback(async () => {
-    if (!categoryId) return;
+    if (!portfolioCode) return;
     try {
       setLoading(true);
-      const response = await getCategories(1, 100);
-      const found = response.items.find((c) => c.id === Number(categoryId));
-      if (found) {
-        setCategory(found);
-        setFormData({
-          code: found.code,
-          name: found.name,
-          description: found.description,
-          screenshotFileId: found.screenshot?.file_id ?? null,
-          order: found.order,
-          isPublic: found.is_public,
-        });
-      } else {
-        setError('카테고리를 찾을 수 없습니다.');
-      }
+      const found = await getCategoryDetail(portfolioCode);
+      setCategory(found);
+      setFormData({
+        code: found.code,
+        name: found.name,
+        description: found.description,
+        screenshotFileId: found.screenshot?.file_id ?? null,
+        order: found.order,
+        isPublic: found.is_public,
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : '카테고리를 불러오는데 실패했습니다.');
     } finally {
       setLoading(false);
     }
-  }, [categoryId]);
+  }, [portfolioCode]);
 
   useEffect(() => {
     fetchCategory();
@@ -57,7 +52,7 @@ export default function CategoryEdit() {
     setError(null);
 
     try {
-      await updateCategory(category.id, {
+      await updateCategory(category.code, {
         code: formData.code,
         name: formData.name,
         description: formData.description,
@@ -65,7 +60,7 @@ export default function CategoryEdit() {
         order: formData.order ?? category.order,
         is_public: formData.isPublic,
       });
-      navigate(`/category/${categoryId}`);
+      navigate(`/portfolio/${formData.code}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : '카테고리 수정에 실패했습니다.');
     } finally {
@@ -100,7 +95,7 @@ export default function CategoryEdit() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-12">
       <Link
-        to={`/category/${categoryId}`}
+        to={`/portfolio/${portfolioCode}`}
         className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-8"
       >
         <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -124,7 +119,7 @@ export default function CategoryEdit() {
           <div className="flex gap-4 pt-4">
             <button
               type="button"
-              onClick={() => navigate(`/category/${categoryId}`)}
+              onClick={() => navigate(`/portfolio/${portfolioCode}`)}
               disabled={submitting}
               className="flex-1 py-3 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >

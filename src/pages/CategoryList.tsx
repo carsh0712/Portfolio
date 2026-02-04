@@ -72,7 +72,7 @@ export default function CategoryList() {
   }, [hasMore, loadingMore]);
 
   const handleAddCategory = () => {
-    navigate('/category/add');
+    navigate('/portfolio/add');
   };
 
   if (loading) {
@@ -117,7 +117,7 @@ export default function CategoryList() {
           {categories.map((category) => (
             <Link
               key={category.id}
-              to={`/category/${category.id}`}
+              to={`/portfolio/${category.code}`}
               className="group block bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300"
             >
               <div className="aspect-video overflow-hidden">

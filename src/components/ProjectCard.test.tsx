@@ -7,6 +7,7 @@ describe('ProjectCard', () => {
   const mockProject: Project = {
     id: '1',
     categoryId: 'web',
+    code: 'test-project',
     title: 'Test Project',
     summary: 'This is a test project summary',
     description: 'Test description',
@@ -47,7 +48,7 @@ describe('ProjectCard', () => {
   it('기본 링크 경로를 가져야 한다', () => {
     render(<ProjectCard project={mockProject} />);
     const link = screen.getByRole('link');
-    expect(link).toHaveAttribute('href', '/category/web/project/1');
+    expect(link).toHaveAttribute('href', '/portfolio/web/project/test-project');
   });
 
   it('커스텀 linkPath가 전달되면 해당 경로를 사용해야 한다', () => {

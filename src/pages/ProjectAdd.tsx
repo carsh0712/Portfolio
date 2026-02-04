@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import type { Category } from '../types/category';
 import type { Project } from '../types/project';
-import { getCategories } from '../utils/api';
+import { getCategoryDetail } from '../utils/api';
 import ProjectEditForm from '../components/ProjectEditForm';
 
 const emptyProject: Project = {
@@ -23,7 +23,7 @@ const emptyProject: Project = {
 };
 
 export default function ProjectAdd() {
-  const { categoryId } = useParams<{ categoryId: string }>();
+  const { portfolioCode } = useParams<{ portfolioCode: string }>();
   const navigate = useNavigate();
 
   const [category, setCategory] = useState<Category | null>(null);
@@ -32,17 +32,18 @@ export default function ProjectAdd() {
   useEffect(() => {
     async function fetchCategory() {
       try {
-        const response = await getCategories(1, 100);
-        const found = response.items.find((c) => c.id === Number(categoryId));
-        setCategory(found || null);
+        const found = await getCategoryDetail(portfolioCode!);
+        setCategory(found);
       } catch (error) {
         console.error('카테고리 조회 실패:', error);
+        setCategory(null);
       } finally {
         setLoading(false);
       }
     }
-    fetchCategory();
-  }, [categoryId]);
+    if (portfolioCode) fetchCategory();
+    else setLoading(false);
+  }, [portfolioCode]);
 
   const handleSave = (
     data: Parameters<React.ComponentProps<typeof ProjectEditForm>['onSave']>[0]
@@ -50,14 +51,14 @@ export default function ProjectAdd() {
     // TODO: API 연동하여 프로젝트 저장
     const projectData = {
       ...data,
-      categoryId,
+      portfolioCode,
     };
     console.log('새 프로젝트 데이터:', projectData);
-    navigate(`/category/${categoryId}`);
+    navigate(`/portfolio/${portfolioCode}`);
   };
 
   const handleCancel = () => {
-    navigate(`/category/${categoryId}`);
+    navigate(`/portfolio/${portfolioCode}`);
   };
 
   if (loading) {
@@ -84,7 +85,7 @@ export default function ProjectAdd() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
       <Link
-        to={`/category/${categoryId}`}
+        to={`/portfolio/${portfolioCode}`}
         className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-8"
       >
         <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -100,7 +101,7 @@ export default function ProjectAdd() {
 
         <div className="p-8">
           <ProjectEditForm
-            project={{ ...emptyProject, categoryId: categoryId || '' }}
+            project={{ ...emptyProject, categoryId: portfolioCode || '' }}
             onSave={handleSave}
             onCancel={handleCancel}
           />

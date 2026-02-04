@@ -4,8 +4,10 @@ import { server } from '../test/mocks/server';
 import {
   getCurrentUser,
   getCategories,
+  getCategoryDetail,
   createCategory,
   updateCategory,
+  deleteCategory,
   getPortfolios,
   getPortfolioDetail,
   updatePortfolio,
@@ -39,7 +41,7 @@ describe('API 유틸리티', () => {
 
     it('요청 실패 시 에러를 throw해야 한다', async () => {
       server.use(
-        http.get('*/api/v1/auth/me', () => {
+        http.get('*/api/v1/user/me', () => {
           return HttpResponse.json(null, { status: 500 });
         })
       );
@@ -49,6 +51,27 @@ describe('API 유틸리티', () => {
 
   describe('getCategories', () => {
     it('카테고리 목록을 가져와야 한다', async () => {
+      server.use(
+        http.get('*/api/v1/portfolios/', () => {
+          return HttpResponse.json({
+            items: [
+              {
+                id: 1,
+                user_id: 1,
+                code: 'web',
+                name: 'Web Projects',
+                description: 'Web development projects',
+                screenshot: { file_id: 1 },
+                order: 1,
+                is_public: true,
+                created_at: '2024-01-01T00:00:00Z',
+                updated_at: '2024-01-01T00:00:00Z',
+              },
+            ],
+            meta: { total: 1, page: 1, page_size: 10, total_pages: 1 },
+          });
+        })
+      );
       const result = await getCategories();
       expect(result.items).toHaveLength(1);
       expect(result.items[0].name).toBe('Web Projects');
@@ -58,6 +81,19 @@ describe('API 유틸리티', () => {
     it('페이지네이션 파라미터를 전달할 수 있어야 한다', async () => {
       const result = await getCategories(2, 5);
       expect(result.items).toBeDefined();
+    });
+  });
+
+  describe('getCategoryDetail', () => {
+    it('코드로 카테고리 상세를 가져와야 한다', async () => {
+      const result = await getCategoryDetail('web');
+      expect(result.id).toBe(1);
+      expect(result.code).toBe('web');
+      expect(result.name).toBe('Web Projects');
+    });
+
+    it('존재하지 않는 코드일 때 에러를 throw해야 한다', async () => {
+      await expect(getCategoryDetail('nonexistent')).rejects.toThrow();
     });
   });
 
@@ -94,8 +130,8 @@ describe('API 유틸리티', () => {
   });
 
   describe('updateCategory', () => {
-    it('카테고리를 업데이트해야 한다', async () => {
-      const result = await updateCategory(1, {
+    it('코드로 카테고리를 업데이트해야 한다', async () => {
+      const result = await updateCategory('web', {
         code: 'web',
         name: 'Updated Web Projects',
         description: 'Updated',
@@ -107,9 +143,19 @@ describe('API 유틸리티', () => {
     });
   });
 
+  describe('deleteCategory', () => {
+    it('코드로 카테고리를 삭제해야 한다', async () => {
+      await expect(deleteCategory('web')).resolves.toBeUndefined();
+    });
+
+    it('존재하지 않는 코드일 때 에러를 throw해야 한다', async () => {
+      await expect(deleteCategory('nonexistent')).rejects.toThrow();
+    });
+  });
+
   describe('getPortfolios', () => {
     it('포트폴리오 목록을 가져와야 한다', async () => {
-      const result = await getPortfolios(1);
+      const result = await getPortfolios('test-category');
       expect(result.items).toHaveLength(1);
       expect(result.items[0].title).toBe('Test Project');
     });
@@ -117,7 +163,7 @@ describe('API 유틸리티', () => {
 
   describe('getPortfolioDetail', () => {
     it('포트폴리오 상세를 가져와야 한다', async () => {
-      const result = await getPortfolioDetail(1);
+      const result = await getPortfolioDetail('test-category', 'test-project');
       expect(result.title).toBe('Test Project');
       expect(result.tech_stack).toContain('React');
     });
@@ -125,8 +171,8 @@ describe('API 유틸리티', () => {
 
   describe('updatePortfolio', () => {
     it('포트폴리오를 수정해야 한다', async () => {
-      const result = await updatePortfolio(1, {
-        category_id: 1,
+      const result = await updatePortfolio('test-category', 'test-project', {
+        portfolio_id: 1,
         code: 'updated-project',
         title: 'Updated Project',
         summary: 'Updated summary',
@@ -148,13 +194,13 @@ describe('API 유틸리티', () => {
 
     it('수정 실패 시 에러 메시지를 포함해야 한다', async () => {
       server.use(
-        http.put('*/api/v1/portfolios/:id', () => {
+        http.put('*/api/v1/projects/:portfolioCode/:projectCode', () => {
           return HttpResponse.json({ detail: '수정 권한이 없습니다.' }, { status: 403 });
         })
       );
       await expect(
-        updatePortfolio(1, {
-          category_id: 1,
+        updatePortfolio('test-category', 'test-project', {
+          portfolio_id: 1,
           code: 'test',
           title: 'Test',
           summary: '',

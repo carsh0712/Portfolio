@@ -10,7 +10,7 @@ interface ProjectCardProps {
 }
 
 export default function ProjectCard({ project, linkPath, thumbnailUrl }: ProjectCardProps) {
-  const defaultPath = `/category/${project.categoryId}/project/${project.id}`;
+  const defaultPath = `/portfolio/${project.categoryId}/project/${project.code}`;
   const path = linkPath || defaultPath;
 
   return (

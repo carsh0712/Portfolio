@@ -7,7 +7,7 @@ import type { Project, PublicPortfolioItem } from '../types/project';
 function publicPortfolioItemToProject(item: PublicPortfolioItem): Project {
   return {
     id: String(item.id),
-    categoryId: String(item.category_id),
+    categoryId: String(item.portfolio_id),
     code: item.code,
     title: item.title,
     summary: item.summary,

@@ -46,7 +46,7 @@ function App() {
             }
           />
           <Route
-            path="/category/:categoryId"
+            path="/portfolio/:portfolioCode"
             element={
               <ProtectedRoute>
                 <div className="min-h-screen bg-slate-50">
@@ -57,7 +57,7 @@ function App() {
             }
           />
           <Route
-            path="/category/:categoryId/project/add"
+            path="/portfolio/:portfolioCode/project/add"
             element={
               <ProtectedRoute>
                 <div className="min-h-screen bg-slate-50">
@@ -68,7 +68,7 @@ function App() {
             }
           />
           <Route
-            path="/category/:categoryId/project/:id"
+            path="/portfolio/:portfolioCode/project/:id"
             element={
               <ProtectedRoute>
                 <div className="min-h-screen bg-slate-50">
@@ -90,7 +90,7 @@ function App() {
             }
           />
           <Route
-            path="/category/:categoryId/edit"
+            path="/portfolio/:portfolioCode/edit"
             element={
               <ProtectedRoute>
                 <div className="min-h-screen bg-slate-50">
@@ -101,7 +101,7 @@ function App() {
             }
           />
           <Route
-            path="/category/add"
+            path="/portfolio/add"
             element={
               <ProtectedRoute>
                 <div className="min-h-screen bg-slate-50">
