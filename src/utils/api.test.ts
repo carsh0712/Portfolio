@@ -61,7 +61,7 @@ describe('API 유틸리티', () => {
                 code: 'web',
                 name: 'Web Projects',
                 description: 'Web development projects',
-                screenshot: { file_id: 1 },
+                screenshot: { file_uuid: 'mock-uuid-1' },
                 order: 1,
                 is_public: true,
                 created_at: '2024-01-01T00:00:00Z',
@@ -103,7 +103,7 @@ describe('API 유틸리티', () => {
         code: 'web',
         name: 'Web Projects',
         description: 'Web development projects',
-        screenshot_file_id: 1,
+        screenshot_file_uuid: 'mock-uuid-1',
         order: 1,
         is_public: true,
       });
@@ -112,7 +112,7 @@ describe('API 유틸리티', () => {
 
     it('생성 실패 시 에러 메시지를 포함해야 한다', async () => {
       server.use(
-        http.post('*/api/v1/categories/', () => {
+        http.post('*/api/v1/portfolios/', () => {
           return HttpResponse.json({ detail: '이미 존재하는 코드입니다.' }, { status: 400 });
         })
       );
@@ -121,7 +121,7 @@ describe('API 유틸리티', () => {
           code: 'web',
           name: 'Web',
           description: '',
-          screenshot_file_id: null,
+          screenshot_file_uuid: null,
           order: 1,
           is_public: true,
         })
@@ -135,7 +135,7 @@ describe('API 유틸리티', () => {
         code: 'web',
         name: 'Updated Web Projects',
         description: 'Updated',
-        screenshot_file_id: null,
+        screenshot_file_uuid: null,
         order: 1,
         is_public: true,
       });
@@ -159,6 +159,17 @@ describe('API 유틸리티', () => {
       expect(result.items).toHaveLength(1);
       expect(result.items[0].title).toBe('Test Project');
     });
+
+    it('search 파라미터로 필터링해야 한다', async () => {
+      const result = await getPortfolios('test-category', 1, 10, 'React');
+      expect(result.items).toHaveLength(1);
+      expect(result.items[0].tech_stack).toContain('React');
+    });
+
+    it('존재하지 않는 search로 필터링하면 빈 목록을 반환해야 한다', async () => {
+      const result = await getPortfolios('test-category', 1, 10, 'NonExistentTag');
+      expect(result.items).toHaveLength(0);
+    });
   });
 
   describe('getPortfolioDetail', () => {
@@ -176,7 +187,7 @@ describe('API 유틸리티', () => {
         code: 'updated-project',
         title: 'Updated Project',
         summary: 'Updated summary',
-        thumbnail: { file_id: 1 },
+        thumbnail: { file_uuid: 'mock-uuid-1' },
         tags: ['React'],
         order: 0,
         is_public: true,
@@ -237,8 +248,8 @@ describe('API 유틸리티', () => {
 
   describe('getPublicFileUrl', () => {
     it('공개 파일 URL을 올바르게 생성해야 한다', () => {
-      const url = getPublicFileUrl('testuser', 123);
-      expect(url).toBe(`${API_BASE_URL}/api/v1/public/testuser/file/123`);
+      const url = getPublicFileUrl('testuser', 'mock-uuid-123');
+      expect(url).toBe(`${API_BASE_URL}/api/v1/public/testuser/file/mock-uuid-123`);
     });
   });
 });

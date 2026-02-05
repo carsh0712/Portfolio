@@ -1,5 +1,5 @@
 export interface Screenshot {
-  file_id: number;
+  file_uuid: string;
   caption?: string;
 }
 
@@ -12,7 +12,7 @@ export interface Project {
   description: string;
   techStack: string[];
   tags: string[];
-  thumbnailFileId?: number;
+  thumbnailFileUuid?: string;
   screenshots?: Screenshot[];
   links?: ProjectLink[];
   githubUrl?: string;
@@ -27,17 +27,14 @@ export interface Project {
 
 // Portfolio API Response Types
 export interface PortfolioItem {
-  id: number;
-  portfolio_id: number;
   code: string;
   title: string;
   summary: string;
-  thumbnail: { file_id: number } | null;
+  thumbnail: { file_uuid: string } | null;
   tags: string[];
+  tech_stack: string[];
   order: number;
   is_public: boolean;
-  created_at: string;
-  updated_at: string;
 }
 
 export interface PaginationMeta {
@@ -72,7 +69,7 @@ export interface Portfolio {
   description: string;
   tech_stack: string[];
   tags: string[];
-  thumbnail: { file_id: number } | null;
+  thumbnail: { file_uuid: string } | null;
   screenshots?: Screenshot[];
   links?: ProjectLink[];
   order: number;
@@ -90,13 +87,13 @@ export interface UpdatePortfolioRequest {
   code: string;
   title: string;
   summary: string;
-  thumbnail: { file_id: number } | null;
+  thumbnail: { file_uuid: string } | null;
   tags: string[];
   order: number;
   is_public: boolean;
   description: string;
   tech_stack: string[];
-  screenshots: { file_id: number; caption?: string }[];
+  screenshots: { file_uuid: string; caption?: string }[];
   links: {
     name: string;
     url: string;
@@ -110,7 +107,20 @@ export interface UpdatePortfolioRequest {
 }
 
 // Public Portfolio API Response Types
-export type PublicPortfolioItem = PortfolioItem;
+export interface PublicPortfolioItem {
+  id: number;
+  portfolio_id: number;
+  code: string;
+  title: string;
+  summary: string;
+  thumbnail: { file_uuid: string } | null;
+  tags: string[];
+  tech_stack: string[];
+  order: number;
+  is_public: boolean;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface PublicProjectDetail {
   id: number;
@@ -119,7 +129,7 @@ export interface PublicProjectDetail {
   title: string;
   summary: string;
   description: string;
-  thumbnail: { file_id: number } | null;
+  thumbnail: { file_uuid: string } | null;
   tags: string[];
   tech_stack: string[];
   screenshots?: Screenshot[];

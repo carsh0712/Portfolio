@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import ArrowLeftIcon from '../components/svg/ArrowLeftIcon';
 import { getCategoryDetail, updateCategory } from '../utils/api';
 import type { Category } from '../types/category';
 import CategoryForm, { type CategoryFormData } from '../components/CategoryForm';
@@ -11,7 +12,7 @@ export default function CategoryEdit() {
   const [formData, setFormData] = useState<CategoryFormData>({
     name: '',
     description: '',
-    screenshotFileId: null,
+    screenshotFileUuid: null,
     code: '',
     isPublic: false,
     order: 0,
@@ -30,7 +31,7 @@ export default function CategoryEdit() {
         code: found.code,
         name: found.name,
         description: found.description,
-        screenshotFileId: found.screenshot?.file_id ?? null,
+        screenshotFileUuid: found.screenshot?.file_uuid ?? null,
         order: found.order,
         isPublic: found.is_public,
       });
@@ -56,7 +57,7 @@ export default function CategoryEdit() {
         code: formData.code,
         name: formData.name,
         description: formData.description,
-        screenshot_file_id: formData.screenshotFileId,
+        screenshot_file_uuid: formData.screenshotFileUuid,
         order: formData.order ?? category.order,
         is_public: formData.isPublic,
       });
@@ -98,9 +99,7 @@ export default function CategoryEdit() {
         to={`/portfolio/${portfolioCode}`}
         className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-8"
       >
-        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-        </svg>
+        <ArrowLeftIcon className="w-5 h-5 mr-2" />
         카테고리로 돌아가기
       </Link>
 

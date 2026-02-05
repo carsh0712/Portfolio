@@ -6,7 +6,7 @@ const mockCategory = {
   code: 'web',
   name: 'Web Projects',
   description: 'Web development projects',
-  screenshot: { file_id: 1 },
+  screenshot: { file_uuid: 'mock-uuid-1' },
   order: 1,
   is_public: true,
   created_at: '2024-01-01T00:00:00Z',
@@ -14,13 +14,25 @@ const mockCategory = {
 };
 
 const mockPortfolioItem = {
+  code: 'test-project',
+  title: 'Test Project',
+  summary: 'A test project',
+  thumbnail: { file_uuid: 'mock-uuid-1' },
+  tags: ['frontend'],
+  tech_stack: ['React', 'TypeScript'],
+  order: 1,
+  is_public: true,
+};
+
+const mockPublicPortfolioItem = {
   id: 1,
   portfolio_id: 1,
   code: 'test-project',
   title: 'Test Project',
   summary: 'A test project',
-  thumbnail: { file_id: 1 },
-  tags: ['React', 'TypeScript'],
+  thumbnail: { file_uuid: 'mock-uuid-1' },
+  tags: ['frontend'],
+  tech_stack: ['React', 'TypeScript'],
   order: 1,
   is_public: true,
   created_at: '2024-01-01T00:00:00Z',
@@ -36,7 +48,7 @@ const mockPortfolioDetail = {
   description: 'Detailed description',
   tech_stack: ['React', 'TypeScript'],
   tags: ['frontend'],
-  thumbnail: { file_id: 1 },
+  thumbnail: { file_uuid: 'mock-uuid-1' },
   screenshots: [],
   links: [],
   order: 0,
@@ -92,7 +104,7 @@ export const handlers = [
     });
   }),
 
-  http.post('*/api/v1/categories/', () => {
+  http.post('*/api/v1/portfolios/', () => {
     return HttpResponse.json(mockCategory, { status: 201 });
   }),
 
@@ -108,10 +120,23 @@ export const handlers = [
   }),
 
   // Projects (portfolio_code 기반 조회)
-  http.get('*/api/v1/projects/', () => {
+  http.get('*/api/v1/projects/', ({ request }) => {
+    const url = new URL(request.url);
+    const search = url.searchParams.get('search');
+
+    let items = [mockPortfolioItem];
+
+    if (search) {
+      items = items.filter(
+        (item) =>
+          item.tags.some((t) => t.toLowerCase().includes(search.toLowerCase())) ||
+          item.tech_stack.some((t) => t.toLowerCase().includes(search.toLowerCase()))
+      );
+    }
+
     return HttpResponse.json({
-      items: [mockPortfolioItem],
-      meta: { total: 1, page: 1, page_size: 10, total_pages: 1 },
+      items,
+      meta: { total: items.length, page: 1, page_size: 10, total_pages: 1 },
     });
   }),
 
@@ -129,7 +154,7 @@ export const handlers = [
 
   // Public APIs
   http.get('*/api/v1/public/:username/:categoryCode/', () => {
-    return HttpResponse.json([mockPortfolioItem]);
+    return HttpResponse.json([mockPublicPortfolioItem]);
   }),
 
   http.get('*/api/v1/public/:username/:categoryCode/:portfolioCode/', () => {
@@ -137,7 +162,7 @@ export const handlers = [
   }),
 
   // Public Files
-  http.get('*/api/v1/public/:username/file/:fileId', () => {
+  http.get('*/api/v1/public/:username/file/:fileUuid', () => {
     return new HttpResponse(new Blob(['mock-image'], { type: 'image/png' }), {
       headers: { 'Content-Type': 'image/png' },
     });

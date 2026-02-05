@@ -123,7 +123,7 @@ export default function CategoryList() {
               <div className="aspect-video overflow-hidden">
                 {category.screenshot ? (
                   <AuthImage
-                    fileId={category.screenshot.file_id}
+                    fileUuid={category.screenshot.file_uuid}
                     alt={category.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />

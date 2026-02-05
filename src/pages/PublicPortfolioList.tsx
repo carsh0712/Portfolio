@@ -12,9 +12,9 @@ function publicPortfolioItemToProject(item: PublicPortfolioItem): Project {
     title: item.title,
     summary: item.summary,
     description: '',
-    techStack: item.tags,
+    techStack: item.tech_stack,
     tags: item.tags,
-    thumbnailFileId: item.thumbnail?.file_id,
+    thumbnailFileUuid: item.thumbnail?.file_uuid,
     startDate: item.created_at,
     features: [],
     isPublic: item.is_public,
@@ -207,8 +207,8 @@ export default function PublicPortfolioList() {
               project={project}
               linkPath={`/public/${username}/${categoryCode}/${project.code}`}
               thumbnailUrl={
-                project.thumbnailFileId && username
-                  ? getPublicFileUrl(username, project.thumbnailFileId)
+                project.thumbnailFileUuid && username
+                  ? getPublicFileUrl(username, project.thumbnailFileUuid)
                   : undefined
               }
             />

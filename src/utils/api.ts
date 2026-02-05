@@ -138,7 +138,7 @@ export async function getCategories(
 
 // Category Creation API
 export async function createCategory(data: CreateCategoryRequest): Promise<CreateCategoryResponse> {
-  const response = await apiFetch('/api/v1/categories/', {
+  const response = await apiFetch('/api/v1/portfolios/', {
     method: 'POST',
     body: JSON.stringify(data),
   });
@@ -223,7 +223,7 @@ export async function deleteCategory(code: string): Promise<void> {
 
 // File Upload API
 export interface UploadFileResponse {
-  id: number;
+  uuid: string;
   original_filename: string;
   stored_filename: string;
   file_size: number;
@@ -257,16 +257,16 @@ export async function uploadImage(file: File): Promise<UploadFileResponse> {
   return response.json();
 }
 
-export function getFileUrl(fileId: number): string {
-  return `${API_BASE_URL}/api/v1/files/${fileId}`;
+export function getFileUrl(fileUuid: string): string {
+  return `${API_BASE_URL}/api/v1/files/${fileUuid}`;
 }
 
-export function getPublicFileUrl(username: string, fileId: number): string {
-  return `${API_BASE_URL}/api/v1/public/${username}/file/${fileId}`;
+export function getPublicFileUrl(username: string, fileUuid: string): string {
+  return `${API_BASE_URL}/api/v1/public/${username}/file/${fileUuid}`;
 }
 
-export async function fetchFileAsObjectUrl(fileId: number): Promise<string> {
-  const response = await apiFetch(`/api/v1/files/${fileId}`);
+export async function fetchFileAsObjectUrl(fileUuid: string): Promise<string> {
+  const response = await apiFetch(`/api/v1/files/${fileUuid}`);
   if (!response.ok) {
     throw new Error('파일을 불러오는데 실패했습니다.');
   }
@@ -278,14 +278,19 @@ export async function fetchFileAsObjectUrl(fileId: number): Promise<string> {
 export async function getPortfolios(
   categoryCode: string,
   page: number = 1,
-  pageSize: number = 10
+  pageSize: number = 10,
+  search?: string
 ): Promise<PortfolioListResponse> {
-  const response = await apiFetch(
-    `/api/v1/projects/?portfolio_code=${categoryCode}&page=${page}&page_size=${pageSize}`,
-    {
-      method: 'GET',
-    }
-  );
+  const params = new URLSearchParams({
+    portfolio_code: categoryCode,
+    page: String(page),
+    page_size: String(pageSize),
+  });
+  if (search) params.append('search', search);
+
+  const response = await apiFetch(`/api/v1/projects/?${params.toString()}`, {
+    method: 'GET',
+  });
 
   if (!response.ok) {
     throw new Error(`Failed to fetch portfolios: ${response.statusText}`);

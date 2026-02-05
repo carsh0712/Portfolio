@@ -12,13 +12,14 @@ interface ProjectCardProps {
 export default function ProjectCard({ project, linkPath, thumbnailUrl }: ProjectCardProps) {
   const defaultPath = `/portfolio/${project.categoryId}/project/${project.code}`;
   const path = linkPath || defaultPath;
+  const allTags = [...new Set([...project.techStack, ...project.tags])];
 
   return (
     <Link
       to={path}
       className="block bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden group"
     >
-      {project.thumbnailFileId ? (
+      {project.thumbnailFileUuid ? (
         <div className="h-48 overflow-hidden">
           {thumbnailUrl ? (
             <img
@@ -28,7 +29,7 @@ export default function ProjectCard({ project, linkPath, thumbnailUrl }: Project
             />
           ) : (
             <AuthImage
-              fileId={project.thumbnailFileId}
+              fileUuid={project.thumbnailFileUuid}
               alt={project.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
@@ -47,17 +48,17 @@ export default function ProjectCard({ project, linkPath, thumbnailUrl }: Project
         </h3>
         <p className="text-gray-600 mb-4 line-clamp-2">{project.summary}</p>
         <div className="flex flex-wrap gap-2">
-          {project.techStack.slice(0, 4).map((tech) => (
+          {allTags.slice(0, 4).map((tag) => (
             <span
-              key={tech}
+              key={tag}
               className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full font-medium"
             >
-              #{tech}
+              #{tag}
             </span>
           ))}
-          {project.techStack.length > 4 && (
+          {allTags.length > 4 && (
             <span className="px-3 py-1 bg-slate-100 text-slate-500 text-sm rounded-full">
-              +{project.techStack.length - 4}
+              +{allTags.length - 4}
             </span>
           )}
         </div>

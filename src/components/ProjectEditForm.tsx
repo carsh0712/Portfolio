@@ -25,8 +25,8 @@ interface EditData {
     textColor?: string;
     icon?: string;
   }[];
-  screenshots: { file_id: number; caption?: string }[];
-  thumbnailFileId?: number;
+  screenshots: { file_uuid: string; caption?: string }[];
+  thumbnailFileUuid?: string;
   startDate: string;
   endDate: string;
   isPublic: boolean;
@@ -43,7 +43,7 @@ function projectToEditData(project: Project): EditData {
     features: project.features.join('\n'),
     links: project.links || [],
     screenshots: project.screenshots || [],
-    thumbnailFileId: project.thumbnailFileId,
+    thumbnailFileUuid: project.thumbnailFileUuid,
     startDate: project.startDate,
     endDate: project.endDate || '',
     isPublic: project.isPublic ?? true,
@@ -91,7 +91,7 @@ export default function ProjectEditForm({ project, onSave, onCancel }: ProjectEd
   const handleAddScreenshot = () => {
     setEditData((prev) => ({
       ...prev,
-      screenshots: [...prev.screenshots, { file_id: 0, caption: '' }],
+      screenshots: [...prev.screenshots, { file_uuid: '', caption: '' }],
     }));
   };
 
@@ -101,8 +101,8 @@ export default function ProjectEditForm({ project, onSave, onCancel }: ProjectEd
       return {
         ...prev,
         screenshots: prev.screenshots.filter((_, i) => i !== index),
-        thumbnailFileId:
-          prev.thumbnailFileId === removed?.file_id ? undefined : prev.thumbnailFileId,
+        thumbnailFileUuid:
+          prev.thumbnailFileUuid === removed?.file_uuid ? undefined : prev.thumbnailFileUuid,
       };
     });
   };
@@ -122,7 +122,7 @@ export default function ProjectEditForm({ project, onSave, onCancel }: ProjectEd
       setEditData((prev) => ({
         ...prev,
         screenshots: prev.screenshots.map((s, i) =>
-          i === index ? { ...s, file_id: result.id } : s
+          i === index ? { ...s, file_uuid: result.uuid } : s
         ),
       }));
     } catch (err) {
@@ -306,13 +306,15 @@ export default function ProjectEditForm({ project, onSave, onCancel }: ProjectEd
               screenshot={screenshot}
               index={index}
               isThumbnail={
-                editData.thumbnailFileId === screenshot.file_id && screenshot.file_id !== 0
+                editData.thumbnailFileUuid === screenshot.file_uuid && screenshot.file_uuid !== ''
               }
               onToggleThumbnail={() =>
                 setEditData((prev) => ({
                   ...prev,
                   thumbnailFileId:
-                    prev.thumbnailFileId === screenshot.file_id ? undefined : screenshot.file_id,
+                    prev.thumbnailFileUuid === screenshot.file_uuid
+                      ? undefined
+                      : screenshot.file_uuid,
                 }))
               }
               onRemove={() => handleRemoveScreenshot(index)}

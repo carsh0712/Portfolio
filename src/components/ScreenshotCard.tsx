@@ -4,7 +4,7 @@ import StarIcon from './svg/StarIcon';
 import TrashIcon from './svg/TrashIcon';
 
 interface ScreenshotCardProps {
-  screenshot: { file_id: number; caption?: string };
+  screenshot: { file_uuid: string; caption?: string };
   index: number;
   isThumbnail: boolean;
   onToggleThumbnail: () => void;
@@ -31,9 +31,9 @@ export default function ScreenshotCard({
       }`}
     >
       <div className="aspect-video bg-gray-100 rounded-t-xl overflow-hidden">
-        {screenshot.file_id ? (
+        {screenshot.file_uuid ? (
           <AuthImage
-            fileId={screenshot.file_id}
+            fileUuid={screenshot.file_uuid}
             alt={screenshot.caption || `스크린샷 ${index + 1}`}
             className="w-full h-full object-cover"
           />

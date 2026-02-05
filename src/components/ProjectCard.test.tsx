@@ -37,7 +37,7 @@ describe('ProjectCard', () => {
 
   it('기술 스택이 4개를 초과하면 +N 표시가 나타나야 한다', () => {
     render(<ProjectCard project={mockProject} />);
-    expect(screen.getByText('+1')).toBeInTheDocument();
+    expect(screen.getByText('+3')).toBeInTheDocument();
   });
 
   it('프로젝트 제목의 첫 글자가 표시되어야 한다', () => {

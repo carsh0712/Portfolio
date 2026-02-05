@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import ArrowLeftIcon from '../components/svg/ArrowLeftIcon';
 import AuthImage from '../components/AuthImage';
 import ProjectEditForm from '../components/ProjectEditForm';
 import ProjectLinks from '../components/ProjectLinks';
@@ -23,7 +24,7 @@ function portfolioDetailToProject(detail: Portfolio, categoryCode: string): Proj
     description: detail.description,
     techStack: detail.tech_stack || [],
     tags: detail.tags || [],
-    thumbnailFileId: detail.thumbnail?.file_id,
+    thumbnailFileUuid: detail.thumbnail?.file_uuid,
     screenshots: detail.screenshots,
     links: (detail.links || []).map((link) => ({
       ...link,
@@ -119,8 +120,8 @@ export default function ProjectDetail() {
       textColor?: string;
       icon?: string;
     }[];
-    screenshots: { file_id: number; caption?: string }[];
-    thumbnailFileId?: number;
+    screenshots: { file_uuid: string; caption?: string }[];
+    thumbnailFileUuid?: string;
     startDate: string;
     endDate: string;
     isPublic: boolean;
@@ -135,7 +136,7 @@ export default function ProjectDetail() {
         code: editData.code,
         title: editData.title,
         summary: editData.summary,
-        thumbnail: editData.thumbnailFileId ? { file_id: editData.thumbnailFileId } : null,
+        thumbnail: editData.thumbnailFileUuid ? { file_uuid: editData.thumbnailFileUuid } : null,
         tags: editData.tags
           .split(',')
           .map((s) => s.trim())
@@ -216,22 +217,15 @@ export default function ProjectDetail() {
           to={`/portfolio/${portfolioCode}`}
           className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-8"
         >
-          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
+          <ArrowLeftIcon className="w-5 h-5 mr-2" />
           목록으로 돌아가기
         </Link>
 
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-          {project.thumbnailFileId !== undefined ? (
+          {project.thumbnailFileUuid !== undefined ? (
             <div className="h-64 overflow-hidden">
               <AuthImage
-                fileId={project.thumbnailFileId}
+                fileUuid={project.thumbnailFileUuid}
                 alt="대표 스크린샷"
                 className="w-full h-full object-cover"
               />
@@ -329,7 +323,7 @@ export default function ProjectDetail() {
                             className="group relative overflow-hidden rounded-lg aspect-video bg-gray-100 hover:ring-2 hover:ring-blue-500 transition-all"
                           >
                             <AuthImage
-                              fileId={screenshot.file_id}
+                              fileUuid={screenshot.file_uuid}
                               alt={screenshot.caption || `스크린샷 ${index + 1}`}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                             />
@@ -410,14 +404,7 @@ export default function ProjectDetail() {
               onClick={handlePrev}
               className="absolute left-4 top-1/2 -translate-y-1/2 p-2 text-white hover:text-gray-300 bg-black/50 rounded-full hover:bg-black/70 transition-colors"
             >
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
+              <ArrowLeftIcon className="w-8 h-8" />
             </button>
           )}
 
@@ -452,7 +439,7 @@ export default function ProjectDetail() {
               </svg>
             </button>
             <AuthImage
-              fileId={selectedImage.file_id}
+              fileUuid={selectedImage.file_uuid}
               alt={selectedImage.caption || '스크린샷'}
               className="max-w-full max-h-[85vh] object-contain rounded-lg"
               onClick={(e) => e.stopPropagation()}

@@ -3,13 +3,13 @@ import ImagePlaceholderIcon from './svg/ImagePlaceholderIcon';
 import { fetchFileAsObjectUrl } from '../utils/api';
 
 interface ImagePreviewCardProps {
-  fileId: number;
+  fileUuid: string;
   alt?: string;
   onRemove: () => void;
 }
 
 export default function ImagePreviewCard({
-  fileId,
+  fileUuid,
   alt = '미리보기',
   onRemove,
 }: ImagePreviewCardProps) {
@@ -18,7 +18,7 @@ export default function ImagePreviewCard({
 
   useEffect(() => {
     let revoke: string | null = null;
-    fetchFileAsObjectUrl(fileId)
+    fetchFileAsObjectUrl(fileUuid)
       .then((url) => {
         revoke = url;
         setObjectUrl(url);
@@ -27,7 +27,7 @@ export default function ImagePreviewCard({
     return () => {
       if (revoke) URL.revokeObjectURL(revoke);
     };
-  }, [fileId]);
+  }, [fileUuid]);
 
   return (
     <div className="bg-white rounded-xl shadow-md border-2 border-gray-200 hover:border-blue-500 transition-all inline-block">

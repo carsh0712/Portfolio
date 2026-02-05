@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import ArrowLeftIcon from '../components/svg/ArrowLeftIcon';
 import ProjectLinks from '../components/ProjectLinks';
 import { getPublicProjectDetail, getPublicFileUrl } from '../utils/api';
 import type { Project, PublicProjectDetail as PublicProjectDetailType } from '../types/project';
@@ -14,7 +15,7 @@ function publicProjectDetailToProject(detail: PublicProjectDetailType): Project 
     description: detail.description,
     techStack: detail.tech_stack || [],
     tags: detail.tags,
-    thumbnailFileId: detail.thumbnail?.file_id,
+    thumbnailFileUuid: detail.thumbnail?.file_uuid,
     screenshots: detail.screenshots,
     links: (detail.links || []).map((link) => ({
       ...link,
@@ -130,22 +131,15 @@ export default function PublicProjectDetail() {
           to={`/public/${username}/${categoryCode}`}
           className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-8"
         >
-          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
+          <ArrowLeftIcon className="w-5 h-5 mr-2" />
           목록으로 돌아가기
         </Link>
 
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-          {project.thumbnailFileId && username ? (
+          {project.thumbnailFileUuid && username ? (
             <div className="h-64 overflow-hidden">
               <img
-                src={getPublicFileUrl(username, project.thumbnailFileId)}
+                src={getPublicFileUrl(username, project.thumbnailFileUuid)}
                 alt={project.title}
                 className="w-full h-full object-cover"
               />
@@ -188,7 +182,7 @@ export default function PublicProjectDetail() {
                         className="group relative overflow-hidden rounded-lg aspect-video bg-gray-100 hover:ring-2 hover:ring-blue-500 transition-all"
                       >
                         <img
-                          src={username ? getPublicFileUrl(username, screenshot.file_id) : ''}
+                          src={username ? getPublicFileUrl(username, screenshot.file_uuid) : ''}
                           alt={screenshot.caption || `스크린샷 ${index + 1}`}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                         />
@@ -275,14 +269,7 @@ export default function PublicProjectDetail() {
               onClick={handlePrev}
               className="absolute left-4 top-1/2 -translate-y-1/2 p-2 text-white hover:text-gray-300 bg-black/50 rounded-full hover:bg-black/70 transition-colors"
             >
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
+              <ArrowLeftIcon className="w-8 h-8" />
             </button>
           )}
 
@@ -317,7 +304,7 @@ export default function PublicProjectDetail() {
               </svg>
             </button>
             <img
-              src={username ? getPublicFileUrl(username, selectedImage.file_id) : ''}
+              src={username ? getPublicFileUrl(username, selectedImage.file_uuid) : ''}
               alt={selectedImage.caption || '스크린샷'}
               className="max-w-full max-h-[85vh] object-contain rounded-lg"
               onClick={(e) => e.stopPropagation()}

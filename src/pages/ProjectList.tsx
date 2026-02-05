@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import ActionCard from '../components/ActionCard';
-import PlusIcon from '../components/svg/PlusIcon';
+import ArrowLeftIcon from '../components/svg/ArrowLeftIcon';
 import ProjectCard from '../components/ProjectCard';
+import PlusIcon from '../components/svg/PlusIcon';
 import SettingsIcon from '../components/svg/SettingsIcon';
 import ShareIcon from '../components/svg/ShareIcon';
 import type { AuthUser } from '../types/auth';
@@ -13,16 +14,16 @@ import { getCategoryDetail, getCurrentUser, getPortfolios } from '../utils/api';
 // Helper function to convert PortfolioItem to Project
 function portfolioItemToProject(item: PortfolioItem, categoryCode: string): Project {
   return {
-    id: String(item.id),
+    id: item.code,
     categoryId: categoryCode,
     code: item.code,
     title: item.title,
     summary: item.summary,
     description: '',
-    techStack: item.tags,
+    techStack: item.tech_stack,
     tags: item.tags,
-    thumbnailFileId: item.thumbnail?.file_id,
-    startDate: item.created_at,
+    thumbnailFileUuid: item.thumbnail?.file_uuid,
+    startDate: '',
     features: [],
     isPublic: item.is_public,
   };
@@ -46,6 +47,15 @@ export default function ProjectList() {
 
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [showCopiedMessage, setShowCopiedMessage] = useState(false);
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  // Debounce tag input for API search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(tagInput.trim());
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [tagInput]);
 
   // Load current user from API
   useEffect(() => {
@@ -60,36 +70,49 @@ export default function ProjectList() {
     fetchUser();
   }, []);
 
-  // Fetch category and portfolios from API
+  // Fetch category info
   useEffect(() => {
     if (!portfolioCode) return;
 
-    const fetchData = async () => {
-      setIsLoading(true);
-      setError(null);
+    setIsLoading(true);
+    setError(null);
 
-      try {
-        // Fetch category info by code
-        const foundCategory = await getCategoryDetail(portfolioCode);
+    getCategoryDetail(portfolioCode)
+      .then((foundCategory) => {
         setCategory(foundCategory);
+      })
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : '데이터를 불러오는데 실패했습니다.');
+        console.error('Failed to fetch category:', err);
+        setIsLoading(false);
+      });
+  }, [portfolioCode]);
 
-        // Fetch portfolios using category ID
-        const portfoliosResponse = await getPortfolios(foundCategory.code, page, 100);
+  // Fetch portfolios (re-fetch when search or tag filter changes)
+  const isInitialLoad = category === null || (isLoading && projects.length === 0);
+  useEffect(() => {
+    if (!category) return;
+
+    const fetchProjects = async () => {
+      try {
+        const search =
+          debouncedSearch ||
+          (selectedTags.length > 0 ? selectedTags[selectedTags.length - 1] : undefined);
+        const portfoliosResponse = await getPortfolios(category.code, page, 100, search);
         const convertedProjects = portfoliosResponse.items.map((item) =>
-          portfolioItemToProject(item, foundCategory.code)
+          portfolioItemToProject(item, category.code)
         );
         setProjects(convertedProjects);
-        // TODO: 페이지네이션 UI 추가 시 totalPages 사용
       } catch (err) {
         setError(err instanceof Error ? err.message : '데이터를 불러오는데 실패했습니다.');
-        console.error('Failed to fetch data:', err);
+        console.error('Failed to fetch projects:', err);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchData();
-  }, [portfolioCode, page]);
+    fetchProjects();
+  }, [category, page, selectedTags, debouncedSearch]);
 
   const allTags = useMemo(() => {
     const tagSet = new Set<string>();
@@ -160,8 +183,8 @@ export default function ProjectList() {
     }
   };
 
-  // Loading state
-  if (isLoading) {
+  // Loading state (only for initial load, not search re-fetches)
+  if (isInitialLoad) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
@@ -211,15 +234,8 @@ export default function ProjectList() {
           to="/home"
           className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-8"
         >
-          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-          카테고리 목록
+          <ArrowLeftIcon className="w-5 h-5 mr-2" />
+          포트폴리오 목록
         </Link>
 
         <div className="text-center mb-12">

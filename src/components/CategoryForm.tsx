@@ -7,7 +7,7 @@ export interface CategoryFormData {
   name: string;
   code: string;
   description: string;
-  screenshotFileId: number | null;
+  screenshotFileUuid: string | null;
   isPublic: boolean;
   order?: number;
 }
@@ -42,7 +42,7 @@ export default function CategoryForm({ formData, onChange, showOrder }: Category
 
     try {
       const result = await uploadImage(file);
-      onChange({ ...formData, screenshotFileId: result.id });
+      onChange({ ...formData, screenshotFileUuid: result.uuid });
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : '이미지 업로드에 실패했습니다.');
     } finally {
@@ -128,7 +128,7 @@ export default function CategoryForm({ formData, onChange, showOrder }: Category
               onChange={handleFileUpload}
               className="hidden"
             />
-            {formData.screenshotFileId && (
+            {formData.screenshotFileUuid && (
               <span className="text-sm text-green-600 truncate max-w-xs">업로드 완료</span>
             )}
           </div>
@@ -136,12 +136,12 @@ export default function CategoryForm({ formData, onChange, showOrder }: Category
           {uploadError && <p className="text-sm text-red-600">{uploadError}</p>}
 
           {/* 이미지 미리보기 (카드) */}
-          {formData.screenshotFileId && (
+          {formData.screenshotFileUuid && (
             <ImagePreviewCard
-              fileId={formData.screenshotFileId}
+              fileUuid={formData.screenshotFileUuid}
               alt="카테고리 이미지 미리보기"
               onRemove={() => {
-                onChange({ ...formData, screenshotFileId: null });
+                onChange({ ...formData, screenshotFileUuid: null });
               }}
             />
           )}

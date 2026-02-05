@@ -23,7 +23,9 @@ export default function ProjectLinks({ links }: ProjectLinksProps) {
               color: link.textColor || link.text_color || '#FFFFFF',
             }}
           >
-            {link.icon && <span className="mr-2">{renderIconByName(link.icon) || link.icon}</span>}
+            {link.icon && renderIconByName(link.icon) && (
+              <span className="mr-2">{renderIconByName(link.icon)}</span>
+            )}
             {link.name}
           </a>
         ))}

@@ -21,7 +21,7 @@ export default function CategoryEditDialog({
     code: category.code,
     name: category.name,
     description: category.description,
-    screenshotFileId: category.screenshot?.file_id ?? null,
+    screenshotFileUuid: category.screenshot?.file_uuid ?? null,
     order: category.order,
     isPublic: category.is_public,
   });
@@ -38,7 +38,7 @@ export default function CategoryEditDialog({
         code: formData.code,
         name: formData.name,
         description: formData.description,
-        screenshot_file_id: formData.screenshotFileId,
+        screenshot_file_uuid: formData.screenshotFileUuid,
         order: formData.order ?? category.order,
         is_public: formData.isPublic,
       });

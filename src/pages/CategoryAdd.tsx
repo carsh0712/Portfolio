@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import ArrowLeftIcon from '../components/svg/ArrowLeftIcon';
 import { createCategory, getCategories } from '../utils/api';
 import type { CreateCategoryRequest } from '../types/category';
 import CategoryForm, { type CategoryFormData } from '../components/CategoryForm';
@@ -9,7 +10,7 @@ export default function CategoryAdd() {
   const [formData, setFormData] = useState<CategoryFormData>({
     name: '',
     description: '',
-    screenshotFileId: null,
+    screenshotFileUuid: null,
     code: '',
     isPublic: false,
   });
@@ -31,7 +32,7 @@ export default function CategoryAdd() {
         code: formData.code,
         name: formData.name,
         description: formData.description,
-        screenshot_file_id: formData.screenshotFileId,
+        screenshot_file_uuid: formData.screenshotFileUuid,
         order: maxOrder + 1,
         is_public: formData.isPublic,
       };
@@ -49,9 +50,7 @@ export default function CategoryAdd() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-12">
       <Link to="/home" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-8">
-        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-        </svg>
+        <ArrowLeftIcon className="w-5 h-5 mr-2" />
         홈으로 돌아가기
       </Link>
 
