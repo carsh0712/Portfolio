@@ -34,7 +34,7 @@ export interface CreateCategoryRequest {
   code: string;
   name: string;
   description: string;
-  screenshot_file_uuid: string | null;
+  screenshot: { file_uuid: string } | null;
   order: number;
   is_public: boolean;
 }
@@ -45,7 +45,7 @@ export interface UpdateCategoryRequest {
   code: string;
   name: string;
   description: string;
-  screenshot_file_uuid: string | null;
+  screenshot: { file_uuid: string } | null;
   order: number;
   is_public: boolean;
 }

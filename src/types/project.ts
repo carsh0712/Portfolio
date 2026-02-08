@@ -81,6 +81,31 @@ export interface Portfolio {
   updated_at: string;
 }
 
+// Project Create Request Type
+export interface CreateProjectRequest {
+  portfolio_code: string;
+  code: string;
+  title: string;
+  summary: string;
+  thumbnail: { file_uuid: string } | null;
+  tags: string[];
+  order: number;
+  is_public: boolean;
+  description: string;
+  tech_stack: string[];
+  screenshots: { file_uuid: string; caption?: string }[];
+  links: {
+    name: string;
+    url: string;
+    backgroundColor?: string;
+    textColor?: string;
+    icon?: string;
+  }[];
+  start_date: string;
+  end_date: string;
+  features: string[];
+}
+
 // Portfolio Update Request Type
 export interface UpdatePortfolioRequest {
   portfolio_id: number;

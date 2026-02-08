@@ -104,12 +104,23 @@ export const handlers = [
     });
   }),
 
-  http.post('*/api/v1/portfolios/', () => {
-    return HttpResponse.json(mockCategory, { status: 201 });
+  http.post('*/api/v1/portfolios/', async ({ request }) => {
+    const body = (await request.json()) as { screenshot?: { file_uuid: string } | null };
+    return HttpResponse.json(
+      {
+        ...mockCategory,
+        screenshot: body.screenshot || mockCategory.screenshot,
+      },
+      { status: 201 }
+    );
   }),
 
-  http.put('*/api/v1/portfolios/:code', () => {
-    return HttpResponse.json(mockCategory);
+  http.put('*/api/v1/portfolios/:code', async ({ request }) => {
+    const body = (await request.json()) as { screenshot?: { file_uuid: string } | null };
+    return HttpResponse.json({
+      ...mockCategory,
+      screenshot: body.screenshot || mockCategory.screenshot,
+    });
   }),
 
   http.delete('*/api/v1/portfolios/:code', ({ params }) => {
@@ -142,6 +153,17 @@ export const handlers = [
 
   http.get('*/api/v1/projects/:portfolioCode/:projectCode', () => {
     return HttpResponse.json(mockPortfolioDetail);
+  }),
+
+  http.post('*/api/v1/projects/', async ({ request }) => {
+    const body = await request.json();
+    return HttpResponse.json(
+      {
+        ...mockPortfolioDetail,
+        ...(body as object),
+      },
+      { status: 201 }
+    );
   }),
 
   http.put('*/api/v1/projects/:portfolioCode/:projectCode', async ({ request }) => {

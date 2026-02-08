@@ -311,7 +311,7 @@ export default function ProjectEditForm({ project, onSave, onCancel }: ProjectEd
               onToggleThumbnail={() =>
                 setEditData((prev) => ({
                   ...prev,
-                  thumbnailFileId:
+                  thumbnailFileUuid:
                     prev.thumbnailFileUuid === screenshot.file_uuid
                       ? undefined
                       : screenshot.file_uuid,

@@ -222,7 +222,7 @@ export default function ProjectDetail() {
         </Link>
 
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-          {project.thumbnailFileUuid !== undefined ? (
+          {project.thumbnailFileUuid ? (
             <div className="h-64 overflow-hidden">
               <AuthImage
                 fileUuid={project.thumbnailFileUuid}

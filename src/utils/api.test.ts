@@ -10,6 +10,7 @@ import {
   deleteCategory,
   getPortfolios,
   getPortfolioDetail,
+  createProject,
   updatePortfolio,
   getPublicPortfolios,
   getPublicProjectDetail,
@@ -228,6 +229,51 @@ describe('API 유틸리티', () => {
           features: [],
         })
       ).rejects.toThrow('수정 권한이 없습니다.');
+    });
+  });
+
+  describe('createProject', () => {
+    const validRequest = {
+      portfolio_code: 'test-portfolio',
+      code: 'new-project',
+      title: 'New Project',
+      summary: 'A new project',
+      thumbnail: { file_uuid: 'mock-uuid-1' },
+      tags: ['React'],
+      order: 0,
+      is_public: true,
+      description: 'New project description',
+      tech_stack: ['React', 'TypeScript'],
+      screenshots: [],
+      links: [],
+      start_date: '2024-01-01',
+      end_date: '2024-12-31',
+      features: ['Feature 1'],
+    };
+
+    it('프로젝트를 생성해야 한다', async () => {
+      const result = await createProject(validRequest);
+      expect(result.id).toBe(1);
+      expect(result.code).toBe('new-project');
+      expect(result.title).toBe('New Project');
+    });
+
+    it('중복된 코드일 때 에러를 throw해야 한다', async () => {
+      server.use(
+        http.post('*/api/v1/projects/', () => {
+          return HttpResponse.json({ detail: '중복된 프로젝트 코드' }, { status: 400 });
+        })
+      );
+      await expect(createProject(validRequest)).rejects.toThrow('중복된 프로젝트 코드');
+    });
+
+    it('포트폴리오가 없을 때 에러를 throw해야 한다', async () => {
+      server.use(
+        http.post('*/api/v1/projects/', () => {
+          return HttpResponse.json({ detail: '포트폴리오 없음' }, { status: 404 });
+        })
+      );
+      await expect(createProject(validRequest)).rejects.toThrow('포트폴리오 없음');
     });
   });
 

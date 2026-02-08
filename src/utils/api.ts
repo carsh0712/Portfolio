@@ -12,6 +12,7 @@ import type {
   Portfolio,
   PublicPortfolioItem,
   PublicProjectDetail,
+  CreateProjectRequest,
   UpdatePortfolioRequest,
 } from '../types/project';
 
@@ -338,6 +339,30 @@ export async function updatePortfolio(
       throw new Error(message);
     }
     throw new Error('포트폴리오 수정에 실패했습니다.');
+  }
+
+  return response.json();
+}
+
+// Project Create API
+export async function createProject(data: CreateProjectRequest): Promise<Portfolio> {
+  const response = await apiFetch('/api/v1/projects/', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    if (errorData) {
+      const message =
+        typeof errorData.detail === 'string'
+          ? errorData.detail
+          : Array.isArray(errorData.detail)
+            ? errorData.detail.map((d: { msg: string }) => d.msg).join(', ')
+            : '프로젝트 생성에 실패했습니다.';
+      throw new Error(message);
+    }
+    throw new Error('프로젝트 생성에 실패했습니다.');
   }
 
   return response.json();

@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import ArrowLeftIcon from '../components/svg/ArrowLeftIcon';
 import type { Category } from '../types/category';
 import type { Project } from '../types/project';
-import { getCategoryDetail } from '../utils/api';
+import { getCategoryDetail, createProject } from '../utils/api';
 import ProjectEditForm from '../components/ProjectEditForm';
 
 const emptyProject: Project = {
@@ -29,6 +29,7 @@ export default function ProjectAdd() {
 
   const [category, setCategory] = useState<Category | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchCategory() {
@@ -46,16 +47,46 @@ export default function ProjectAdd() {
     else setLoading(false);
   }, [portfolioCode]);
 
-  const handleSave = (
+  const handleSave = async (
     data: Parameters<React.ComponentProps<typeof ProjectEditForm>['onSave']>[0]
   ) => {
-    // TODO: API 연동하여 프로젝트 저장
-    const projectData = {
-      ...data,
-      portfolioCode,
-    };
-    console.log('새 프로젝트 데이터:', projectData);
-    navigate(`/portfolio/${portfolioCode}`);
+    if (!category) return;
+
+    setError(null);
+
+    try {
+      const requestBody = {
+        portfolio_code: portfolioCode!,
+        code: data.code,
+        title: data.title,
+        summary: data.summary,
+        thumbnail: data.thumbnailFileUuid ? { file_uuid: data.thumbnailFileUuid } : null,
+        tags: data.tags
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean),
+        order: 0,
+        is_public: data.isPublic,
+        description: data.description,
+        tech_stack: data.techStack
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean),
+        screenshots: data.screenshots,
+        links: data.links,
+        start_date: data.startDate,
+        end_date: data.endDate,
+        features: data.features
+          .split('\n')
+          .map((s) => s.trim())
+          .filter(Boolean),
+      };
+
+      await createProject(requestBody);
+      navigate(`/portfolio/${portfolioCode}`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '프로젝트 생성에 실패했습니다.');
+    }
   };
 
   const handleCancel = () => {
@@ -99,6 +130,11 @@ export default function ProjectAdd() {
         </div>
 
         <div className="p-8">
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+              {error}
+            </div>
+          )}
           <ProjectEditForm
             project={{ ...emptyProject, categoryId: portfolioCode || '' }}
             onSave={handleSave}

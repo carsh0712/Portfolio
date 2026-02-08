@@ -32,7 +32,7 @@ export default function CategoryAdd() {
         code: formData.code,
         name: formData.name,
         description: formData.description,
-        screenshot_file_uuid: formData.screenshotFileUuid,
+        screenshot: formData.screenshotFileUuid ? { file_uuid: formData.screenshotFileUuid } : null,
         order: maxOrder + 1,
         is_public: formData.isPublic,
       };
