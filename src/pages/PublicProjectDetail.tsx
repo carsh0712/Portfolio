@@ -267,18 +267,23 @@ export default function PublicProjectDetail() {
           {selectedIndex > 0 && (
             <button
               onClick={handlePrev}
-              className="absolute left-4 top-1/2 -translate-y-1/2 p-2 text-white hover:text-gray-300 bg-black/50 rounded-full hover:bg-black/70 transition-colors"
+              className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 p-3 md:p-2 text-white hover:text-gray-300 bg-black/80 rounded-full hover:bg-black/90 transition-colors z-10 shadow-lg"
             >
-              <ArrowLeftIcon className="w-8 h-8" />
+              <ArrowLeftIcon className="w-6 h-6 md:w-8 md:h-8" />
             </button>
           )}
 
           {selectedIndex < screenshots.length - 1 && (
             <button
               onClick={handleNext}
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-white hover:text-gray-300 bg-black/50 rounded-full hover:bg-black/70 transition-colors"
+              className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 p-3 md:p-2 text-white hover:text-gray-300 bg-black/80 rounded-full hover:bg-black/90 transition-colors z-10 shadow-lg"
             >
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="w-6 h-6 md:w-8 md:h-8"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
