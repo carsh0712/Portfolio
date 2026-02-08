@@ -62,6 +62,18 @@ const mockPortfolioDetail = {
 
 export const handlers = [
   // Auth
+  http.post('*/api/v1/auth/signup', async ({ request }) => {
+    const body = (await request.json()) as { email: string; username: string; password: string };
+    return HttpResponse.json(
+      {
+        id: 1,
+        username: body.username,
+        email: body.email,
+      },
+      { status: 201 }
+    );
+  }),
+
   http.post('*/api/v1/auth/login', () => {
     return HttpResponse.json({
       access_token: 'mock-access-token',

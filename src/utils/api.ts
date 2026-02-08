@@ -1,4 +1,4 @@
-import type { AuthTokens, AuthUser } from '../types/auth';
+import type { AuthTokens, AuthUser, SignupRequest, SignupResponse } from '../types/auth';
 import type {
   Category,
   CategoryListResponse,
@@ -109,6 +109,32 @@ export async function apiFetch(endpoint: string, options: RequestInit = {}): Pro
 }
 
 // Auth API
+export async function signup(data: SignupRequest): Promise<SignupResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/v1/auth/signup`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    if (errorData) {
+      const message =
+        typeof errorData.detail === 'string'
+          ? errorData.detail
+          : Array.isArray(errorData.detail)
+            ? errorData.detail.map((d: { msg: string }) => d.msg).join(', ')
+            : '회원가입에 실패했습니다.';
+      throw new Error(message);
+    }
+    throw new Error('회원가입에 실패했습니다.');
+  }
+
+  return response.json();
+}
+
 export async function getCurrentUser(): Promise<AuthUser> {
   const response = await apiFetch('/api/v1/user/me', {
     method: 'GET',

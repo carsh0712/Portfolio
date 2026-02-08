@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { http, HttpResponse } from 'msw';
 import { server } from '../test/mocks/server';
 import {
+  signup,
   getCurrentUser,
   getCategories,
   getCategoryDetail,
@@ -30,6 +31,72 @@ describe('API 유틸리티', () => {
         token_type: 'Bearer',
       })
     );
+  });
+
+  describe('signup', () => {
+    it('회원가입을 성공적으로 완료해야 한다', async () => {
+      const result = await signup({
+        email: 'newuser@example.com',
+        password: 'password123',
+        username: 'newuser',
+      });
+      expect(result.id).toBe(1);
+      expect(result.username).toBe('newuser');
+      expect(result.email).toBe('newuser@example.com');
+    });
+
+    it('중복된 username일 때 에러를 throw해야 한다', async () => {
+      server.use(
+        http.post('*/api/v1/auth/signup', () => {
+          return HttpResponse.json({ detail: '중복된 username입니다.' }, { status: 409 });
+        })
+      );
+      await expect(
+        signup({
+          email: 'test@example.com',
+          password: 'password123',
+          username: 'testuser',
+        })
+      ).rejects.toThrow('중복된 username입니다.');
+    });
+
+    it('중복된 email일 때 에러를 throw해야 한다', async () => {
+      server.use(
+        http.post('*/api/v1/auth/signup', () => {
+          return HttpResponse.json({ detail: '중복된 email입니다.' }, { status: 409 });
+        })
+      );
+      await expect(
+        signup({
+          email: 'test@example.com',
+          password: 'password123',
+          username: 'newuser',
+        })
+      ).rejects.toThrow('중복된 email입니다.');
+    });
+
+    it('유효성 검증 실패 시 에러를 throw해야 한다', async () => {
+      server.use(
+        http.post('*/api/v1/auth/signup', () => {
+          return HttpResponse.json(
+            {
+              detail: [
+                { msg: '비밀번호는 8자 이상이어야 합니다.' },
+                { msg: '이메일 형식이 올바르지 않습니다.' },
+              ],
+            },
+            { status: 422 }
+          );
+        })
+      );
+      await expect(
+        signup({
+          email: 'invalid-email',
+          password: '123',
+          username: 'newuser',
+        })
+      ).rejects.toThrow('비밀번호는 8자 이상이어야 합니다., 이메일 형식이 올바르지 않습니다.');
+    });
   });
 
   describe('getCurrentUser', () => {
@@ -104,7 +171,7 @@ describe('API 유틸리티', () => {
         code: 'web',
         name: 'Web Projects',
         description: 'Web development projects',
-        screenshot_file_uuid: 'mock-uuid-1',
+        screenshot: { file_uuid: 'mock-uuid-1' },
         order: 1,
         is_public: true,
       });
@@ -122,7 +189,7 @@ describe('API 유틸리티', () => {
           code: 'web',
           name: 'Web',
           description: '',
-          screenshot_file_uuid: null,
+          screenshot: null,
           order: 1,
           is_public: true,
         })
@@ -136,7 +203,7 @@ describe('API 유틸리티', () => {
         code: 'web',
         name: 'Updated Web Projects',
         description: 'Updated',
-        screenshot_file_uuid: null,
+        screenshot: null,
         order: 1,
         is_public: true,
       });

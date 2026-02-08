@@ -38,7 +38,7 @@ export default function CategoryEditDialog({
         code: formData.code,
         name: formData.name,
         description: formData.description,
-        screenshot_file_uuid: formData.screenshotFileUuid,
+        screenshot: formData.screenshotFileUuid ? { file_uuid: formData.screenshotFileUuid } : null,
         order: formData.order ?? category.order,
         is_public: formData.isPublic,
       });

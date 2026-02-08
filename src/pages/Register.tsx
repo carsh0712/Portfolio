@@ -1,20 +1,36 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { signup } from '../utils/api';
 
 export default function Register() {
+  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+
     if (password !== confirmPassword) {
-      alert('비밀번호가 일치하지 않습니다.');
+      setError('비밀번호가 일치하지 않습니다.');
       return;
     }
-    // TODO: 회원가입 API 연동
-    console.log('Register:', { username, email, password });
+
+    setIsLoading(true);
+
+    try {
+      await signup({ email, password, username });
+      alert('회원가입이 완료되었습니다. 로그인해주세요.');
+      navigate('/login');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '회원가입에 실패했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -26,6 +42,12 @@ export default function Register() {
         </div>
 
         <div className="bg-white rounded-xl shadow-lg p-8">
+          {error && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
+              {error}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
@@ -93,9 +115,10 @@ export default function Register() {
 
             <button
               type="submit"
-              className="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+              disabled={isLoading}
+              className="w-full py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
             >
-              가입하기
+              {isLoading ? '가입 중...' : '가입하기'}
             </button>
           </form>
 

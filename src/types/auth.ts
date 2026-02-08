@@ -14,3 +14,15 @@ export interface AuthUser {
   username: string;
   email: string;
 }
+
+export interface SignupRequest {
+  email: string;
+  password: string;
+  username: string;
+}
+
+export interface SignupResponse {
+  id: number;
+  username: string;
+  email: string;
+}
