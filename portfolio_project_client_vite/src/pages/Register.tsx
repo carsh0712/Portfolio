@@ -1,5 +1,9 @@
 import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import AuthTextField from '../components/AuthTextField';
+import FormError from '../components/FormError';
+import PageCard from '../components/PageCard';
 import { signup } from '../utils/api';
 
 export default function Register() {
@@ -11,8 +15,8 @@ export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
     setError('');
 
     if (password !== confirmPassword) {
@@ -41,77 +45,50 @@ export default function Register() {
           <p className="text-gray-600">새 계정을 만들어 포트폴리오를 관리하세요.</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-8">
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
-              {error}
-            </div>
-          )}
+        <PageCard>
+          <FormError message={error} />
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-                사용자명
-              </label>
-              <input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-                placeholder="홍길동"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                이메일
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-                placeholder="email@example.com"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                비밀번호
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={8}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-                placeholder="8자 이상 입력"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                비밀번호 확인
-              </label>
-              <input
-                id="confirmPassword"
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-                placeholder="비밀번호 재입력"
-              />
-            </div>
+            <AuthTextField
+              id="username"
+              label="사용자명"
+              value={username}
+              onChange={setUsername}
+              required
+              disabled={isLoading}
+              placeholder="홍길동"
+            />
+            <AuthTextField
+              id="email"
+              label="이메일"
+              type="email"
+              value={email}
+              onChange={setEmail}
+              required
+              disabled={isLoading}
+              placeholder="email@example.com"
+            />
+            <AuthTextField
+              id="password"
+              label="비밀번호"
+              type="password"
+              value={password}
+              onChange={setPassword}
+              required
+              disabled={isLoading}
+              minLength={8}
+              placeholder="8자 이상 입력"
+            />
+            <AuthTextField
+              id="confirmPassword"
+              label="비밀번호 확인"
+              type="password"
+              value={confirmPassword}
+              onChange={setConfirmPassword}
+              required
+              disabled={isLoading}
+              placeholder="비밀번호 재입력"
+            />
 
             <button
               type="submit"
@@ -130,7 +107,7 @@ export default function Register() {
               </Link>
             </p>
           </div>
-        </div>
+        </PageCard>
       </div>
     </div>
   );

@@ -1,14 +1,13 @@
 import { useState } from 'react';
-import type { Project } from '../types/project';
+import type { ChangeEvent } from 'react';
+import type { Project, ProjectLink, Screenshot } from '../types/project';
 import { uploadImage } from '../utils/api';
-import ActionCard from './ActionCard';
-import ColorPicker from './ColorPicker';
 import FormSection from './FormSection';
-import IconPicker from './IconPicker';
-import ScreenshotCard from './ScreenshotCard';
+import ProjectEditActions from './ProjectEditActions';
+import ProjectLinkEditor from './ProjectLinkEditor';
+import ProjectScreenshotEditor from './ProjectScreenshotEditor';
+import ProjectVisibilityFields from './ProjectVisibilityFields';
 import Toast from './Toast';
-import PlusIcon from './svg/PlusIcon';
-import TrashIcon from './svg/TrashIcon';
 
 interface EditData {
   code: string;
@@ -18,14 +17,8 @@ interface EditData {
   techStack: string;
   tags: string;
   features: string;
-  links: {
-    name: string;
-    url: string;
-    backgroundColor?: string;
-    textColor?: string;
-    icon?: string;
-  }[];
-  screenshots: { file_uuid: string; caption?: string }[];
+  links: ProjectLink[];
+  screenshots: Screenshot[];
   thumbnailFileUuid?: string;
   startDate: string;
   endDate: string;
@@ -60,8 +53,8 @@ export default function ProjectEditForm({ project, onSave, onCancel }: ProjectEd
   const [editData, setEditData] = useState<EditData>(() => projectToEditData(project));
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
+  const handleEditChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = event.target;
     setEditData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -75,14 +68,16 @@ export default function ProjectEditForm({ project, onSave, onCancel }: ProjectEd
   const handleRemoveLink = (index: number) => {
     setEditData((prev) => ({
       ...prev,
-      links: prev.links.filter((_, i) => i !== index),
+      links: prev.links.filter((_, itemIndex) => itemIndex !== index),
     }));
   };
 
-  const handleLinkChange = (index: number, field: string, value: string) => {
+  const handleLinkChange = (index: number, field: keyof ProjectLink, value: string) => {
     setEditData((prev) => ({
       ...prev,
-      links: prev.links.map((link, i) => (i === index ? { ...link, [field]: value } : link)),
+      links: prev.links.map((link, itemIndex) =>
+        itemIndex === index ? { ...link, [field]: value } : link
+      ),
     }));
   };
 
@@ -96,20 +91,21 @@ export default function ProjectEditForm({ project, onSave, onCancel }: ProjectEd
   const handleRemoveScreenshot = (index: number) => {
     setEditData((prev) => {
       const removed = prev.screenshots[index];
+
       return {
         ...prev,
-        screenshots: prev.screenshots.filter((_, i) => i !== index),
+        screenshots: prev.screenshots.filter((_, itemIndex) => itemIndex !== index),
         thumbnailFileUuid:
           prev.thumbnailFileUuid === removed?.file_uuid ? undefined : prev.thumbnailFileUuid,
       };
     });
   };
 
-  const handleScreenshotChange = (index: number, field: string, value: string) => {
+  const handleScreenshotCaptionChange = (index: number, caption: string) => {
     setEditData((prev) => ({
       ...prev,
-      screenshots: prev.screenshots.map((screenshot, i) =>
-        i === index ? { ...screenshot, [field]: value } : screenshot
+      screenshots: prev.screenshots.map((screenshot, itemIndex) =>
+        itemIndex === index ? { ...screenshot, caption } : screenshot
       ),
     }));
   };
@@ -117,16 +113,26 @@ export default function ProjectEditForm({ project, onSave, onCancel }: ProjectEd
   const handleScreenshotFileChange = async (index: number, file: File) => {
     try {
       const result = await uploadImage(file);
+
       setEditData((prev) => ({
         ...prev,
-        screenshots: prev.screenshots.map((s, i) =>
-          i === index ? { ...s, file_uuid: result.uuid } : s
+        screenshots: prev.screenshots.map((screenshot, itemIndex) =>
+          itemIndex === index ? { ...screenshot, file_uuid: result.uuid } : screenshot
         ),
       }));
-    } catch (err) {
-      const message = err instanceof Error ? err.message : '스크린샷 업로드에 실패했습니다.';
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '스크린샷 업로드에 실패했습니다.';
       setToastMessage(message);
     }
+  };
+
+  const handleToggleThumbnail = (fileUuid: string) => {
+    if (!fileUuid) return;
+
+    setEditData((prev) => ({
+      ...prev,
+      thumbnailFileUuid: prev.thumbnailFileUuid === fileUuid ? undefined : fileUuid,
+    }));
   };
 
   const handleCancel = () => {
@@ -140,8 +146,8 @@ export default function ProjectEditForm({ project, onSave, onCancel }: ProjectEd
     }
   };
 
-  const handleSave = () => {
-    onSave(editData);
+  const togglePublic = () => {
+    setEditData((prev) => ({ ...prev, isPublic: !prev.isPublic }));
   };
 
   return (
@@ -159,22 +165,11 @@ export default function ProjectEditForm({ project, onSave, onCancel }: ProjectEd
           placeholder="프로젝트 제목"
           className="text-3xl font-bold text-gray-900 w-full border-b-2 border-blue-500 focus:outline-none bg-transparent"
         />
-        <div className="flex gap-2 ml-4 flex-shrink-0">
-          <button
-            type="button"
-            onClick={confirmCancel}
-            className="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-300 transition-colors"
-          >
-            취소
-          </button>
-          <button
-            type="button"
-            onClick={handleSave}
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            저장
-          </button>
-        </div>
+        <ProjectEditActions
+          onCancel={confirmCancel}
+          onSave={() => onSave(editData)}
+          className="ml-4 flex-shrink-0"
+        />
       </div>
 
       <FormSection
@@ -214,120 +209,22 @@ export default function ProjectEditForm({ project, onSave, onCancel }: ProjectEd
         />
       </FormSection>
 
-      <div className="mb-8">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">링크 관리</h3>
-        <div className="space-y-4">
-          {editData.links.map((link, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-xl shadow-md border-2 border-gray-200 hover:border-blue-500 transition-all"
-            >
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <h4 className="text-base font-semibold text-gray-900">링크 #{index + 1}</h4>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveLink(index)}
-                    className="text-red-600 hover:text-red-800 transition-colors"
-                    title="링크 삭제"
-                  >
-                    <TrashIcon className="w-5 h-5" />
-                  </button>
-                </div>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">이름 *</label>
-                      <input
-                        type="text"
-                        value={link.name}
-                        onChange={(e) => handleLinkChange(index, 'name', e.target.value)}
-                        placeholder="예: GitHub, Demo"
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">URL *</label>
-                      <input
-                        type="url"
-                        value={link.url}
-                        onChange={(e) => handleLinkChange(index, 'url', e.target.value)}
-                        placeholder="https://example.com"
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <ColorPicker
-                      label="배경색 (선택)"
-                      value={link.backgroundColor || ''}
-                      defaultColor="#3B82F6"
-                      placeholder="#3B82F6"
-                      onChange={(v) => handleLinkChange(index, 'backgroundColor', v)}
-                    />
-                    <ColorPicker
-                      label="텍스트색 (선택)"
-                      value={link.textColor || ''}
-                      defaultColor="#FFFFFF"
-                      placeholder="#FFFFFF"
-                      onChange={(v) => handleLinkChange(index, 'textColor', v)}
-                    />
-                    <IconPicker
-                      label="아이콘 (선택)"
-                      value={link.icon || ''}
-                      onChange={(v) => handleLinkChange(index, 'icon', v)}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-          <ActionCard
-            icon={
-              <PlusIcon className="w-16 h-16 text-gray-400 group-hover:text-blue-500 transition-colors" />
-            }
-            title="링크 추가"
-            description="새 링크를 추가합니다"
-            onClick={handleAddLink}
-          />
-        </div>
-      </div>
+      <ProjectLinkEditor
+        links={editData.links}
+        onAdd={handleAddLink}
+        onRemove={handleRemoveLink}
+        onChange={handleLinkChange}
+      />
 
-      <div className="border-t border-gray-200 pt-8 mb-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">스크린샷 관리</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {editData.screenshots.map((screenshot, index) => (
-            <ScreenshotCard
-              key={index}
-              screenshot={screenshot}
-              index={index}
-              isThumbnail={
-                editData.thumbnailFileUuid === screenshot.file_uuid && screenshot.file_uuid !== ''
-              }
-              onToggleThumbnail={() =>
-                setEditData((prev) => ({
-                  ...prev,
-                  thumbnailFileUuid:
-                    prev.thumbnailFileUuid === screenshot.file_uuid
-                      ? undefined
-                      : screenshot.file_uuid,
-                }))
-              }
-              onRemove={() => handleRemoveScreenshot(index)}
-              onFileChange={(file) => handleScreenshotFileChange(index, file)}
-              onCaptionChange={(caption) => handleScreenshotChange(index, 'caption', caption)}
-            />
-          ))}
-          <ActionCard
-            icon={
-              <PlusIcon className="w-16 h-16 text-gray-400 group-hover:text-blue-500 transition-colors" />
-            }
-            title="스크린샷 추가"
-            description="새 스크린샷을 추가합니다"
-            onClick={handleAddScreenshot}
-          />
-        </div>
-      </div>
+      <ProjectScreenshotEditor
+        screenshots={editData.screenshots}
+        thumbnailFileUuid={editData.thumbnailFileUuid}
+        onAdd={handleAddScreenshot}
+        onRemove={handleRemoveScreenshot}
+        onFileChange={handleScreenshotFileChange}
+        onCaptionChange={handleScreenshotCaptionChange}
+        onToggleThumbnail={handleToggleThumbnail}
+      />
 
       <FormSection
         title="프로젝트 설명"
@@ -344,7 +241,7 @@ export default function ProjectEditForm({ project, onSave, onCancel }: ProjectEd
       </FormSection>
 
       <FormSection
-        title="기술 스택 태그"
+        title="기술 스택"
         description="쉼표(,)로 구분하여 입력하세요."
         className="mb-8"
       >
@@ -369,64 +266,19 @@ export default function ProjectEditForm({ project, onSave, onCancel }: ProjectEd
         />
       </FormSection>
 
-      <div className="mt-8 pt-8 border-t border-gray-200">
-        <div className="flex flex-wrap gap-4 items-end">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">시작일</label>
-            <input
-              type="date"
-              name="startDate"
-              value={editData.startDate}
-              onChange={handleEditChange}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">종료일</label>
-            <input
-              type="date"
-              name="endDate"
-              value={editData.endDate}
-              onChange={handleEditChange}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-        </div>
-        <div className="flex items-center gap-3 mt-4">
-          <label className="text-sm font-medium text-gray-700">공개 여부</label>
-          <button
-            type="button"
-            onClick={() => setEditData((prev) => ({ ...prev, isPublic: !prev.isPublic }))}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              editData.isPublic ? 'bg-blue-600' : 'bg-gray-300'
-            }`}
-          >
-            <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                editData.isPublic ? 'translate-x-6' : 'translate-x-1'
-              }`}
-            />
-          </button>
-          <span className="text-sm text-gray-500">{editData.isPublic ? '공개' : '비공개'}</span>
-        </div>
-      </div>
+      <ProjectVisibilityFields
+        startDate={editData.startDate}
+        endDate={editData.endDate}
+        isPublic={editData.isPublic}
+        onDateChange={handleEditChange}
+        onTogglePublic={togglePublic}
+      />
 
-      <div className="flex justify-end gap-2 mt-8 pt-8 border-t border-gray-200">
-        <button
-          type="button"
-          onClick={confirmCancel}
-          className="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-300 transition-colors"
-        >
-          취소
-        </button>
-        <button
-          type="button"
-          onClick={handleSave}
-          className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-        >
-          저장
-        </button>
-      </div>
+      <ProjectEditActions
+        onCancel={confirmCancel}
+        onSave={() => onSave(editData)}
+        className="mt-8 pt-8 border-t border-gray-200"
+      />
     </>
   );
 }

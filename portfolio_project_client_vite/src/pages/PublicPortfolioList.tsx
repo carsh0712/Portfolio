@@ -1,25 +1,12 @@
-﻿import { useState, useMemo, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import PageState from '../components/PageState';
 import ProjectCard from '../components/ProjectCard';
-import { getPublicProjects, getPublicFileUrl } from '../utils/api';
-import type { Project, PublicProjectItem } from '../types/project';
-
-function publicProjectItemToProject(item: PublicProjectItem): Project {
-  return {
-    id: String(item.id),
-    portfolioCode: String(item.portfolio_id),
-    code: item.code,
-    title: item.title,
-    summary: item.summary,
-    description: '',
-    techStack: item.tech_stack,
-    tags: item.tags,
-    thumbnailFileUuid: item.thumbnail?.file_uuid,
-    startDate: item.created_at,
-    features: [],
-    isPublic: item.is_public,
-  };
-}
+import ProjectFilterBar from '../components/ProjectFilterBar';
+import { useProjectFilters } from '../hooks/useProjectFilters';
+import type { Project } from '../types/project';
+import { getPublicFileUrl, getPublicProjects } from '../utils/api';
+import { publicProjectItemToProject } from '../utils/projectMappers';
 
 export default function PublicPortfolioList() {
   const { username, portfolioCode } = useParams<{ username: string; portfolioCode: string }>();
@@ -27,8 +14,7 @@ export default function PublicPortfolioList() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [tagInput, setTagInput] = useState('');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const filters = useProjectFilters(projects);
 
   useEffect(() => {
     if (!username || !portfolioCode) return;
@@ -39,12 +25,12 @@ export default function PublicPortfolioList() {
 
       try {
         const publicProjects = await getPublicProjects(username, portfolioCode);
-        const visibleProjects = publicProjects.filter((p) => p.is_public === true);
-        const convertedProjects = visibleProjects.map(publicProjectItemToProject);
-        setProjects(convertedProjects);
+        setProjects(
+          publicProjects.filter((project) => project.is_public).map(publicProjectItemToProject)
+        );
       } catch (err) {
-        setError(err instanceof Error ? err.message : '?꾨줈?앺듃瑜?遺덈윭?ㅼ? 紐삵뻽?듬땲??');
-        console.error('Failed to fetch public portfolios:', err);
+        setError(err instanceof Error ? err.message : '프로젝트를 불러오지 못했습니다.');
+        console.error('Failed to fetch public projects:', err);
       } finally {
         setIsLoading(false);
       }
@@ -53,76 +39,19 @@ export default function PublicPortfolioList() {
     fetchData();
   }, [username, portfolioCode]);
 
-  const allTags = useMemo(() => {
-    const tagSet = new Set<string>();
-    projects.forEach((project) => {
-      project.tags.forEach((tag) => tagSet.add(tag));
-      project.techStack.forEach((tech) => tagSet.add(tech));
-    });
-    return Array.from(tagSet).sort();
-  }, [projects]);
-
-  const suggestions = useMemo(() => {
-    if (!tagInput.trim()) return [];
-    const input = tagInput.toLowerCase();
-    return allTags.filter(
-      (tag) => tag.toLowerCase().includes(input) && !selectedTags.includes(tag)
-    );
-  }, [tagInput, allTags, selectedTags]);
-
-  const filteredProjects = useMemo(() => {
-    if (selectedTags.length === 0) return projects;
-
-    return projects.filter((project) =>
-      selectedTags.every((tag) => project.tags.includes(tag) || project.techStack.includes(tag))
-    );
-  }, [projects, selectedTags]);
-
-  const handleAddTag = (tag: string) => {
-    if (tag && !selectedTags.includes(tag)) {
-      setSelectedTags([...selectedTags, tag]);
-    }
-    setTagInput('');
-  };
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    setSelectedTags(selectedTags.filter((tag) => tag !== tagToRemove));
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && suggestions.length > 0) {
-      e.preventDefault();
-      handleAddTag(suggestions[0]);
-    } else if (e.key === 'Backspace' && tagInput === '' && selectedTags.length > 0) {
-      handleRemoveTag(selectedTags[selectedTags.length - 1]);
-    }
-  };
-
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">?꾨줈?앺듃瑜?遺덈윭?ㅻ뒗 以?..</p>
-        </div>
-      </div>
-    );
+    return <PageState loading message="프로젝트를 불러오는 중..." />;
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">?ㅻ쪟媛 諛쒖깮?덉뒿?덈떎</h1>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            ?ㅼ떆 ?쒕룄
-          </button>
-        </div>
-      </div>
+      <PageState
+        title="오류가 발생했습니다"
+        message={error}
+        tone="error"
+        actionLabel="다시 시도"
+        onAction={() => window.location.reload()}
+      />
     );
   }
 
@@ -134,61 +63,20 @@ export default function PublicPortfolioList() {
           <p className="text-xl text-gray-600">{portfolioCode}</p>
         </div>
 
-        <div className="mb-8">
-          <div className="max-w-xl mx-auto">
-            <div className="relative">
-              <div className="flex flex-wrap items-center gap-2 p-3 bg-white border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500">
-                {selectedTags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
-                  >
-                    {tag}
-                    <button onClick={() => handleRemoveTag(tag)} className="hover:text-blue-600">
-                      횞
-                    </button>
-                  </span>
-                ))}
-                <input
-                  type="text"
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder={selectedTags.length === 0 ? '?쒓렇瑜??낅젰?섏꽭??..' : ''}
-                  className="flex-1 min-w-[120px] outline-none bg-transparent text-gray-700 placeholder-gray-400"
-                />
-              </div>
-
-              {suggestions.length > 0 && (
-                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg">
-                  {suggestions.map((tag) => (
-                    <button
-                      key={tag}
-                      onClick={() => handleAddTag(tag)}
-                      className="w-full px-4 py-2 text-left hover:bg-gray-100 first:rounded-t-lg last:rounded-b-lg"
-                    >
-                      {tag}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {selectedTags.length > 0 && (
-              <div className="flex justify-between items-center mt-3">
-                <p className="text-sm text-gray-600">{filteredProjects.length}媛??꾨줈?앺듃</p>
-                <button
-                  onClick={() => setSelectedTags([])}
-                  className="text-sm text-blue-600 hover:text-blue-800"
-                >
-                  ?꾪꽣 珥덇린??                </button>
-              </div>
-            )}
-          </div>
-        </div>
+        <ProjectFilterBar
+          tagInput={filters.tagInput}
+          selectedTags={filters.selectedTags}
+          suggestions={filters.suggestions}
+          filteredCount={filters.filteredProjects.length}
+          onTagInputChange={filters.setTagInput}
+          onAddTag={filters.addTag}
+          onRemoveTag={filters.removeTag}
+          onClearTags={() => filters.setSelectedTags([])}
+          onKeyDown={filters.handleKeyDown}
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredProjects.map((project) => (
+          {filters.filteredProjects.map((project) => (
             <ProjectCard
               key={project.id}
               project={project}
@@ -202,12 +90,12 @@ export default function PublicPortfolioList() {
           ))}
         </div>
 
-        {filteredProjects.length === 0 && (
+        {filters.filteredProjects.length === 0 && (
           <div className="text-center py-20">
             <p className="text-gray-500 text-lg">
-              {selectedTags.length > 0
-                ? '?대떦 ?쒓렇瑜?媛吏??꾨줈?앺듃媛 ?놁뒿?덈떎.'
-                : '?꾩쭅 怨듦컻???꾨줈?앺듃媛 ?놁뒿?덈떎.'}
+              {filters.selectedTags.length > 0
+                ? '해당 태그를 가진 프로젝트가 없습니다.'
+                : '아직 공개 프로젝트가 없습니다.'}
             </p>
           </div>
         )}
@@ -215,4 +103,3 @@ export default function PublicPortfolioList() {
     </div>
   );
 }
-

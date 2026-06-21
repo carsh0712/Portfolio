@@ -1,5 +1,9 @@
 import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
+import AuthTextField from '../components/AuthTextField';
+import FormError from '../components/FormError';
+import PageCard from '../components/PageCard';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Login() {
@@ -8,18 +12,18 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
     setError('');
 
     try {
       await login(email, password);
     } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('로그인에 실패했습니다. 다시 시도해주세요.');
-      }
+      setError(
+        err instanceof Error
+          ? err.message
+          : '로그인에 실패했습니다. 다시 시도해주세요.'
+      );
     }
   };
 
@@ -31,45 +35,30 @@ export default function Login() {
           <p className="text-gray-600">포트폴리오를 관리하려면 로그인하세요.</p>
         </div>
 
-        <div className="bg-white rounded-xl shadow-lg p-8">
+        <PageCard>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-red-600 text-sm">{error}</p>
-              </div>
-            )}
+            <FormError message={error} className="mb-0" />
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                이메일
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={isLoading}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
-                placeholder="email@example.com"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                비밀번호
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={isLoading}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors disabled:bg-gray-100 disabled:cursor-not-allowed"
-                placeholder="********"
-              />
-            </div>
+            <AuthTextField
+              id="email"
+              label="이메일"
+              type="email"
+              value={email}
+              onChange={setEmail}
+              required
+              disabled={isLoading}
+              placeholder="email@example.com"
+            />
+            <AuthTextField
+              id="password"
+              label="비밀번호"
+              type="password"
+              value={password}
+              onChange={setPassword}
+              required
+              disabled={isLoading}
+              placeholder="********"
+            />
 
             <button
               type="submit"
@@ -88,7 +77,7 @@ export default function Login() {
               </Link>
             </p>
           </div>
-        </div>
+        </PageCard>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
-import ArrowLeftIcon from '../components/svg/ArrowLeftIcon';
+import BackLink from '../components/BackLink';
+import PageCard from '../components/PageCard';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Profile() {
@@ -12,12 +12,9 @@ export default function Profile() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-12">
-      <Link to="/home" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-8">
-        <ArrowLeftIcon className="w-5 h-5 mr-2" />
-        홈으로 돌아가기
-      </Link>
+      <BackLink to="/home" label="홈으로 돌아가기" />
 
-      <div className="bg-white rounded-xl shadow-lg p-8">
+      <PageCard>
         <div className="flex items-center gap-6 mb-8">
           <div className="w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center">
             <svg
@@ -65,7 +62,7 @@ export default function Profile() {
             </button>
           </div>
         </div>
-      </div>
+      </PageCard>
     </div>
   );
 }

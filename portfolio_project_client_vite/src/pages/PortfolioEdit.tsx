@@ -1,9 +1,13 @@
-﻿import { useCallback, useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import ArrowLeftIcon from '../components/svg/ArrowLeftIcon';
-import { getPortfolioDetail, updatePortfolio } from '../utils/api';
-import type { Portfolio } from '../types/portfolio';
+import { useCallback, useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import BackLink from '../components/BackLink';
+import FormActions from '../components/FormActions';
+import FormError from '../components/FormError';
+import PageCard from '../components/PageCard';
+import PageState from '../components/PageState';
 import PortfolioForm, { type PortfolioFormData } from '../components/PortfolioForm';
+import type { Portfolio } from '../types/portfolio';
+import { getPortfolioDetail, updatePortfolio } from '../utils/api';
 
 export default function PortfolioEdit() {
   const { portfolioCode } = useParams<{ portfolioCode: string }>();
@@ -23,6 +27,7 @@ export default function PortfolioEdit() {
 
   const fetchPortfolio = useCallback(async () => {
     if (!portfolioCode) return;
+
     try {
       setLoading(true);
       const found = await getPortfolioDetail(portfolioCode);
@@ -36,7 +41,7 @@ export default function PortfolioEdit() {
         isPublic: found.is_public,
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : '?ы듃?대━?ㅻ? 遺덈윭?ㅼ? 紐삵뻽?듬땲??');
+      setError(err instanceof Error ? err.message : '포트폴리오를 불러오지 못했습니다.');
     } finally {
       setLoading(false);
     }
@@ -46,9 +51,10 @@ export default function PortfolioEdit() {
     fetchPortfolio();
   }, [fetchPortfolio]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     if (!portfolio) return;
+
     setSubmitting(true);
     setError(null);
 
@@ -63,76 +69,45 @@ export default function PortfolioEdit() {
       });
       navigate(`/portfolio/${formData.code}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '?ы듃?대━???섏젙???ㅽ뙣?덉뒿?덈떎.');
+      setError(err instanceof Error ? err.message : '포트폴리오 수정에 실패했습니다.');
     } finally {
       setSubmitting(false);
     }
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">?ы듃?대━?ㅻ? 遺덈윭?ㅻ뒗 以?..</p>
-        </div>
-      </div>
-    );
+    return <PageState loading message="포트폴리오를 불러오는 중..." />;
   }
 
   if (!portfolio) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">?ы듃?대━?ㅻ? 李얠쓣 ???놁뒿?덈떎</h2>
-          <Link to="/home" className="text-blue-600 hover:text-blue-800">
-            ?덉쑝濡??뚯븘媛湲?          </Link>
-        </div>
-      </div>
+      <PageState
+        title="포트폴리오를 찾을 수 없습니다"
+        message="요청한 포트폴리오가 없거나 접근할 수 없습니다."
+        actionLabel="홈으로 돌아가기"
+        actionTo="/home"
+      />
     );
   }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-12">
-      <Link
-        to={`/portfolio/${portfolioCode}`}
-        className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-8"
-      >
-        <ArrowLeftIcon className="w-5 h-5 mr-2" />
-        ?ы듃?대━?ㅻ줈 ?뚯븘媛湲?      </Link>
+      <BackLink to={`/portfolio/${portfolioCode}`} label="포트폴리오로 돌아가기" />
 
-      <div className="bg-white rounded-xl shadow-lg p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">?ы듃?대━???몄쭛</h1>
-
-        {error && (
-          <div className="p-4 mb-6 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-600 text-sm">{error}</p>
-          </div>
-        )}
+      <PageCard>
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">포트폴리오 편집</h1>
+        <FormError message={error} />
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <PortfolioForm formData={formData} onChange={setFormData} showOrder />
-
-          <div className="flex gap-4 pt-4">
-            <button
-              type="button"
-              onClick={() => navigate(`/portfolio/${portfolioCode}`)}
-              disabled={submitting}
-              className="flex-1 py-3 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              痍⑥냼
-            </button>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="flex-1 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
-            >
-              {submitting ? '저장 중...' : '저장'}
-            </button>
-          </div>
+          <FormActions
+            submitLabel="저장"
+            submittingLabel="저장 중..."
+            isSubmitting={submitting}
+            onCancel={() => navigate(`/portfolio/${portfolioCode}`)}
+          />
         </form>
-      </div>
+      </PageCard>
     </div>
   );
 }
-

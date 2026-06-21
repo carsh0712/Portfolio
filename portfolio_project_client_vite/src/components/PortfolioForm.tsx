@@ -1,5 +1,7 @@
-﻿import { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { uploadImage } from '../utils/api';
+import FormTextField from './FormTextField';
+import FormTextarea from './FormTextarea';
 import ImagePreviewCard from './ImagePreviewCard';
 import Toast from './Toast';
 
@@ -23,17 +25,19 @@ export default function PortfolioForm({ formData, onChange, showOrder }: Portfol
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    onChange({ ...formData, [name]: value });
+  const updateField = <K extends keyof PortfolioFormData>(
+    field: K,
+    value: PortfolioFormData[K]
+  ) => {
+    onChange({ ...formData, [field]: value });
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      setUploadError('?대?吏 ?뚯씪留??낅줈?쒗븷 ???덉뒿?덈떎.');
+      setUploadError('이미지 파일만 업로드할 수 있습니다.');
       return;
     }
 
@@ -42,9 +46,9 @@ export default function PortfolioForm({ formData, onChange, showOrder }: Portfol
 
     try {
       const result = await uploadImage(file);
-      onChange({ ...formData, screenshotFileUuid: result.uuid });
+      updateField('screenshotFileUuid', result.uuid);
     } catch (err) {
-      setUploadError(err instanceof Error ? err.message : '?대?吏 ?낅줈?쒖뿉 ?ㅽ뙣?덉뒿?덈떎.');
+      setUploadError(err instanceof Error ? err.message : '이미지 업로드에 실패했습니다.');
     } finally {
       setUploading(false);
       if (fileInputRef.current) {
@@ -58,60 +62,38 @@ export default function PortfolioForm({ formData, onChange, showOrder }: Portfol
       {uploadError && (
         <Toast message={uploadError} type="error" onClose={() => setUploadError(null)} />
       )}
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-          ?ы듃?대━???대쫫 <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="text"
-          id="name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-          placeholder="예: 내가 만든 앱"
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-        />
-      </div>
+
+      <FormTextField
+        id="name"
+        label="포트폴리오 이름"
+        value={formData.name}
+        onChange={(value) => updateField('name', value)}
+        required
+        placeholder="예: 내가 만든 앱"
+      />
+
+      <FormTextField
+        id="code"
+        label="포트폴리오 코드"
+        value={formData.code}
+        onChange={(value) => updateField('code', value)}
+        required
+        placeholder="예: my-apps, web-projects"
+        pattern="[a-z0-9-]+"
+        helperText="영문 소문자, 숫자, 하이픈(-)만 사용할 수 있습니다."
+      />
+
+      <FormTextarea
+        id="description"
+        label="설명"
+        value={formData.description}
+        onChange={(value) => updateField('description', value)}
+        required
+        placeholder="포트폴리오에 대한 간단한 설명을 입력하세요."
+      />
 
       <div>
-        <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-2">
-          ?ы듃?대━??肄붾뱶 <span className="text-red-500">*</span>
-        </label>
-        <input
-          type="text"
-          id="code"
-          name="code"
-          value={formData.code}
-          onChange={handleChange}
-          required
-          placeholder="?? my-apps, web-projects"
-          pattern="[a-z0-9-]+"
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-        />
-        <p className="mt-1 text-sm text-gray-500">
-          ?곷Ц ?뚮Ц?? ?レ옄, ?섏씠??-)留??ъ슜?????덉뒿?덈떎.
-        </p>
-      </div>
-
-      <div>
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-          ?ㅻ챸 <span className="text-red-500">*</span>
-        </label>
-        <textarea
-          id="description"
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-          required
-          rows={3}
-          placeholder="?ы듃?대━?ㅼ뿉 ???媛꾨떒???ㅻ챸???낅젰?섏꽭??"
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">?대?吏 (?좏깮)</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">이미지 (선택)</label>
         <div className="space-y-3">
           <div className="flex items-center gap-3">
             <button
@@ -130,7 +112,7 @@ export default function PortfolioForm({ formData, onChange, showOrder }: Portfol
               className="hidden"
             />
             {formData.screenshotFileUuid && (
-              <span className="text-sm text-green-600 truncate max-w-xs">?낅줈???꾨즺</span>
+              <span className="text-sm text-green-600 truncate max-w-xs">업로드 완료</span>
             )}
           </div>
 
@@ -139,30 +121,22 @@ export default function PortfolioForm({ formData, onChange, showOrder }: Portfol
           {formData.screenshotFileUuid && (
             <ImagePreviewCard
               fileUuid={formData.screenshotFileUuid}
-              alt="?ы듃?대━???대?吏 誘몃━蹂닿린"
-              onRemove={() => {
-                onChange({ ...formData, screenshotFileUuid: null });
-              }}
+              alt="포트폴리오 이미지 미리보기"
+              onRemove={() => updateField('screenshotFileUuid', null)}
             />
           )}
         </div>
       </div>
 
       {showOrder && (
-        <div>
-          <label htmlFor="order" className="block text-sm font-medium text-gray-700 mb-2">
-            ?뺣젹 ?쒖꽌
-          </label>
-          <input
-            type="number"
-            id="order"
-            name="order"
-            value={formData.order ?? 0}
-            onChange={(e) => onChange({ ...formData, order: Number(e.target.value) })}
-            required
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-          />
-        </div>
+        <FormTextField
+          id="order"
+          label="정렬 순서"
+          type="number"
+          value={formData.order ?? 0}
+          onChange={(value) => updateField('order', Number(value))}
+          required
+        />
       )}
 
       <div className="flex items-center gap-3">
@@ -171,17 +145,16 @@ export default function PortfolioForm({ formData, onChange, showOrder }: Portfol
           id="isPublic"
           name="isPublic"
           checked={formData.isPublic}
-          onChange={(e) => onChange({ ...formData, isPublic: e.target.checked })}
+          onChange={(event) => updateField('isPublic', event.target.checked)}
           className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
         />
         <label htmlFor="isPublic" className="text-sm font-medium text-gray-700">
-          怨듦컻 ?ы듃?대━?ㅻ줈 ?ㅼ젙
+          공개 포트폴리오로 설정
         </label>
         <span className="text-xs text-gray-500">
-          ({formData.isPublic ? '?ㅻⅨ ?ъ슜?먭? 蹂????덉뒿?덈떎' : '?섎쭔 蹂????덉뒿?덈떎'})
+          ({formData.isPublic ? '다른 사용자가 볼 수 있습니다' : '나만 볼 수 있습니다'})
         </span>
       </div>
     </>
   );
 }
-

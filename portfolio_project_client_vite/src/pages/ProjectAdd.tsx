@@ -1,10 +1,12 @@
-﻿import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import ArrowLeftIcon from '../components/svg/ArrowLeftIcon';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import BackLink from '../components/BackLink';
+import FormError from '../components/FormError';
+import PageState from '../components/PageState';
+import ProjectEditForm from '../components/ProjectEditForm';
 import type { Portfolio } from '../types/portfolio';
 import type { Project } from '../types/project';
-import { getPortfolioDetail, createProject } from '../utils/api';
-import ProjectEditForm from '../components/ProjectEditForm';
+import { createProject, getPortfolioDetail } from '../utils/api';
 
 const emptyProject: Project = {
   id: '',
@@ -36,13 +38,14 @@ export default function ProjectAdd() {
       try {
         const found = await getPortfolioDetail(portfolioCode!);
         setPortfolio(found);
-      } catch (error) {
-        console.error('?ы듃?대━??議고쉶 ?ㅽ뙣:', error);
+      } catch (err) {
+        console.error('포트폴리오 조회 실패:', err);
         setPortfolio(null);
       } finally {
         setLoading(false);
       }
     }
+
     if (portfolioCode) fetchPortfolio();
     else setLoading(false);
   }, [portfolioCode]);
@@ -55,7 +58,7 @@ export default function ProjectAdd() {
     setError(null);
 
     try {
-      const requestBody = {
+      await createProject({
         portfolio_code: portfolioCode!,
         code: data.code,
         title: data.title,
@@ -63,14 +66,14 @@ export default function ProjectAdd() {
         thumbnail: data.thumbnailFileUuid ? { file_uuid: data.thumbnailFileUuid } : null,
         tags: data.tags
           .split(',')
-          .map((s) => s.trim())
+          .map((tag) => tag.trim())
           .filter(Boolean),
         order: 0,
         is_public: data.isPublic,
         description: data.description,
         tech_stack: data.techStack
           .split(',')
-          .map((s) => s.trim())
+          .map((tech) => tech.trim())
           .filter(Boolean),
         screenshots: data.screenshots,
         links: data.links,
@@ -78,49 +81,33 @@ export default function ProjectAdd() {
         end_date: data.endDate,
         features: data.features
           .split('\n')
-          .map((s) => s.trim())
+          .map((feature) => feature.trim())
           .filter(Boolean),
-      };
-
-      await createProject(requestBody);
+      });
       navigate(`/portfolio/${portfolioCode}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '?꾨줈?앺듃 ?앹꽦???ㅽ뙣?덉뒿?덈떎.');
+      setError(err instanceof Error ? err.message : '프로젝트 생성에 실패했습니다.');
     }
   };
 
-  const handleCancel = () => {
-    navigate(`/portfolio/${portfolioCode}`);
-  };
-
   if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-gray-500">濡쒕뵫 以?..</div>
-      </div>
-    );
+    return <PageState loading message="포트폴리오를 불러오는 중..." />;
   }
 
   if (!portfolio) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">?ы듃?대━?ㅻ? 李얠쓣 ???놁뒿?덈떎</h1>
-          <Link to="/home" className="text-blue-600 hover:text-blue-800 underline">
-            ?덉쑝濡??뚯븘媛湲?          </Link>
-        </div>
-      </div>
+      <PageState
+        title="포트폴리오를 찾을 수 없습니다"
+        message="요청한 포트폴리오가 없거나 접근할 수 없습니다."
+        actionLabel="홈으로 돌아가기"
+        actionTo="/home"
+      />
     );
   }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
-      <Link
-        to={`/portfolio/${portfolioCode}`}
-        className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-8"
-      >
-        <ArrowLeftIcon className="w-5 h-5 mr-2" />
-        {portfolio.name}?쇰줈 ?뚯븘媛湲?      </Link>
+      <BackLink to={`/portfolio/${portfolioCode}`} label={`${portfolio.name}으로 돌아가기`} />
 
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
         <div className="h-64 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
@@ -128,19 +115,14 @@ export default function ProjectAdd() {
         </div>
 
         <div className="p-8">
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-              {error}
-            </div>
-          )}
+          <FormError message={error} className="text-red-700" />
           <ProjectEditForm
             project={{ ...emptyProject, portfolioCode: portfolioCode || '' }}
             onSave={handleSave}
-            onCancel={handleCancel}
+            onCancel={() => navigate(`/portfolio/${portfolioCode}`)}
           />
         </div>
       </div>
     </div>
   );
 }
-

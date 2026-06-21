@@ -55,7 +55,7 @@ export default function ScreenshotCard({
                   ? 'text-yellow-500 hover:text-yellow-600'
                   : 'text-gray-400 hover:text-yellow-500'
               }`}
-              title={isThumbnail ? '대표 해제' : '대표 스크린샷으로 설정'}
+              title={isThumbnail ? '대표 이미지 해제' : '대표 이미지로 설정'}
             >
               <StarIcon className="w-4 h-4" />
             </button>
@@ -74,8 +74,8 @@ export default function ScreenshotCard({
           <input
             type="file"
             accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
+            onChange={(event) => {
+              const file = event.target.files?.[0];
               if (file) onFileChange(file);
             }}
             className="w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
@@ -86,7 +86,7 @@ export default function ScreenshotCard({
           <input
             type="text"
             value={screenshot.caption || ''}
-            onChange={(e) => onCaptionChange(e.target.value)}
+            onChange={(event) => onCaptionChange(event.target.value)}
             placeholder="스크린샷 설명"
             className="w-full px-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
