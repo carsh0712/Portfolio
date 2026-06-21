@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import ArrowLeftIcon from '../components/svg/ArrowLeftIcon';
 import ProjectLinks from '../components/ProjectLinks';
@@ -8,7 +8,7 @@ import type { Project, PublicProjectDetail as PublicProjectDetailType } from '..
 function publicProjectDetailToProject(detail: PublicProjectDetailType): Project {
   return {
     id: String(detail.id),
-    categoryId: String(detail.portfolio_id),
+    portfolioCode: String(detail.portfolio_id),
     code: detail.code,
     title: detail.title,
     summary: detail.summary,
@@ -53,7 +53,7 @@ export default function PublicProjectDetail() {
         const projectData = publicProjectDetailToProject(detailResponse);
         setProject(projectData);
       } catch (err) {
-        setError(err instanceof Error ? err.message : '프로젝트를 불러오지 못했습니다.');
+        setError(err instanceof Error ? err.message : '?꾨줈?앺듃瑜?遺덈윭?ㅼ? 紐삵뻽?듬땲??');
         console.error('Failed to fetch public project:', err);
       } finally {
         setIsLoading(false);
@@ -85,7 +85,7 @@ export default function PublicProjectDetail() {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">프로젝트를 불러오는 중...</p>
+          <p className="text-gray-600">?꾨줈?앺듃瑜?遺덈윭?ㅻ뒗 以?..</p>
         </div>
       </div>
     );
@@ -95,14 +95,13 @@ export default function PublicProjectDetail() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">오류가 발생했습니다</h1>
+          <h1 className="text-2xl font-bold text-red-600 mb-4">?ㅻ쪟媛 諛쒖깮?덉뒿?덈떎</h1>
           <p className="text-gray-600 mb-4">{error}</p>
           <Link
             to={`/public/${username}/${portfolioCode}`}
             className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
-            목록으로 돌아가기
-          </Link>
+            紐⑸줉?쇰줈 ?뚯븘媛湲?          </Link>
         </div>
       </div>
     );
@@ -112,13 +111,12 @@ export default function PublicProjectDetail() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">프로젝트를 찾을 수 없습니다</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">?꾨줈?앺듃瑜?李얠쓣 ???놁뒿?덈떎</h1>
           <Link
             to={`/public/${username}/${portfolioCode}`}
             className="text-blue-600 hover:text-blue-800 underline"
           >
-            목록으로 돌아가기
-          </Link>
+            紐⑸줉?쇰줈 ?뚯븘媛湲?          </Link>
         </div>
       </div>
     );
@@ -132,8 +130,7 @@ export default function PublicProjectDetail() {
           className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-8"
         >
           <ArrowLeftIcon className="w-5 h-5 mr-2" />
-          목록으로 돌아가기
-        </Link>
+          紐⑸줉?쇰줈 ?뚯븘媛湲?        </Link>
 
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
           {project.thumbnailFileUuid && username ? (
@@ -173,7 +170,7 @@ export default function PublicProjectDetail() {
             <div className="border-t border-gray-200 pt-8">
               {project.screenshots && project.screenshots.length > 0 && (
                 <>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">스크린샷</h2>
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">?ㅽ겕由곗꺑</h2>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
                     {project.screenshots.map((screenshot, index) => (
                       <button
@@ -183,7 +180,7 @@ export default function PublicProjectDetail() {
                       >
                         <img
                           src={username ? getPublicFileUrl(username, screenshot.file_uuid) : ''}
-                          alt={screenshot.caption || `스크린샷 ${index + 1}`}
+                          alt={screenshot.caption || `?ㅽ겕由곗꺑 ${index + 1}`}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                         />
                         {screenshot.caption && (
@@ -197,12 +194,12 @@ export default function PublicProjectDetail() {
                 </>
               )}
 
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">프로젝트 설명</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">?꾨줈?앺듃 ?ㅻ챸</h2>
               <p className="text-gray-700 leading-relaxed mb-8">{project.description}</p>
 
               {project.techStack.length > 0 && (
                 <>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">기술 스택</h2>
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">湲곗닠 ?ㅽ깮</h2>
                   <div className="flex flex-wrap gap-2 mb-8">
                     {project.techStack.map((tech) => (
                       <span
@@ -218,7 +215,7 @@ export default function PublicProjectDetail() {
 
               {project.features.length > 0 && (
                 <>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">주요 기능</h2>
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">二쇱슂 湲곕뒫</h2>
                   <ul className="space-y-3 mb-8">
                     {project.features.map((feature, index) => (
                       <li key={index} className="flex items-start">
@@ -233,11 +230,11 @@ export default function PublicProjectDetail() {
               <div className="pt-8 border-t border-gray-200">
                 <div className="flex gap-8 text-sm text-gray-500">
                   <div>
-                    <span className="font-medium">시작일:</span> {project.startDate}
+                    <span className="font-medium">?쒖옉??</span> {project.startDate}
                   </div>
                   {project.endDate && (
                     <div>
-                      <span className="font-medium">종료일:</span> {project.endDate}
+                      <span className="font-medium">醫낅즺??</span> {project.endDate}
                     </div>
                   )}
                 </div>
@@ -275,11 +272,11 @@ export default function PublicProjectDetail() {
               onClick={() => setSelectedIndex(null)}
               className="absolute -top-10 right-0 text-white hover:text-gray-300"
             >
-              <span className="text-4xl leading-none">×</span>
+              <span className="text-4xl leading-none">횞</span>
             </button>
             <img
               src={username ? getPublicFileUrl(username, selectedImage.file_uuid) : ''}
-              alt={selectedImage.caption || '스크린샷'}
+              alt={selectedImage.caption || '?ㅽ겕由곗꺑'}
               className="max-w-full max-h-[85vh] object-contain rounded-lg"
               onClick={(e) => e.stopPropagation()}
             />
@@ -302,3 +299,4 @@ export default function PublicProjectDetail() {
     </div>
   );
 }
+

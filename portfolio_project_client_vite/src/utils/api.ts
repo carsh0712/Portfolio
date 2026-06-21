@@ -1,19 +1,19 @@
-import type { AuthTokens, AuthUser, SignupRequest, SignupResponse } from '../types/auth';
+﻿import type { AuthTokens, AuthUser, SignupRequest, SignupResponse } from '../types/auth';
 import type {
-  PortfolioCategory,
-  PortfolioCategoryListResponse,
-  CreatePortfolioCategoryRequest,
-  CreatePortfolioCategoryResponse,
-  UpdatePortfolioCategoryRequest,
-  UpdatePortfolioCategoryResponse,
-} from '../types/category';
-import type {
-  PortfolioListResponse,
   Portfolio,
-  PublicPortfolioItem,
+  PortfolioListResponse,
+  CreatePortfolioRequest,
+  CreatePortfolioResponse,
+  UpdatePortfolioRequest,
+  UpdatePortfolioResponse,
+} from '../types/portfolio';
+import type {
+  ProjectListResponse,
+  ProjectDetailResponse,
+  PublicProjectItem,
   PublicProjectDetail,
   CreateProjectRequest,
-  UpdatePortfolioRequest,
+  UpdateProjectRequest,
 } from '../types/project';
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
@@ -121,7 +121,7 @@ export async function signup(data: SignupRequest): Promise<SignupResponse> {
   });
 
   if (!response.ok) {
-    throw new Error(await getErrorMessage(response, '회원가입에 실패했습니다.'));
+    throw new Error(await getErrorMessage(response, '?뚯썝媛?낆뿉 ?ㅽ뙣?덉뒿?덈떎.'));
   }
 
   return response.json();
@@ -133,85 +133,79 @@ export async function getCurrentUser(): Promise<AuthUser> {
   });
 
   if (!response.ok) {
-    throw new Error(`현재 사용자 정보를 불러오지 못했습니다: ${response.statusText}`);
+    throw new Error(`?꾩옱 ?ъ슜???뺣낫瑜?遺덈윭?ㅼ? 紐삵뻽?듬땲?? ${response.statusText}`);
   }
 
   return response.json();
 }
 
-export async function getPortfolioCategories(
+export async function getPortfolios(
   page: number = 1,
   pageSize: number = 10
-): Promise<PortfolioCategoryListResponse> {
+): Promise<PortfolioListResponse> {
   const response = await apiFetch(`/api/v1/portfolios/?page=${page}&page_size=${pageSize}`, {
     method: 'GET',
   });
 
   if (!response.ok) {
-    throw new Error(`포트폴리오 목록을 불러오지 못했습니다: ${response.statusText}`);
+    throw new Error(`?ы듃?대━??紐⑸줉??遺덈윭?ㅼ? 紐삵뻽?듬땲?? ${response.statusText}`);
   }
 
   return response.json();
 }
 
-export async function createPortfolioCategory(
-  data: CreatePortfolioCategoryRequest
-): Promise<CreatePortfolioCategoryResponse> {
+export async function createPortfolio(
+  data: CreatePortfolioRequest
+): Promise<CreatePortfolioResponse> {
   const response = await apiFetch('/api/v1/portfolios/', {
     method: 'POST',
     body: JSON.stringify(data),
   });
 
   if (!response.ok) {
-    throw new Error(await getErrorMessage(response, '포트폴리오 추가에 실패했습니다.'));
+    throw new Error(await getErrorMessage(response, '?ы듃?대━??異붽????ㅽ뙣?덉뒿?덈떎.'));
   }
 
   return response.json();
 }
 
-export async function getPortfolioCategoryDetail(code: string): Promise<PortfolioCategory> {
+export async function getPortfolioDetail(code: string): Promise<Portfolio> {
   const response = await apiFetch(`/api/v1/portfolios/${code}`, {
     method: 'GET',
   });
 
   if (!response.ok) {
-    throw new Error(`포트폴리오를 불러오지 못했습니다: ${response.statusText}`);
+    throw new Error(`?ы듃?대━?ㅻ? 遺덈윭?ㅼ? 紐삵뻽?듬땲?? ${response.statusText}`);
   }
 
   return response.json();
 }
 
-export async function updatePortfolioCategory(
+export async function updatePortfolio(
   code: string,
-  data: UpdatePortfolioCategoryRequest
-): Promise<UpdatePortfolioCategoryResponse> {
+  data: UpdatePortfolioRequest
+): Promise<UpdatePortfolioResponse> {
   const response = await apiFetch(`/api/v1/portfolios/${code}`, {
     method: 'PUT',
     body: JSON.stringify(data),
   });
 
   if (!response.ok) {
-    throw new Error(await getErrorMessage(response, '포트폴리오 수정에 실패했습니다.'));
+    throw new Error(await getErrorMessage(response, '?ы듃?대━???섏젙???ㅽ뙣?덉뒿?덈떎.'));
   }
 
   return response.json();
 }
 
-export async function deletePortfolioCategory(code: string): Promise<void> {
+export async function deletePortfolio(code: string): Promise<void> {
   const response = await apiFetch(`/api/v1/portfolios/${code}`, {
     method: 'DELETE',
   });
 
   if (!response.ok) {
-    throw new Error(await getErrorMessage(response, '포트폴리오 삭제에 실패했습니다.'));
+    throw new Error(await getErrorMessage(response, '?ы듃?대━????젣???ㅽ뙣?덉뒿?덈떎.'));
   }
 }
-
-export const getCategories = getPortfolioCategories;
-export const createCategory = createPortfolioCategory;
-export const getCategoryDetail = getPortfolioCategoryDetail;
-export const updateCategory = updatePortfolioCategory;
-export const deleteCategory = deletePortfolioCategory;
 
 export interface UploadFileResponse {
   uuid: string;
@@ -232,7 +226,7 @@ export async function uploadImage(file: File): Promise<UploadFileResponse> {
   });
 
   if (!response.ok) {
-    throw new Error(await getErrorMessage(response, '이미지 업로드에 실패했습니다.'));
+    throw new Error(await getErrorMessage(response, '?대?吏 ?낅줈?쒖뿉 ?ㅽ뙣?덉뒿?덈떎.'));
   }
 
   return response.json();
@@ -249,18 +243,18 @@ export function getPublicFileUrl(username: string, fileUuid: string): string {
 export async function fetchFileAsObjectUrl(fileUuid: string): Promise<string> {
   const response = await apiFetch(`/api/v1/files/${fileUuid}`);
   if (!response.ok) {
-    throw new Error('파일을 불러오지 못했습니다.');
+    throw new Error('?뚯씪??遺덈윭?ㅼ? 紐삵뻽?듬땲??');
   }
   const blob = await response.blob();
   return URL.createObjectURL(blob);
 }
 
-export async function getPortfolios(
+export async function getProjects(
   portfolioCode: string,
   page: number = 1,
   pageSize: number = 10,
   search?: string
-): Promise<PortfolioListResponse> {
+): Promise<ProjectListResponse> {
   const params = new URLSearchParams({
     portfolio_code: portfolioCode,
     page: String(page),
@@ -273,68 +267,68 @@ export async function getPortfolios(
   });
 
   if (!response.ok) {
-    throw new Error(`프로젝트 목록을 불러오지 못했습니다: ${response.statusText}`);
+    throw new Error(`?꾨줈?앺듃 紐⑸줉??遺덈윭?ㅼ? 紐삵뻽?듬땲?? ${response.statusText}`);
   }
 
   return response.json();
 }
 
-export async function getPortfolioDetail(
+export async function getProjectDetail(
   portfolioCode: string,
   projectCode: string
-): Promise<Portfolio> {
+): Promise<ProjectDetailResponse> {
   const response = await apiFetch(`/api/v1/projects/${portfolioCode}/${projectCode}`, {
     method: 'GET',
   });
 
   if (!response.ok) {
-    throw new Error(`프로젝트 상세 정보를 불러오지 못했습니다: ${response.statusText}`);
+    throw new Error(`?꾨줈?앺듃 ?곸꽭 ?뺣낫瑜?遺덈윭?ㅼ? 紐삵뻽?듬땲?? ${response.statusText}`);
   }
 
   return response.json();
 }
 
-export async function updatePortfolio(
+export async function updateProject(
   portfolioCode: string,
   projectCode: string,
-  data: UpdatePortfolioRequest
-): Promise<Portfolio> {
+  data: UpdateProjectRequest
+): Promise<ProjectDetailResponse> {
   const response = await apiFetch(`/api/v1/projects/${portfolioCode}/${projectCode}`, {
     method: 'PUT',
     body: JSON.stringify(data),
   });
 
   if (!response.ok) {
-    throw new Error(await getErrorMessage(response, '프로젝트 수정에 실패했습니다.'));
+    throw new Error(await getErrorMessage(response, '?꾨줈?앺듃 ?섏젙???ㅽ뙣?덉뒿?덈떎.'));
   }
 
   return response.json();
 }
 
-export async function createProject(data: CreateProjectRequest): Promise<Portfolio> {
+export async function createProject(data: CreateProjectRequest): Promise<ProjectDetailResponse> {
   const response = await apiFetch('/api/v1/projects/', {
     method: 'POST',
     body: JSON.stringify(data),
   });
 
   if (!response.ok) {
-    throw new Error(await getErrorMessage(response, '프로젝트 생성에 실패했습니다.'));
+    throw new Error(await getErrorMessage(response, '?꾨줈?앺듃 ?앹꽦???ㅽ뙣?덉뒿?덈떎.'));
   }
 
   return response.json();
 }
 
-export async function getPublicPortfolios(
+export async function getPublicProjects(
   username: string,
   portfolioCode: string
-): Promise<PublicPortfolioItem[]> {
+): Promise<PublicProjectItem[]> {
   const response = await fetch(`${API_BASE_URL}/api/v1/public/${username}/${portfolioCode}/`, {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' },
   });
 
   if (!response.ok) {
-    throw new Error(`공개 프로젝트 목록을 불러오지 못했습니다: ${response.statusText}`);
+    throw new Error(`怨듦컻 ?꾨줈?앺듃 紐⑸줉??遺덈윭?ㅼ? 紐삵뻽?듬땲?? ${response.statusText}`);
   }
 
   return response.json();
@@ -354,8 +348,9 @@ export async function getPublicProjectDetail(
   );
 
   if (!response.ok) {
-    throw new Error(`공개 프로젝트 상세 정보를 불러오지 못했습니다: ${response.statusText}`);
+    throw new Error(`怨듦컻 ?꾨줈?앺듃 ?곸꽭 ?뺣낫瑜?遺덈윭?ㅼ? 紐삵뻽?듬땲?? ${response.statusText}`);
   }
 
   return response.json();
 }
+

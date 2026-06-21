@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+﻿import { Link } from 'react-router-dom';
 import type { Project } from '../types/project';
 import AuthImage from './AuthImage';
 import PublicStatusBadge from './PublicStatusBadge';
@@ -10,7 +10,7 @@ interface ProjectCardProps {
 }
 
 export default function ProjectCard({ project, linkPath, thumbnailUrl }: ProjectCardProps) {
-  const defaultPath = `/portfolio/${project.categoryId}/project/${project.code}`;
+  const defaultPath = `/portfolio/${project.portfolioCode}/project/${project.code}`;
   const path = linkPath || defaultPath;
   const allTags = [...new Set([...project.techStack, ...project.tags])];
 
@@ -71,3 +71,4 @@ export default function ProjectCard({ project, linkPath, thumbnailUrl }: Project
     </Link>
   );
 }
+

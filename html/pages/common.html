@@ -10,7 +10,7 @@
   <header>
     <div class="inner">
       <h1>공통 정보</h1>
-      <p class="lead">클라이언트와 서버가 함께 공유하는 도메인, 연동 구조, 인증/파일/공개 흐름을 정리했습니다.</p>
+      <p class="lead">클라이언트와 서버가 공유하는 도메인 개념, API 흐름, 인증 및 파일 처리 기준을 정리했습니다.</p>
     </div>
   </header>
 
@@ -20,45 +20,24 @@
       <a href="common.html">공통 정보</a>
       <a href="client.html">클라이언트</a>
       <a href="server.html">서버</a>
-      <a href="improvements.html">개선 포인트</a>
+      <a href="improvements.html">개선 사항</a>
     </div>
   </nav>
 
   <main>
     <section>
-      <div class="section-kicker">Common</div>
-      <h2>프로젝트 관계</h2>
-      <div class="grid two">
-        <div class="box">
-          <h3>두 프로젝트</h3>
-          <p><code>portfolio_project_client_vite</code>는 브라우저에서 실행되는 React SPA입니다.</p>
-          <p><code>portfolio_project_server_fastapi</code>는 Flask 기반 API 서버입니다.</p>
-        </div>
-        <div class="box">
-          <h3>연동 기준</h3>
-          <p>두 프로젝트는 <code>/api/v1</code> REST API, JWT 인증, 업로드 파일 UUID를 기준으로 연결됩니다.</p>
-          <p>클라이언트 기본 API 주소는 <code>VITE_API_BASE_URL</code>이며, 미설정 시 <code>http://localhost:8000</code>입니다.</p>
-        </div>
-      </div>
-    </section>
-
-    <section>
       <div class="section-kicker">Domain</div>
       <h2>공통 도메인 개념</h2>
       <table>
         <thead>
-          <tr>
-            <th>개념</th>
-            <th>설명</th>
-            <th>관련 코드</th>
-          </tr>
+          <tr><th>개념</th><th>정의</th><th>대표 코드</th></tr>
         </thead>
         <tbody>
-          <tr><td>사용자</td><td>로그인 주체입니다. username, email, password_hash를 가집니다.</td><td><code>User</code>, <code>AuthUser</code></td></tr>
-          <tr><td>카테고리/Portfolio</td><td>프로젝트 묶음입니다. 클라이언트에서는 Category, 서버에서는 Portfolio로 주로 표현됩니다.</td><td><code>Portfolio</code>, <code>Category</code></td></tr>
-          <tr><td>프로젝트</td><td>포트폴리오 안의 실제 작업물 항목입니다. 설명, 기술 스택, 링크, 스크린샷을 가집니다.</td><td><code>Project</code>, <code>PortfolioItem</code></td></tr>
-          <tr><td>파일</td><td>대표 이미지, 썸네일, 스크린샷에 쓰이는 업로드 파일입니다.</td><td><code>UploadFile</code>, <code>UploadFileResponse</code></td></tr>
-          <tr><td>공개 여부</td><td>카테고리와 프로젝트의 <code>is_public</code> 값으로 공개 페이지 노출을 제어합니다.</td><td><code>is_public</code></td></tr>
+          <tr><td>사용자</td><td>로그인 주체입니다. username, email, 인증 정보를 가집니다.</td><td><code>User</code>, <code>AuthUser</code></td></tr>
+          <tr><td>Portfolio</td><td>프로젝트를 묶는 상위 단위입니다. 클라이언트와 서버의 상위 묶음 용어를 Portfolio로 통일했습니다.</td><td><code>Portfolio</code>, <code>PortfolioForm</code>, <code>getPortfolios</code></td></tr>
+          <tr><td>Project</td><td>Portfolio 안에 포함되는 실제 작업물입니다. 제목, 설명, 기술 스택, 태그, 링크, 스크린샷을 가집니다.</td><td><code>Project</code>, <code>ProjectListItem</code>, <code>ProjectDetailResponse</code></td></tr>
+          <tr><td>파일</td><td>대표 이미지, 썸네일, 스크린샷으로 사용하는 업로드 파일입니다.</td><td><code>UploadFile</code>, <code>UploadFileResponse</code></td></tr>
+          <tr><td>공개 여부</td><td>Portfolio와 Project의 <code>is_public</code> 값으로 공개 페이지 노출을 제어합니다.</td><td><code>is_public</code></td></tr>
         </tbody>
       </table>
     </section>
@@ -67,49 +46,44 @@
       <div class="section-kicker">Architecture</div>
       <h2>연동 구조</h2>
       <div class="flow">
-        <div class="step"><strong>브라우저</strong>가 React SPA를 실행하고 화면 라우팅을 처리합니다.</div>
-        <div class="step"><strong>API 클라이언트</strong>인 <code>src/utils/api.ts</code>가 서버 API 주소로 HTTP 요청을 보냅니다.</div>
+        <div class="step"><strong>React SPA</strong>가 화면 라우팅과 사용자 입력을 처리합니다.</div>
+        <div class="step"><strong>API 클라이언트</strong>인 <code>src/utils/api.ts</code>가 서버 REST API를 호출합니다.</div>
         <div class="step"><strong>인증 요청</strong>에는 <code>Authorization: Bearer {access_token}</code> 헤더가 붙습니다.</div>
-        <div class="step"><strong>Flask 서버</strong>는 <code>/api/v1/*</code> Blueprint 라우터에서 요청을 처리합니다.</div>
-        <div class="step"><strong>MySQL</strong>에는 사용자, 카테고리, 프로젝트, 파일, CORS origin, 폐기 토큰 정보가 저장됩니다.</div>
+        <div class="step"><strong>FastAPI 서버</strong>는 <code>/api/v1/*</code> 엔드포인트로 인증, Portfolio, Project, 파일 API를 제공합니다.</div>
+        <div class="step"><strong>DB와 uploads</strong>에는 사용자, Portfolio, Project, 업로드 파일 메타데이터와 실제 파일이 저장됩니다.</div>
       </div>
-
       <pre>Client SPA
   -> src/utils/api.ts
   -> http://localhost:8000/api/v1/*
-  -> Flask app.py
-  -> routers/*.py
-  -> SQLAlchemy models.py
-  -> MySQL + uploads directory</pre>
+  -> FastAPI app
+  -> routers/services/models
+  -> database + uploads directory</pre>
     </section>
 
     <section>
       <div class="section-kicker">Flows</div>
       <h2>공통 동작 흐름</h2>
-
       <h3>로그인과 토큰 갱신</h3>
       <ol>
-        <li>사용자가 <code>/login</code>에서 이메일과 비밀번호를 입력합니다.</li>
-        <li>클라이언트는 <code>POST /api/v1/auth/login</code>을 호출합니다.</li>
-        <li>서버는 email로 사용자를 찾고 bcrypt 해시로 비밀번호를 검증합니다.</li>
-        <li>성공 시 access token과 refresh token을 반환합니다.</li>
-        <li>클라이언트는 토큰을 <code>localStorage.auth_tokens</code>에 저장하고 <code>/api/v1/user/me</code>를 호출합니다.</li>
-        <li>401 응답이 발생하면 <code>/api/v1/auth/refresh</code>로 access token을 재발급받아 원 요청을 재시도합니다.</li>
+        <li>사용자가 <code>/login</code>에서 email과 password를 입력합니다.</li>
+        <li>클라이언트가 <code>POST /api/v1/auth/login</code>을 호출합니다.</li>
+        <li>성공하면 access token과 refresh token을 <code>localStorage.auth_tokens</code>에 저장합니다.</li>
+        <li>인증 API에서 401 응답을 받으면 <code>/api/v1/auth/refresh</code>로 access token을 재발급받고 요청을 재시도합니다.</li>
       </ol>
 
-      <h3>파일 업로드와 이미지 표시</h3>
+      <h3>Portfolio와 Project 관리</h3>
       <ol>
-        <li>카테고리 대표 이미지, 프로젝트 썸네일, 스크린샷은 먼저 <code>/api/v1/files/upload</code>로 업로드됩니다.</li>
-        <li>서버는 파일을 <code>UPLOAD_DIR</code>에 저장하고 <code>UploadFile</code> 메타데이터를 DB에 기록합니다.</li>
-        <li>클라이언트는 응답의 <code>uuid</code>를 <code>screenshot.file_uuid</code>, <code>thumbnail.file_uuid</code> 같은 참조값으로 저장합니다.</li>
-        <li>관리 화면은 인증 파일 API인 <code>/api/v1/files/{uuid}</code>를 사용하고, 공개 화면은 <code>/api/v1/public/{username}/file/{uuid}</code>를 사용합니다.</li>
+        <li>사용자는 <code>/home</code>에서 Portfolio 목록을 확인합니다.</li>
+        <li>Portfolio 생성, 수정, 삭제는 <code>/api/v1/portfolios</code> 계열 API를 사용합니다.</li>
+        <li>특정 Portfolio 안의 Project 목록과 상세는 <code>/api/v1/projects</code> 계열 API를 사용합니다.</li>
+        <li>클라이언트 라우트 파라미터는 <code>:portfolioCode</code>와 <code>:projectCode</code>를 사용합니다.</li>
       </ol>
 
-      <h3>공개 페이지 조회</h3>
+      <h3>공개 페이지</h3>
       <ol>
-        <li>외부 사용자는 <code>/public/:username/:categoryCode</code>로 접근합니다.</li>
-        <li>클라이언트는 인증 헤더 없이 공개 API를 호출합니다.</li>
-        <li>서버는 사용자, 카테고리, 프로젝트가 모두 공개 상태인지 확인한 뒤 데이터를 반환합니다.</li>
+        <li>외부 사용자는 <code>/public/:username/:portfolioCode</code>로 공개 Project 목록에 접근합니다.</li>
+        <li>Project 상세는 <code>/public/:username/:portfolioCode/:projectCode</code>로 접근합니다.</li>
+        <li>공개 API는 인증 헤더 없이 호출되며 공개 상태인 Portfolio와 Project만 노출해야 합니다.</li>
       </ol>
     </section>
   </main>

@@ -1,6 +1,6 @@
-import { http, HttpResponse } from 'msw';
+﻿import { http, HttpResponse } from 'msw';
 
-const mockCategory = {
+const mockPortfolio = {
   id: 1,
   user_id: 1,
   code: 'web',
@@ -13,7 +13,7 @@ const mockCategory = {
   updated_at: '2024-01-01T00:00:00Z',
 };
 
-const mockPortfolioItem = {
+const mockProjectItem = {
   code: 'test-project',
   title: 'Test Project',
   summary: 'A test project',
@@ -24,7 +24,7 @@ const mockPortfolioItem = {
   is_public: true,
 };
 
-const mockPublicPortfolioItem = {
+const mockPublicProjectItem = {
   id: 1,
   portfolio_id: 1,
   code: 'test-project',
@@ -39,7 +39,7 @@ const mockPublicPortfolioItem = {
   updated_at: '2024-01-01T00:00:00Z',
 };
 
-const mockPortfolioDetail = {
+const mockProjectDetail = {
   id: 1,
   portfolio_id: 1,
   code: 'test-project',
@@ -101,17 +101,17 @@ export const handlers = [
     });
   }),
 
-  // Categories (Portfolios 엔드포인트 사용)
+  // Portfolios
   http.get('*/api/v1/portfolios/:code', ({ params }) => {
-    if (params.code === mockCategory.code) {
-      return HttpResponse.json(mockCategory);
+    if (params.code === mockPortfolio.code) {
+      return HttpResponse.json(mockPortfolio);
     }
     return HttpResponse.json({ detail: 'Not found' }, { status: 404 });
   }),
 
   http.get('*/api/v1/portfolios/', () => {
     return HttpResponse.json({
-      items: [mockCategory],
+      items: [mockPortfolio],
       meta: { total: 1, page: 1, page_size: 10, total_pages: 1 },
     });
   }),
@@ -120,8 +120,8 @@ export const handlers = [
     const body = (await request.json()) as { screenshot?: { file_uuid: string } | null };
     return HttpResponse.json(
       {
-        ...mockCategory,
-        screenshot: body.screenshot || mockCategory.screenshot,
+        ...mockPortfolio,
+        screenshot: body.screenshot || mockPortfolio.screenshot,
       },
       { status: 201 }
     );
@@ -130,24 +130,24 @@ export const handlers = [
   http.put('*/api/v1/portfolios/:code', async ({ request }) => {
     const body = (await request.json()) as { screenshot?: { file_uuid: string } | null };
     return HttpResponse.json({
-      ...mockCategory,
-      screenshot: body.screenshot || mockCategory.screenshot,
+      ...mockPortfolio,
+      screenshot: body.screenshot || mockPortfolio.screenshot,
     });
   }),
 
   http.delete('*/api/v1/portfolios/:code', ({ params }) => {
-    if (params.code === mockCategory.code) {
+    if (params.code === mockPortfolio.code) {
       return new HttpResponse(null, { status: 204 });
     }
     return HttpResponse.json({ detail: 'Not found' }, { status: 404 });
   }),
 
-  // Projects (portfolio_code 기반 조회)
+  // Projects
   http.get('*/api/v1/projects/', ({ request }) => {
     const url = new URL(request.url);
     const search = url.searchParams.get('search');
 
-    let items = [mockPortfolioItem];
+    let items = [mockProjectItem];
 
     if (search) {
       items = items.filter(
@@ -164,14 +164,14 @@ export const handlers = [
   }),
 
   http.get('*/api/v1/projects/:portfolioCode/:projectCode', () => {
-    return HttpResponse.json(mockPortfolioDetail);
+    return HttpResponse.json(mockProjectDetail);
   }),
 
   http.post('*/api/v1/projects/', async ({ request }) => {
     const body = await request.json();
     return HttpResponse.json(
       {
-        ...mockPortfolioDetail,
+        ...mockProjectDetail,
         ...(body as object),
       },
       { status: 201 }
@@ -181,18 +181,18 @@ export const handlers = [
   http.put('*/api/v1/projects/:portfolioCode/:projectCode', async ({ request }) => {
     const body = await request.json();
     return HttpResponse.json({
-      ...mockPortfolioDetail,
+      ...mockProjectDetail,
       ...(body as object),
     });
   }),
 
   // Public APIs
   http.get('*/api/v1/public/:username/:portfolioCode/', () => {
-    return HttpResponse.json([mockPublicPortfolioItem]);
+    return HttpResponse.json([mockPublicProjectItem]);
   }),
 
   http.get('*/api/v1/public/:username/:portfolioCode/:projectCode/', () => {
-    return HttpResponse.json(mockPortfolioDetail);
+    return HttpResponse.json(mockProjectDetail);
   }),
 
   // Public Files
@@ -202,3 +202,5 @@ export const handlers = [
     });
   }),
 ];
+
+

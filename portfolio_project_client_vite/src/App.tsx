@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+﻿import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Header from './components/Header';
@@ -6,9 +6,9 @@ import ScrollToTop from './components/ScrollToTop';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
-import CategoryList from './pages/CategoryList';
-import CategoryAdd from './pages/CategoryAdd';
-import CategoryEdit from './pages/CategoryEdit';
+import PortfolioList from './pages/PortfolioList';
+import PortfolioAdd from './pages/PortfolioAdd';
+import PortfolioEdit from './pages/PortfolioEdit';
 import ProjectList from './pages/ProjectList';
 import ProjectAdd from './pages/ProjectAdd';
 import ProjectDetail from './pages/ProjectDetail';
@@ -21,26 +21,26 @@ function App() {
       <ScrollToTop />
       <AuthProvider>
         <Routes>
-          {/* 인증 페이지 (Header 없음) */}
+          {/* ?몄쬆 ?섏씠吏 (Header ?놁쓬) */}
           <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          {/* 공개 포트폴리오 페이지 (Header 없음, 인증 불필요) */}
+          {/* 怨듦컻 ?ы듃?대━???섏씠吏 (Header ?놁쓬, ?몄쬆 遺덊븘?? */}
           <Route path="/public/:username/:portfolioCode" element={<PublicPortfolioList />} />
           <Route
             path="/public/:username/:portfolioCode/:projectCode"
             element={<PublicProjectDetail />}
           />
 
-          {/* 보호된 페이지 (Header 있음) */}
+          {/* 蹂댄샇???섏씠吏 (Header ?덉쓬) */}
           <Route
             path="/home"
             element={
               <ProtectedRoute>
                 <div className="min-h-screen bg-slate-50">
                   <Header />
-                  <CategoryList />
+                  <PortfolioList />
                 </div>
               </ProtectedRoute>
             }
@@ -95,7 +95,7 @@ function App() {
               <ProtectedRoute>
                 <div className="min-h-screen bg-slate-50">
                   <Header />
-                  <CategoryEdit />
+                  <PortfolioEdit />
                 </div>
               </ProtectedRoute>
             }
@@ -106,7 +106,7 @@ function App() {
               <ProtectedRoute>
                 <div className="min-h-screen bg-slate-50">
                   <Header />
-                  <CategoryAdd />
+                  <PortfolioAdd />
                 </div>
               </ProtectedRoute>
             }
@@ -118,3 +118,4 @@ function App() {
 }
 
 export default App;
+

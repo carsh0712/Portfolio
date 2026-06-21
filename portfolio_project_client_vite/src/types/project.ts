@@ -1,11 +1,11 @@
-export interface Screenshot {
+﻿export interface Screenshot {
   file_uuid: string;
   caption?: string;
 }
 
 export interface Project {
   id: string;
-  categoryId: string;
+  portfolioCode: string;
   code?: string;
   title: string;
   summary: string;
@@ -25,8 +25,8 @@ export interface Project {
   isPublic?: boolean;
 }
 
-// Portfolio API Response Types
-export interface PortfolioItem {
+// Project API Response Types
+export interface ProjectListItem {
   code: string;
   title: string;
   summary: string;
@@ -44,12 +44,12 @@ export interface PaginationMeta {
   total_pages: number;
 }
 
-export interface PortfolioListResponse {
-  items: PortfolioItem[];
+export interface ProjectListResponse {
+  items: ProjectListItem[];
   meta: PaginationMeta;
 }
 
-// Portfolio Item Detail API Response Type (matches Project structure)
+// Project Detail API Response Type (matches Project structure)
 export interface ProjectLink {
   name: string;
   url: string;
@@ -60,7 +60,7 @@ export interface ProjectLink {
   icon?: string;
 }
 
-export interface Portfolio {
+export interface ProjectDetailResponse {
   id: number;
   portfolio_id: number;
   code: string;
@@ -106,8 +106,8 @@ export interface CreateProjectRequest {
   features: string[];
 }
 
-// Portfolio Update Request Type
-export interface UpdatePortfolioRequest {
+// Project Update Request Type
+export interface UpdateProjectRequest {
   portfolio_id: number;
   code: string;
   title: string;
@@ -131,8 +131,8 @@ export interface UpdatePortfolioRequest {
   features: string[];
 }
 
-// Public Portfolio API Response Types
-export interface PublicPortfolioItem {
+// Public Project API Response Types
+export interface PublicProjectItem {
   id: number;
   portfolio_id: number;
   code: string;
@@ -167,3 +167,4 @@ export interface PublicProjectDetail {
   end_date?: string;
   features?: string[];
 }
+

@@ -1,13 +1,13 @@
-import { useState, useMemo, useEffect } from 'react';
+﻿import { useState, useMemo, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import ProjectCard from '../components/ProjectCard';
-import { getPublicPortfolios, getPublicFileUrl } from '../utils/api';
-import type { Project, PublicPortfolioItem } from '../types/project';
+import { getPublicProjects, getPublicFileUrl } from '../utils/api';
+import type { Project, PublicProjectItem } from '../types/project';
 
-function publicPortfolioItemToProject(item: PublicPortfolioItem): Project {
+function publicProjectItemToProject(item: PublicProjectItem): Project {
   return {
     id: String(item.id),
-    categoryId: String(item.portfolio_id),
+    portfolioCode: String(item.portfolio_id),
     code: item.code,
     title: item.title,
     summary: item.summary,
@@ -38,12 +38,12 @@ export default function PublicPortfolioList() {
       setError(null);
 
       try {
-        const publicPortfolios = await getPublicPortfolios(username, portfolioCode);
-        const publicProjects = publicPortfolios.filter((p) => p.is_public === true);
-        const convertedProjects = publicProjects.map(publicPortfolioItemToProject);
+        const publicProjects = await getPublicProjects(username, portfolioCode);
+        const visibleProjects = publicProjects.filter((p) => p.is_public === true);
+        const convertedProjects = visibleProjects.map(publicProjectItemToProject);
         setProjects(convertedProjects);
       } catch (err) {
-        setError(err instanceof Error ? err.message : '프로젝트를 불러오지 못했습니다.');
+        setError(err instanceof Error ? err.message : '?꾨줈?앺듃瑜?遺덈윭?ㅼ? 紐삵뻽?듬땲??');
         console.error('Failed to fetch public portfolios:', err);
       } finally {
         setIsLoading(false);
@@ -103,7 +103,7 @@ export default function PublicPortfolioList() {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">프로젝트를 불러오는 중...</p>
+          <p className="text-gray-600">?꾨줈?앺듃瑜?遺덈윭?ㅻ뒗 以?..</p>
         </div>
       </div>
     );
@@ -113,13 +113,13 @@ export default function PublicPortfolioList() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">오류가 발생했습니다</h1>
+          <h1 className="text-2xl font-bold text-red-600 mb-4">?ㅻ쪟媛 諛쒖깮?덉뒿?덈떎</h1>
           <p className="text-gray-600 mb-4">{error}</p>
           <button
             onClick={() => window.location.reload()}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
-            다시 시도
+            ?ㅼ떆 ?쒕룄
           </button>
         </div>
       </div>
@@ -130,7 +130,7 @@ export default function PublicPortfolioList() {
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">{username}의 포트폴리오</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">{username}의 Portfolio</h1>
           <p className="text-xl text-gray-600">{portfolioCode}</p>
         </div>
 
@@ -145,7 +145,7 @@ export default function PublicPortfolioList() {
                   >
                     {tag}
                     <button onClick={() => handleRemoveTag(tag)} className="hover:text-blue-600">
-                      ×
+                      횞
                     </button>
                   </span>
                 ))}
@@ -154,7 +154,7 @@ export default function PublicPortfolioList() {
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder={selectedTags.length === 0 ? '태그를 입력하세요...' : ''}
+                  placeholder={selectedTags.length === 0 ? '?쒓렇瑜??낅젰?섏꽭??..' : ''}
                   className="flex-1 min-w-[120px] outline-none bg-transparent text-gray-700 placeholder-gray-400"
                 />
               </div>
@@ -176,13 +176,12 @@ export default function PublicPortfolioList() {
 
             {selectedTags.length > 0 && (
               <div className="flex justify-between items-center mt-3">
-                <p className="text-sm text-gray-600">{filteredProjects.length}개 프로젝트</p>
+                <p className="text-sm text-gray-600">{filteredProjects.length}媛??꾨줈?앺듃</p>
                 <button
                   onClick={() => setSelectedTags([])}
                   className="text-sm text-blue-600 hover:text-blue-800"
                 >
-                  필터 초기화
-                </button>
+                  ?꾪꽣 珥덇린??                </button>
               </div>
             )}
           </div>
@@ -207,8 +206,8 @@ export default function PublicPortfolioList() {
           <div className="text-center py-20">
             <p className="text-gray-500 text-lg">
               {selectedTags.length > 0
-                ? '해당 태그를 가진 프로젝트가 없습니다.'
-                : '아직 공개된 프로젝트가 없습니다.'}
+                ? '?대떦 ?쒓렇瑜?媛吏??꾨줈?앺듃媛 ?놁뒿?덈떎.'
+                : '?꾩쭅 怨듦컻???꾨줈?앺듃媛 ?놁뒿?덈떎.'}
             </p>
           </div>
         )}
@@ -216,3 +215,4 @@ export default function PublicPortfolioList() {
     </div>
   );
 }
+

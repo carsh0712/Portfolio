@@ -1,14 +1,14 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import ArrowLeftIcon from '../components/svg/ArrowLeftIcon';
 import AuthImage from '../components/AuthImage';
 import ProjectEditForm from '../components/ProjectEditForm';
 import ProjectLinks from '../components/ProjectLinks';
 import { useAuth } from '../contexts/AuthContext';
-import type { Portfolio, Project } from '../types/project';
-import { getPortfolioDetail, updatePortfolio } from '../utils/api';
+import type { ProjectDetailResponse, Project } from '../types/project';
+import { getProjectDetail, updateProject } from '../utils/api';
 
-function portfolioDetailToProject(detail: Portfolio, portfolioCode: string): Project {
+function projectDetailToProject(detail: ProjectDetailResponse, portfolioCode: string): Project {
   const githubLink = detail.links?.find((l) => l.name.toLowerCase().includes('github'));
   const demoLink = detail.links?.find((l) => l.name.toLowerCase().includes('demo'));
   const downloadLink = detail.links?.find((l) => l.name.toLowerCase().includes('download'));
@@ -16,7 +16,7 @@ function portfolioDetailToProject(detail: Portfolio, portfolioCode: string): Pro
 
   return {
     id: String(detail.id),
-    categoryId: portfolioCode,
+    portfolioCode,
     code: detail.code,
     title: detail.title,
     summary: detail.summary,
@@ -53,7 +53,7 @@ export default function ProjectDetail() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const { user } = useAuth();
-  // TODO: 실제 사용자 권한은 API나 AuthContext에서 가져오도록 변경한다.
+  // TODO: ?ㅼ젣 ?ъ슜??沅뚰븳? API??AuthContext?먯꽌 媛?몄삤?꾨줉 蹂寃쏀븳??
   const isCurator = true;
   const [isEditing, setIsEditing] = useState(false);
   const [portfolioId, setPortfolioId] = useState<number | null>(null);
@@ -67,12 +67,12 @@ export default function ProjectDetail() {
       setError(null);
 
       try {
-        const detailResponse = await getPortfolioDetail(portfolioCode, projectCode);
-        const projectData = portfolioDetailToProject(detailResponse, portfolioCode);
+        const detailResponse = await getProjectDetail(portfolioCode, projectCode);
+        const projectData = projectDetailToProject(detailResponse, portfolioCode);
         setProject(projectData);
         setPortfolioId(detailResponse.portfolio_id);
       } catch (err) {
-        setError(err instanceof Error ? err.message : '프로젝트를 불러오지 못했습니다.');
+        setError(err instanceof Error ? err.message : '?꾨줈?앺듃瑜?遺덈윭?ㅼ? 紐삵뻽?듬땲??');
         console.error('Failed to fetch project data:', err);
       } finally {
         setIsLoading(false);
@@ -160,11 +160,11 @@ export default function ProjectDetail() {
           .filter(Boolean),
       };
 
-      const updated = await updatePortfolio(portfolioCode, projectCode, requestBody);
-      setProject(portfolioDetailToProject(updated, portfolioCode));
+      const updated = await updateProject(portfolioCode, projectCode, requestBody);
+      setProject(projectDetailToProject(updated, portfolioCode));
       setIsEditing(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '프로젝트 수정에 실패했습니다.');
+      setError(err instanceof Error ? err.message : '?꾨줈?앺듃 ?섏젙???ㅽ뙣?덉뒿?덈떎.');
     }
   };
 
@@ -173,7 +173,7 @@ export default function ProjectDetail() {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">프로젝트를 불러오는 중...</p>
+          <p className="text-gray-600">?꾨줈?앺듃瑜?遺덈윭?ㅻ뒗 以?..</p>
         </div>
       </div>
     );
@@ -183,14 +183,13 @@ export default function ProjectDetail() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">오류가 발생했습니다</h1>
+          <h1 className="text-2xl font-bold text-red-600 mb-4">?ㅻ쪟媛 諛쒖깮?덉뒿?덈떎</h1>
           <p className="text-gray-600 mb-4">{error}</p>
           <Link
             to={portfolioCode ? `/portfolio/${portfolioCode}` : '/home'}
             className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
-            목록으로 돌아가기
-          </Link>
+            紐⑸줉?쇰줈 ?뚯븘媛湲?          </Link>
         </div>
       </div>
     );
@@ -200,13 +199,12 @@ export default function ProjectDetail() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">프로젝트를 찾을 수 없습니다</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">?꾨줈?앺듃瑜?李얠쓣 ???놁뒿?덈떎</h1>
           <Link
             to={portfolioCode ? `/portfolio/${portfolioCode}` : '/home'}
             className="text-blue-600 hover:text-blue-800 underline"
           >
-            목록으로 돌아가기
-          </Link>
+            紐⑸줉?쇰줈 ?뚯븘媛湲?          </Link>
         </div>
       </div>
     );
@@ -220,15 +218,14 @@ export default function ProjectDetail() {
           className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-8"
         >
           <ArrowLeftIcon className="w-5 h-5 mr-2" />
-          목록으로 돌아가기
-        </Link>
+          紐⑸줉?쇰줈 ?뚯븘媛湲?        </Link>
 
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
           {project.thumbnailFileUuid ? (
             <div className="h-64 overflow-hidden">
               <AuthImage
                 fileUuid={project.thumbnailFileUuid}
-                alt="대표 스크린샷"
+                alt="????ㅽ겕由곗꺑"
                 className="w-full h-full object-cover"
               />
             </div>
@@ -264,7 +261,7 @@ export default function ProjectDetail() {
                         onClick={() => setIsEditing(true)}
                         className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
                       >
-                        편집
+                        ?몄쭛
                       </button>
                     )}
                   </div>
@@ -290,7 +287,7 @@ export default function ProjectDetail() {
                 <div className="border-t border-gray-200 pt-8">
                   {project.screenshots && project.screenshots.length > 0 && (
                     <div className="mb-8">
-                      <h2 className="text-xl font-semibold text-gray-900 mb-4">스크린샷</h2>
+                      <h2 className="text-xl font-semibold text-gray-900 mb-4">?ㅽ겕由곗꺑</h2>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         {project.screenshots.map((screenshot, index) => (
                           <button
@@ -300,7 +297,7 @@ export default function ProjectDetail() {
                           >
                             <AuthImage
                               fileUuid={screenshot.file_uuid}
-                              alt={screenshot.caption || `스크린샷 ${index + 1}`}
+                              alt={screenshot.caption || `?ㅽ겕由곗꺑 ${index + 1}`}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                             />
                             {screenshot.caption && (
@@ -314,10 +311,10 @@ export default function ProjectDetail() {
                     </div>
                   )}
 
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">프로젝트 설명</h2>
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">?꾨줈?앺듃 ?ㅻ챸</h2>
                   <p className="text-gray-700 leading-relaxed mb-8">{project.description}</p>
 
-                  <h2 className="text-xl font-semibold text-gray-900 mb-1">기술 스택 태그</h2>
+                  <h2 className="text-xl font-semibold text-gray-900 mb-1">湲곗닠 ?ㅽ깮 ?쒓렇</h2>
                   <div className="flex flex-wrap gap-2 mb-8">
                     {project.techStack.map((tech) => (
                       <span
@@ -329,7 +326,7 @@ export default function ProjectDetail() {
                     ))}
                   </div>
 
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">주요 기능</h2>
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">二쇱슂 湲곕뒫</h2>
                   <ul className="space-y-3">
                     {project.features.map((feature, index) => (
                       <li key={index} className="flex items-start">
@@ -342,11 +339,11 @@ export default function ProjectDetail() {
                   <div className="mt-8 pt-8 border-t border-gray-200">
                     <div className="flex gap-8 text-sm text-gray-500">
                       <div>
-                        <span className="font-medium">시작일:</span> {project.startDate}
+                        <span className="font-medium">?쒖옉??</span> {project.startDate}
                       </div>
                       {project.endDate && (
                         <div>
-                          <span className="font-medium">종료일:</span> {project.endDate}
+                          <span className="font-medium">醫낅즺??</span> {project.endDate}
                         </div>
                       )}
                     </div>
@@ -386,11 +383,11 @@ export default function ProjectDetail() {
               onClick={() => setSelectedIndex(null)}
               className="absolute -top-10 right-0 text-white hover:text-gray-300"
             >
-              <span className="text-4xl leading-none">×</span>
+              <span className="text-4xl leading-none">횞</span>
             </button>
             <AuthImage
               fileUuid={selectedImage.file_uuid}
-              alt={selectedImage.caption || '스크린샷'}
+              alt={selectedImage.caption || '?ㅽ겕由곗꺑'}
               className="max-w-full max-h-[85vh] object-contain rounded-lg"
               onClick={(e) => e.stopPropagation()}
             />
@@ -413,3 +410,4 @@ export default function ProjectDetail() {
     </div>
   );
 }
+

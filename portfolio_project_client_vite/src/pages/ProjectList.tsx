@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import ActionCard from '../components/ActionCard';
 import ArrowLeftIcon from '../components/svg/ArrowLeftIcon';
@@ -7,14 +7,14 @@ import PlusIcon from '../components/svg/PlusIcon';
 import SettingsIcon from '../components/svg/SettingsIcon';
 import ShareIcon from '../components/svg/ShareIcon';
 import type { AuthUser } from '../types/auth';
-import type { PortfolioCategory } from '../types/category';
-import type { PortfolioItem, Project } from '../types/project';
-import { getPortfolioCategoryDetail, getCurrentUser, getPortfolios } from '../utils/api';
+import type { Portfolio } from '../types/portfolio';
+import type { ProjectListItem, Project } from '../types/project';
+import { getPortfolioDetail, getCurrentUser, getProjects } from '../utils/api';
 
-function portfolioItemToProject(item: PortfolioItem, portfolioCode: string): Project {
+function projectListItemToProject(item: ProjectListItem, portfolioCode: string): Project {
   return {
     id: item.code,
-    categoryId: portfolioCode,
+    portfolioCode,
     code: item.code,
     title: item.title,
     summary: item.summary,
@@ -33,7 +33,7 @@ export default function ProjectList() {
   const navigate = useNavigate();
 
   const [projects, setProjects] = useState<Project[]>([]);
-  const [portfolio, setPortfolio] = useState<PortfolioCategory | null>(null);
+  const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page] = useState(1);
@@ -43,7 +43,7 @@ export default function ProjectList() {
   const [showCopiedMessage, setShowCopiedMessage] = useState(false);
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
-  // TODO: 실제 사용자 권한은 API나 AuthContext에서 가져오도록 변경한다.
+  // TODO: ?ㅼ젣 ?ъ슜??沅뚰븳? API??AuthContext?먯꽌 媛?몄삤?꾨줉 蹂寃쏀븳??
   const isCurator = true;
 
   useEffect(() => {
@@ -71,12 +71,12 @@ export default function ProjectList() {
     setIsLoading(true);
     setError(null);
 
-    getPortfolioCategoryDetail(portfolioCode)
+    getPortfolioDetail(portfolioCode)
       .then((foundPortfolio) => {
         setPortfolio(foundPortfolio);
       })
       .catch((err) => {
-        setError(err instanceof Error ? err.message : '포트폴리오를 불러오지 못했습니다.');
+        setError(err instanceof Error ? err.message : '?ы듃?대━?ㅻ? 遺덈윭?ㅼ? 紐삵뻽?듬땲??');
         console.error('Failed to fetch portfolio:', err);
         setIsLoading(false);
       });
@@ -91,13 +91,13 @@ export default function ProjectList() {
         const search =
           debouncedSearch ||
           (selectedTags.length > 0 ? selectedTags[selectedTags.length - 1] : undefined);
-        const portfoliosResponse = await getPortfolios(portfolio.code, page, 100, search);
-        const convertedProjects = portfoliosResponse.items.map((item) =>
-          portfolioItemToProject(item, portfolio.code)
+        const projectsResponse = await getProjects(portfolio.code, page, 100, search);
+        const convertedProjects = projectsResponse.items.map((item) =>
+          projectListItemToProject(item, portfolio.code)
         );
         setProjects(convertedProjects);
       } catch (err) {
-        setError(err instanceof Error ? err.message : '프로젝트를 불러오지 못했습니다.');
+        setError(err instanceof Error ? err.message : '?꾨줈?앺듃瑜?遺덈윭?ㅼ? 紐삵뻽?듬땲??');
         console.error('Failed to fetch projects:', err);
       } finally {
         setIsLoading(false);
@@ -167,7 +167,7 @@ export default function ProjectList() {
       setTimeout(() => setShowCopiedMessage(false), 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
-      alert('링크 복사에 실패했습니다.');
+      alert('留곹겕 蹂듭궗???ㅽ뙣?덉뒿?덈떎.');
     }
   };
 
@@ -176,7 +176,7 @@ export default function ProjectList() {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">프로젝트를 불러오는 중...</p>
+          <p className="text-gray-600">?꾨줈?앺듃瑜?遺덈윭?ㅻ뒗 以?..</p>
         </div>
       </div>
     );
@@ -186,13 +186,13 @@ export default function ProjectList() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">오류가 발생했습니다</h1>
+          <h1 className="text-2xl font-bold text-red-600 mb-4">?ㅻ쪟媛 諛쒖깮?덉뒿?덈떎</h1>
           <p className="text-gray-600 mb-4">{error}</p>
           <button
             onClick={() => window.location.reload()}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
-            다시 시도
+            ?ㅼ떆 ?쒕룄
           </button>
         </div>
       </div>
@@ -203,10 +203,9 @@ export default function ProjectList() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">포트폴리오를 찾을 수 없습니다</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">?ы듃?대━?ㅻ? 李얠쓣 ???놁뒿?덈떎</h1>
           <Link to="/home" className="text-blue-600 hover:text-blue-800 underline">
-            홈으로 돌아가기
-          </Link>
+            ?덉쑝濡??뚯븘媛湲?          </Link>
         </div>
       </div>
     );
@@ -220,7 +219,7 @@ export default function ProjectList() {
           className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-8"
         >
           <ArrowLeftIcon className="w-5 h-5 mr-2" />
-          포트폴리오 목록
+          ?ы듃?대━??紐⑸줉
         </Link>
 
         <div className="text-center mb-12">
@@ -232,14 +231,13 @@ export default function ProjectList() {
                   <button
                     onClick={handleShareClick}
                     className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                    title="공유 링크 복사"
+                    title="怨듭쑀 留곹겕 蹂듭궗"
                   >
                     <ShareIcon className="w-6 h-6" />
                   </button>
                   {showCopiedMessage && (
                     <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-sm px-3 py-1 rounded whitespace-nowrap">
-                      링크가 복사되었습니다
-                    </div>
+                      留곹겕媛 蹂듭궗?섏뿀?듬땲??                    </div>
                   )}
                 </div>
               )}
@@ -247,7 +245,7 @@ export default function ProjectList() {
                 <button
                   onClick={() => navigate(`/portfolio/${portfolioCode}/edit`)}
                   className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                  title="포트폴리오 편집"
+                  title="?ы듃?대━???몄쭛"
                 >
                   <SettingsIcon className="w-6 h-6" />
                 </button>
@@ -289,7 +287,7 @@ export default function ProjectList() {
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder={selectedTags.length === 0 ? '태그를 입력하세요...' : ''}
+                  placeholder={selectedTags.length === 0 ? '?쒓렇瑜??낅젰?섏꽭??..' : ''}
                   className="flex-1 min-w-[120px] outline-none bg-transparent text-gray-700 placeholder-gray-400"
                 />
               </div>
@@ -311,13 +309,12 @@ export default function ProjectList() {
 
             {selectedTags.length > 0 && (
               <div className="flex justify-between items-center mt-3">
-                <p className="text-sm text-gray-600">{filteredProjects.length}개 프로젝트</p>
+                <p className="text-sm text-gray-600">{filteredProjects.length}媛??꾨줈?앺듃</p>
                 <button
                   onClick={() => setSelectedTags([])}
                   className="text-sm text-blue-600 hover:text-blue-800"
                 >
-                  필터 초기화
-                </button>
+                  ?꾪꽣 珥덇린??                </button>
               </div>
             )}
           </div>
@@ -333,8 +330,8 @@ export default function ProjectList() {
               icon={
                 <PlusIcon className="w-16 h-16 text-gray-400 group-hover:text-blue-500 transition-colors" />
               }
-              title="새 프로젝트 추가"
-              description="클릭하여 새 프로젝트를 만드세요"
+              title="???꾨줈?앺듃 異붽?"
+              description="?대┃?섏뿬 ???꾨줈?앺듃瑜?留뚮뱶?몄슂"
               onClick={handleAddProject}
             />
           )}
@@ -342,10 +339,11 @@ export default function ProjectList() {
 
         {filteredProjects.length === 0 && (
           <div className="text-center py-20">
-            <p className="text-gray-500 text-lg">조건에 맞는 프로젝트가 없습니다.</p>
+            <p className="text-gray-500 text-lg">議곌굔??留욌뒗 ?꾨줈?앺듃媛 ?놁뒿?덈떎.</p>
           </div>
         )}
       </div>
     </div>
   );
 }
+

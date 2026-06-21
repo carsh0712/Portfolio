@@ -1,15 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+﻿import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ActionCard from '../components/ActionCard';
 import PlusIcon from '../components/svg/PlusIcon';
 import PublicStatusBadge from '../components/PublicStatusBadge';
-import type { PortfolioCategory } from '../types/category';
-import { getPortfolioCategories } from '../utils/api';
+import type { Portfolio } from '../types/portfolio';
+import { getPortfolios } from '../utils/api';
 import AuthImage from '../components/AuthImage';
 
-export default function CategoryList() {
+export default function PortfolioList() {
   const navigate = useNavigate();
-  const [portfolios, setPortfolios] = useState<PortfolioCategory[]>([]);
+  const [portfolios, setPortfolios] = useState<Portfolio[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -17,7 +17,7 @@ export default function CategoryList() {
   const [hasMore, setHasMore] = useState(true);
   const observerRef = useRef<HTMLDivElement | null>(null);
 
-  // TODO: 실제 사용자 권한은 API나 AuthContext에서 가져오도록 변경한다.
+  // TODO: ?ㅼ젣 ?ъ슜??沅뚰븳? API??AuthContext?먯꽌 媛?몄삤?꾨줉 蹂寃쏀븳??
   const isCurator = true;
 
   const fetchPortfolios = useCallback(async (pageNum: number) => {
@@ -28,7 +28,7 @@ export default function CategoryList() {
         setLoadingMore(true);
       }
       setError(null);
-      const response = await getPortfolioCategories(pageNum, 10);
+      const response = await getPortfolios(pageNum, 10);
       const sorted = response.items.sort((a, b) => a.order - b.order);
 
       if (pageNum === 1) {
@@ -39,7 +39,7 @@ export default function CategoryList() {
 
       setHasMore(pageNum < response.meta.total_pages);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '포트폴리오를 불러오지 못했습니다.');
+      setError(err instanceof Error ? err.message : '?ы듃?대━?ㅻ? 遺덈윭?ㅼ? 紐삵뻽?듬땲??');
       console.error('Failed to fetch portfolios:', err);
     } finally {
       setLoading(false);
@@ -80,7 +80,7 @@ export default function CategoryList() {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">포트폴리오를 불러오는 중...</p>
+          <p className="text-gray-600">?ы듃?대━?ㅻ? 遺덈윭?ㅻ뒗 以?..</p>
         </div>
       </div>
     );
@@ -91,13 +91,13 @@ export default function CategoryList() {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="text-red-500 text-5xl mb-4">!</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">오류가 발생했습니다</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">?ㅻ쪟媛 諛쒖깮?덉뒿?덈떎</h2>
           <p className="text-gray-600 mb-4">{error}</p>
           <button
             onClick={() => window.location.reload()}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            다시 시도
+            ?ㅼ떆 ?쒕룄
           </button>
         </div>
       </div>
@@ -148,8 +148,8 @@ export default function CategoryList() {
               icon={
                 <PlusIcon className="w-16 h-16 text-gray-400 group-hover:text-blue-500 transition-colors" />
               }
-              title="새 포트폴리오 추가"
-              description="클릭하여 새 포트폴리오를 만드세요"
+              title="???ы듃?대━??異붽?"
+              description="?대┃?섏뿬 ???ы듃?대━?ㅻ? 留뚮뱶?몄슂"
               onClick={handleAddPortfolio}
             />
           )}
@@ -166,3 +166,4 @@ export default function CategoryList() {
     </div>
   );
 }
+

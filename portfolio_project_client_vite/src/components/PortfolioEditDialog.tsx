@@ -1,29 +1,29 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import Modal from './Modal';
-import type { PortfolioCategory } from '../types/category';
-import { updatePortfolioCategory } from '../utils/api';
-import CategoryForm, { type CategoryFormData } from './CategoryForm';
+import type { Portfolio } from '../types/portfolio';
+import { updatePortfolio } from '../utils/api';
+import PortfolioForm, { type PortfolioFormData } from './PortfolioForm';
 
-interface CategoryEditDialogProps {
+interface PortfolioEditDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  category: PortfolioCategory;
+  portfolio: Portfolio;
   onSuccess: () => void;
 }
 
-export default function CategoryEditDialog({
+export default function PortfolioEditDialog({
   isOpen,
   onClose,
-  category,
+  portfolio,
   onSuccess,
-}: CategoryEditDialogProps) {
-  const [formData, setFormData] = useState<CategoryFormData>({
-    code: category.code,
-    name: category.name,
-    description: category.description,
-    screenshotFileUuid: category.screenshot?.file_uuid ?? null,
-    order: category.order,
-    isPublic: category.is_public,
+}: PortfolioEditDialogProps) {
+  const [formData, setFormData] = useState<PortfolioFormData>({
+    code: portfolio.code,
+    name: portfolio.name,
+    description: portfolio.description,
+    screenshotFileUuid: portfolio.screenshot?.file_uuid ?? null,
+    order: portfolio.order,
+    isPublic: portfolio.is_public,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -34,25 +34,25 @@ export default function CategoryEditDialog({
     setError(null);
 
     try {
-      await updatePortfolioCategory(category.code, {
+      await updatePortfolio(portfolio.code, {
         code: formData.code,
         name: formData.name,
         description: formData.description,
         screenshot: formData.screenshotFileUuid ? { file_uuid: formData.screenshotFileUuid } : null,
-        order: formData.order ?? category.order,
+        order: formData.order ?? portfolio.order,
         is_public: formData.isPublic,
       });
       onSuccess();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : '포트폴리오 수정에 실패했습니다.');
+      setError(err instanceof Error ? err.message : '?ы듃?대━???섏젙???ㅽ뙣?덉뒿?덈떎.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="포트폴리오 편집">
+    <Modal isOpen={isOpen} onClose={onClose} title="?ы듃?대━???몄쭛">
       <form onSubmit={handleSubmit} className="space-y-6">
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
@@ -60,7 +60,7 @@ export default function CategoryEditDialog({
           </div>
         )}
 
-        <CategoryForm formData={formData} onChange={setFormData} showOrder />
+        <PortfolioForm formData={formData} onChange={setFormData} showOrder />
 
         <div className="flex justify-end gap-3 pt-4">
           <button
@@ -69,7 +69,7 @@ export default function CategoryEditDialog({
             className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             disabled={isSubmitting}
           >
-            취소
+            痍⑥냼
           </button>
           <button
             type="submit"
@@ -83,3 +83,4 @@ export default function CategoryEditDialog({
     </Modal>
   );
 }
+

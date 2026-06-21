@@ -1,15 +1,15 @@
-import { useCallback, useEffect, useState } from 'react';
+﻿import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import ArrowLeftIcon from '../components/svg/ArrowLeftIcon';
-import { getPortfolioCategoryDetail, updatePortfolioCategory } from '../utils/api';
-import type { PortfolioCategory } from '../types/category';
-import CategoryForm, { type CategoryFormData } from '../components/CategoryForm';
+import { getPortfolioDetail, updatePortfolio } from '../utils/api';
+import type { Portfolio } from '../types/portfolio';
+import PortfolioForm, { type PortfolioFormData } from '../components/PortfolioForm';
 
-export default function CategoryEdit() {
+export default function PortfolioEdit() {
   const { portfolioCode } = useParams<{ portfolioCode: string }>();
   const navigate = useNavigate();
-  const [portfolio, setPortfolio] = useState<PortfolioCategory | null>(null);
-  const [formData, setFormData] = useState<CategoryFormData>({
+  const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
+  const [formData, setFormData] = useState<PortfolioFormData>({
     name: '',
     description: '',
     screenshotFileUuid: null,
@@ -25,7 +25,7 @@ export default function CategoryEdit() {
     if (!portfolioCode) return;
     try {
       setLoading(true);
-      const found = await getPortfolioCategoryDetail(portfolioCode);
+      const found = await getPortfolioDetail(portfolioCode);
       setPortfolio(found);
       setFormData({
         code: found.code,
@@ -36,7 +36,7 @@ export default function CategoryEdit() {
         isPublic: found.is_public,
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : '포트폴리오를 불러오지 못했습니다.');
+      setError(err instanceof Error ? err.message : '?ы듃?대━?ㅻ? 遺덈윭?ㅼ? 紐삵뻽?듬땲??');
     } finally {
       setLoading(false);
     }
@@ -53,7 +53,7 @@ export default function CategoryEdit() {
     setError(null);
 
     try {
-      await updatePortfolioCategory(portfolio.code, {
+      await updatePortfolio(portfolio.code, {
         code: formData.code,
         name: formData.name,
         description: formData.description,
@@ -63,7 +63,7 @@ export default function CategoryEdit() {
       });
       navigate(`/portfolio/${formData.code}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '포트폴리오 수정에 실패했습니다.');
+      setError(err instanceof Error ? err.message : '?ы듃?대━???섏젙???ㅽ뙣?덉뒿?덈떎.');
     } finally {
       setSubmitting(false);
     }
@@ -74,7 +74,7 @@ export default function CategoryEdit() {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">포트폴리오를 불러오는 중...</p>
+          <p className="text-gray-600">?ы듃?대━?ㅻ? 遺덈윭?ㅻ뒗 以?..</p>
         </div>
       </div>
     );
@@ -84,10 +84,9 @@ export default function CategoryEdit() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">포트폴리오를 찾을 수 없습니다</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">?ы듃?대━?ㅻ? 李얠쓣 ???놁뒿?덈떎</h2>
           <Link to="/home" className="text-blue-600 hover:text-blue-800">
-            홈으로 돌아가기
-          </Link>
+            ?덉쑝濡??뚯븘媛湲?          </Link>
         </div>
       </div>
     );
@@ -100,11 +99,10 @@ export default function CategoryEdit() {
         className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-8"
       >
         <ArrowLeftIcon className="w-5 h-5 mr-2" />
-        포트폴리오로 돌아가기
-      </Link>
+        ?ы듃?대━?ㅻ줈 ?뚯븘媛湲?      </Link>
 
       <div className="bg-white rounded-xl shadow-lg p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">포트폴리오 편집</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">?ы듃?대━???몄쭛</h1>
 
         {error && (
           <div className="p-4 mb-6 bg-red-50 border border-red-200 rounded-lg">
@@ -113,7 +111,7 @@ export default function CategoryEdit() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <CategoryForm formData={formData} onChange={setFormData} showOrder />
+          <PortfolioForm formData={formData} onChange={setFormData} showOrder />
 
           <div className="flex gap-4 pt-4">
             <button
@@ -122,7 +120,7 @@ export default function CategoryEdit() {
               disabled={submitting}
               className="flex-1 py-3 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              취소
+              痍⑥냼
             </button>
             <button
               type="submit"
@@ -137,3 +135,4 @@ export default function CategoryEdit() {
     </div>
   );
 }
+

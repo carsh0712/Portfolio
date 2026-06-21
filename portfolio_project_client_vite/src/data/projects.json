@@ -1,27 +1,27 @@
-{
+﻿{
   "projects": [
     {
       "id": "1",
-      "categoryId": "cat-apps",
+      "portfolioCode": "cat-apps",
       "title": "E-Commerce Platform",
-      "summary": "React와 Node.js로 구축한 풀스택 쇼핑몰 플랫폼",
-      "description": "사용자 인증, 상품 관리, 장바구니, 결제 시스템을 포함한 완전한 이커머스 솔루션입니다. Redux를 활용한 상태 관리와 Stripe API를 통한 결제 처리를 구현했습니다.",
+      "summary": "React? Node.js濡?援ъ텞????ㅽ깮 ?쇳븨紐??뚮옯??,
+      "description": "?ъ슜???몄쬆, ?곹뭹 愿由? ?λ컮援щ땲, 寃곗젣 ?쒖뒪?쒖쓣 ?ы븿???꾩쟾???댁빱癒몄뒪 ?붾（?섏엯?덈떎. Redux瑜??쒖슜???곹깭 愿由ъ? Stripe API瑜??듯븳 寃곗젣 泥섎━瑜?援ы쁽?덉뒿?덈떎.",
       "techStack": ["React", "TypeScript", "Node.js", "Express", "MongoDB", "Redux", "Stripe API"],
       "tags": ["Web", "Full-Stack", "E-Commerce"],
       "imageUrl": "/images/ecommerce.png",
       "screenshots": [
         {
-          "url": "https://placehold.co/800x600/3b82f6/white?text=메인+페이지",
-          "caption": "메인 페이지"
+          "url": "https://placehold.co/800x600/3b82f6/white?text=硫붿씤+?섏씠吏",
+          "caption": "硫붿씤 ?섏씠吏"
         },
         {
-          "url": "https://placehold.co/800x600/10b981/white?text=상품+목록",
-          "caption": "상품 목록"
+          "url": "https://placehold.co/800x600/10b981/white?text=?곹뭹+紐⑸줉",
+          "caption": "?곹뭹 紐⑸줉"
         },
-        { "url": "https://placehold.co/800x600/8b5cf6/white?text=장바구니", "caption": "장바구니" },
+        { "url": "https://placehold.co/800x600/8b5cf6/white?text=?λ컮援щ땲", "caption": "?λ컮援щ땲" },
         {
-          "url": "https://placehold.co/800x600/f59e0b/white?text=결제+페이지",
-          "caption": "결제 페이지"
+          "url": "https://placehold.co/800x600/f59e0b/white?text=寃곗젣+?섏씠吏",
+          "caption": "寃곗젣 ?섏씠吏"
         }
       ],
       "githubUrl": "https://github.com/username/ecommerce",
@@ -30,91 +30,91 @@
       "startDate": "2024-01",
       "endDate": "2024-06",
       "features": [
-        "JWT 기반 사용자 인증",
-        "상품 검색 및 필터링",
-        "실시간 장바구니 업데이트",
-        "Stripe 결제 연동",
-        "주문 내역 관리",
-        "관리자 대시보드"
+        "JWT 湲곕컲 ?ъ슜???몄쬆",
+        "?곹뭹 寃??諛??꾪꽣留?,
+        "?ㅼ떆媛??λ컮援щ땲 ?낅뜲?댄듃",
+        "Stripe 寃곗젣 ?곕룞",
+        "二쇰Ц ?댁뿭 愿由?,
+        "愿由ъ옄 ??쒕낫??
       ]
     },
     {
       "id": "2",
-      "categoryId": "cat-apps",
+      "portfolioCode": "cat-apps",
       "title": "Task Management App",
-      "summary": "팀 협업을 위한 칸반 보드 스타일 태스크 관리 앱",
-      "description": "드래그 앤 드롭으로 태스크를 관리할 수 있는 협업 도구입니다. 실시간 동기화와 팀원 간 알림 기능을 제공합니다.",
+      "summary": "? ?묒뾽???꾪븳 移몃컲 蹂대뱶 ?ㅽ????쒖뒪??愿由???,
+      "description": "?쒕옒洹????쒕∼?쇰줈 ?쒖뒪?щ? 愿由ы븷 ???덈뒗 ?묒뾽 ?꾧뎄?낅땲?? ?ㅼ떆媛??숆린?붿? ???媛??뚮┝ 湲곕뒫???쒓났?⑸땲??",
       "techStack": ["React", "TypeScript", "Firebase", "Tailwind CSS", "React DnD"],
       "tags": ["Web", "Productivity", "Collaboration"],
       "imageUrl": "/images/taskmanager.png",
       "screenshots": [
         {
-          "url": "https://placehold.co/800x600/6366f1/white?text=칸반+보드",
-          "caption": "칸반 보드"
+          "url": "https://placehold.co/800x600/6366f1/white?text=移몃컲+蹂대뱶",
+          "caption": "移몃컲 蹂대뱶"
         },
         {
-          "url": "https://placehold.co/800x600/ec4899/white?text=태스크+상세",
-          "caption": "태스크 상세"
+          "url": "https://placehold.co/800x600/ec4899/white?text=?쒖뒪???곸꽭",
+          "caption": "?쒖뒪???곸꽭"
         },
-        { "url": "https://placehold.co/800x600/14b8a6/white?text=팀+관리", "caption": "팀 관리" }
+        { "url": "https://placehold.co/800x600/14b8a6/white?text=?+愿由?, "caption": "? 愿由? }
       ],
       "githubUrl": "https://github.com/username/taskmanager",
       "startDate": "2024-03",
       "endDate": "2024-05",
       "features": [
-        "드래그 앤 드롭 인터페이스",
-        "실시간 데이터 동기화",
-        "팀 멤버 초대 및 권한 관리",
-        "태스크 마감일 알림",
-        "프로젝트별 보드 관리"
+        "?쒕옒洹????쒕∼ ?명꽣?섏씠??,
+        "?ㅼ떆媛??곗씠???숆린??,
+        "? 硫ㅻ쾭 珥덈? 諛?沅뚰븳 愿由?,
+        "?쒖뒪??留덇컧???뚮┝",
+        "?꾨줈?앺듃蹂?蹂대뱶 愿由?
       ]
     },
     {
       "id": "3",
-      "categoryId": "cat-apps",
+      "portfolioCode": "cat-apps",
       "title": "Weather Dashboard",
-      "summary": "OpenWeather API를 활용한 날씨 정보 대시보드",
-      "description": "위치 기반 날씨 정보와 5일 예보를 제공하는 대시보드입니다. 다양한 차트를 통해 기온, 습도, 풍속 등의 데이터를 시각화합니다.",
+      "summary": "OpenWeather API瑜??쒖슜???좎뵪 ?뺣낫 ??쒕낫??,
+      "description": "?꾩튂 湲곕컲 ?좎뵪 ?뺣낫? 5???덈낫瑜??쒓났?섎뒗 ??쒕낫?쒖엯?덈떎. ?ㅼ뼇??李⑦듃瑜??듯빐 湲곗삩, ?듬룄, ?띿냽 ?깆쓽 ?곗씠?곕? ?쒓컖?뷀빀?덈떎.",
       "techStack": ["React", "TypeScript", "Chart.js", "OpenWeather API", "Geolocation API"],
       "tags": ["Web", "Dashboard", "API Integration"],
       "imageUrl": "/images/weather.png",
       "screenshots": [
         {
-          "url": "https://placehold.co/800x600/0ea5e9/white?text=날씨+대시보드",
-          "caption": "날씨 대시보드"
+          "url": "https://placehold.co/800x600/0ea5e9/white?text=?좎뵪+??쒕낫??,
+          "caption": "?좎뵪 ??쒕낫??
         },
-        { "url": "https://placehold.co/800x600/f97316/white?text=5일+예보", "caption": "5일 예보" }
+        { "url": "https://placehold.co/800x600/f97316/white?text=5???덈낫", "caption": "5???덈낫" }
       ],
       "githubUrl": "https://github.com/username/weather",
       "demoUrl": "https://weather-demo.com",
       "startDate": "2024-02",
       "endDate": "2024-02",
       "features": [
-        "현재 위치 기반 날씨 조회",
-        "도시 검색 기능",
-        "5일 날씨 예보",
-        "기온/습도/풍속 차트",
-        "다크 모드 지원"
+        "?꾩옱 ?꾩튂 湲곕컲 ?좎뵪 議고쉶",
+        "?꾩떆 寃??湲곕뒫",
+        "5???좎뵪 ?덈낫",
+        "湲곗삩/?듬룄/?띿냽 李⑦듃",
+        "?ㅽ겕 紐⑤뱶 吏??
       ]
     },
     {
       "id": "4",
-      "categoryId": "cat-apps",
+      "portfolioCode": "cat-apps",
       "title": "Real-time Chat Application",
-      "summary": "WebSocket 기반 실시간 채팅 애플리케이션",
-      "description": "Socket.io를 활용한 실시간 메시징 플랫폼입니다. 1:1 채팅, 그룹 채팅, 파일 공유 기능을 지원합니다.",
+      "summary": "WebSocket 湲곕컲 ?ㅼ떆媛?梨꾪똿 ?좏뵆由ъ??댁뀡",
+      "description": "Socket.io瑜??쒖슜???ㅼ떆媛?硫붿떆吏??뚮옯?쇱엯?덈떎. 1:1 梨꾪똿, 洹몃９ 梨꾪똿, ?뚯씪 怨듭쑀 湲곕뒫??吏?먰빀?덈떎.",
       "techStack": ["React", "Node.js", "Socket.io", "PostgreSQL", "Redis"],
       "tags": ["Web", "Full-Stack", "Real-time"],
       "imageUrl": "/images/chat.png",
       "screenshots": [
         {
-          "url": "https://placehold.co/800x600/22c55e/white?text=채팅+목록",
-          "caption": "채팅 목록"
+          "url": "https://placehold.co/800x600/22c55e/white?text=梨꾪똿+紐⑸줉",
+          "caption": "梨꾪똿 紐⑸줉"
         },
-        { "url": "https://placehold.co/800x600/a855f7/white?text=채팅방", "caption": "채팅방" },
+        { "url": "https://placehold.co/800x600/a855f7/white?text=梨꾪똿諛?, "caption": "梨꾪똿諛? },
         {
-          "url": "https://placehold.co/800x600/ef4444/white?text=파일+공유",
-          "caption": "파일 공유"
+          "url": "https://placehold.co/800x600/ef4444/white?text=?뚯씪+怨듭쑀",
+          "caption": "?뚯씪 怨듭쑀"
         }
       ],
       "githubUrl": "https://github.com/username/realtime-chat",
@@ -123,59 +123,59 @@
       "startDate": "2024-04",
       "endDate": "2024-07",
       "features": [
-        "실시간 메시지 전송",
-        "그룹 채팅방 생성",
-        "이미지/파일 공유",
-        "읽음 표시 기능",
-        "메시지 검색"
+        "?ㅼ떆媛?硫붿떆吏 ?꾩넚",
+        "洹몃９ 梨꾪똿諛??앹꽦",
+        "?대?吏/?뚯씪 怨듭쑀",
+        "?쎌쓬 ?쒖떆 湲곕뒫",
+        "硫붿떆吏 寃??
       ]
     },
     {
       "id": "5",
-      "categoryId": "cat-apps",
+      "portfolioCode": "cat-apps",
       "title": "Blog CMS",
-      "summary": "마크다운 기반 블로그 콘텐츠 관리 시스템",
-      "description": "Next.js와 MDX를 활용한 정적 블로그 시스템입니다. SEO 최적화와 빠른 페이지 로딩을 제공합니다.",
+      "summary": "留덊겕?ㅼ슫 湲곕컲 釉붾줈洹?肄섑뀗痢?愿由??쒖뒪??,
+      "description": "Next.js? MDX瑜??쒖슜???뺤쟻 釉붾줈洹??쒖뒪?쒖엯?덈떎. SEO 理쒖쟻?붿? 鍮좊Ⅸ ?섏씠吏 濡쒕뵫???쒓났?⑸땲??",
       "techStack": ["Next.js", "TypeScript", "MDX", "Prisma", "Vercel"],
       "tags": ["Web", "CMS", "SEO"],
       "imageUrl": "/images/blog.png",
       "screenshots": [
         {
-          "url": "https://placehold.co/800x600/1e293b/white?text=블로그+홈",
-          "caption": "블로그 홈"
+          "url": "https://placehold.co/800x600/1e293b/white?text=釉붾줈洹???,
+          "caption": "釉붾줈洹???
         },
-        { "url": "https://placehold.co/800x600/334155/white?text=글+작성", "caption": "글 작성" }
+        { "url": "https://placehold.co/800x600/334155/white?text=湲+?묒꽦", "caption": "湲 ?묒꽦" }
       ],
       "githubUrl": "https://github.com/username/blog-cms",
       "demoUrl": "https://blog-demo.com",
       "startDate": "2024-05",
       "endDate": "2024-06",
       "features": [
-        "마크다운 에디터",
-        "카테고리/태그 관리",
-        "SEO 최적화",
-        "RSS 피드 생성",
-        "댓글 시스템"
+        "留덊겕?ㅼ슫 ?먮뵒??,
+        "移댄뀒怨좊━/?쒓렇 愿由?,
+        "SEO 理쒖쟻??,
+        "RSS ?쇰뱶 ?앹꽦",
+        "?볤? ?쒖뒪??
       ]
     },
     {
       "id": "6",
-      "categoryId": "cat-apps",
+      "portfolioCode": "cat-apps",
       "title": "Expense Tracker",
-      "summary": "개인 재무 관리를 위한 지출 추적 앱",
-      "description": "수입과 지출을 카테고리별로 관리하고 월별 리포트를 제공하는 재무 관리 애플리케이션입니다.",
+      "summary": "媛쒖씤 ?щТ 愿由щ? ?꾪븳 吏異?異붿쟻 ??,
+      "description": "?섏엯怨?吏異쒖쓣 移댄뀒怨좊━蹂꾨줈 愿由ы븯怨??붾퀎 由ы룷?몃? ?쒓났?섎뒗 ?щТ 愿由??좏뵆由ъ??댁뀡?낅땲??",
       "techStack": ["React Native", "TypeScript", "SQLite", "Victory Charts"],
       "tags": ["Mobile", "Finance", "Productivity"],
       "imageUrl": "/images/expense.png",
       "screenshots": [
-        { "url": "https://placehold.co/400x800/059669/white?text=대시보드", "caption": "대시보드" },
+        { "url": "https://placehold.co/400x800/059669/white?text=??쒕낫??, "caption": "??쒕낫?? },
         {
-          "url": "https://placehold.co/400x800/7c3aed/white?text=지출+입력",
-          "caption": "지출 입력"
+          "url": "https://placehold.co/400x800/7c3aed/white?text=吏異??낅젰",
+          "caption": "吏異??낅젰"
         },
         {
-          "url": "https://placehold.co/400x800/dc2626/white?text=월별+리포트",
-          "caption": "월별 리포트"
+          "url": "https://placehold.co/400x800/dc2626/white?text=?붾퀎+由ы룷??,
+          "caption": "?붾퀎 由ы룷??
         }
       ],
       "githubUrl": "https://github.com/username/expense-tracker",
@@ -183,30 +183,30 @@
       "startDate": "2024-06",
       "endDate": "2024-08",
       "features": [
-        "수입/지출 기록",
-        "카테고리별 분류",
-        "월별 지출 차트",
-        "예산 설정 및 알림",
-        "데이터 백업/복원"
+        "?섏엯/吏異?湲곕줉",
+        "移댄뀒怨좊━蹂?遺꾨쪟",
+        "?붾퀎 吏異?李⑦듃",
+        "?덉궛 ?ㅼ젙 諛??뚮┝",
+        "?곗씠??諛깆뾽/蹂듭썝"
       ]
     },
     {
       "id": "7",
-      "categoryId": "cat-apps",
+      "portfolioCode": "cat-apps",
       "title": "Video Streaming Platform",
-      "summary": "HLS 기반 비디오 스트리밍 서비스",
-      "description": "AWS MediaConvert를 활용한 비디오 인코딩과 CloudFront CDN을 통한 스트리밍 서비스입니다.",
+      "summary": "HLS 湲곕컲 鍮꾨뵒???ㅽ듃由щ컢 ?쒕퉬??,
+      "description": "AWS MediaConvert瑜??쒖슜??鍮꾨뵒???몄퐫?⑷낵 CloudFront CDN???듯븳 ?ㅽ듃由щ컢 ?쒕퉬?ㅼ엯?덈떎.",
       "techStack": ["React", "Node.js", "AWS S3", "AWS CloudFront", "FFmpeg"],
       "tags": ["Web", "Full-Stack", "Cloud"],
       "imageUrl": "/images/streaming.png",
       "screenshots": [
         {
-          "url": "https://placehold.co/800x600/be123c/white?text=비디오+플레이어",
-          "caption": "비디오 플레이어"
+          "url": "https://placehold.co/800x600/be123c/white?text=鍮꾨뵒???뚮젅?댁뼱",
+          "caption": "鍮꾨뵒???뚮젅?댁뼱"
         },
         {
-          "url": "https://placehold.co/800x600/0369a1/white?text=업로드+페이지",
-          "caption": "업로드 페이지"
+          "url": "https://placehold.co/800x600/0369a1/white?text=?낅줈???섏씠吏",
+          "caption": "?낅줈???섏씠吏"
         }
       ],
       "githubUrl": "https://github.com/username/video-platform",
@@ -214,31 +214,31 @@
       "startDate": "2024-07",
       "endDate": "2024-10",
       "features": [
-        "적응형 비트레이트 스트리밍",
-        "비디오 업로드 및 인코딩",
-        "재생 목록 관리",
-        "시청 기록 저장",
-        "구독 시스템"
+        "?곸쓳??鍮꾪듃?덉씠???ㅽ듃由щ컢",
+        "鍮꾨뵒???낅줈??諛??몄퐫??,
+        "?ъ깮 紐⑸줉 愿由?,
+        "?쒖껌 湲곕줉 ???,
+        "援щ룆 ?쒖뒪??
       ]
     },
     {
       "id": "8",
-      "categoryId": "cat-apps",
+      "portfolioCode": "cat-apps",
       "title": "AI Image Generator",
-      "summary": "Stable Diffusion API를 활용한 AI 이미지 생성 도구",
-      "description": "텍스트 프롬프트를 입력받아 AI 이미지를 생성하는 웹 애플리케이션입니다. 다양한 스타일과 파라미터 조절이 가능합니다.",
+      "summary": "Stable Diffusion API瑜??쒖슜??AI ?대?吏 ?앹꽦 ?꾧뎄",
+      "description": "?띿뒪???꾨＼?꾪듃瑜??낅젰諛쏆븘 AI ?대?吏瑜??앹꽦?섎뒗 ???좏뵆由ъ??댁뀡?낅땲?? ?ㅼ뼇???ㅽ??쇨낵 ?뚮씪誘명꽣 議곗젅??媛?ν빀?덈떎.",
       "techStack": ["Python", "FastAPI", "React", "Stable Diffusion", "Celery"],
       "tags": ["Web", "AI/ML", "Full-Stack"],
       "imageUrl": "/images/ai-image.png",
       "screenshots": [
         {
-          "url": "https://placehold.co/800x600/7c2d12/white?text=이미지+생성",
-          "caption": "이미지 생성"
+          "url": "https://placehold.co/800x600/7c2d12/white?text=?대?吏+?앹꽦",
+          "caption": "?대?吏 ?앹꽦"
         },
-        { "url": "https://placehold.co/800x600/4338ca/white?text=갤러리", "caption": "갤러리" },
+        { "url": "https://placehold.co/800x600/4338ca/white?text=媛ㅻ윭由?, "caption": "媛ㅻ윭由? },
         {
-          "url": "https://placehold.co/800x600/166534/white?text=스타일+설정",
-          "caption": "스타일 설정"
+          "url": "https://placehold.co/800x600/166534/white?text=?ㅽ????ㅼ젙",
+          "caption": "?ㅽ????ㅼ젙"
         }
       ],
       "githubUrl": "https://github.com/username/ai-image-gen",
@@ -246,64 +246,64 @@
       "startDate": "2024-08",
       "endDate": "2024-09",
       "features": [
-        "텍스트 투 이미지 생성",
-        "스타일 프리셋",
-        "이미지 히스토리",
-        "고해상도 업스케일링",
-        "배치 생성"
+        "?띿뒪?????대?吏 ?앹꽦",
+        "?ㅽ????꾨━??,
+        "?대?吏 ?덉뒪?좊━",
+        "怨좏빐?곷룄 ?낆뒪耳?쇰쭅",
+        "諛곗튂 ?앹꽦"
       ]
     },
     {
       "id": "9",
-      "categoryId": "cat-apps",
+      "portfolioCode": "cat-apps",
       "title": "Inventory Management System",
-      "summary": "중소기업용 재고 관리 시스템",
-      "description": "바코드 스캔과 실시간 재고 추적이 가능한 재고 관리 솔루션입니다. 발주 자동화와 재고 알림 기능을 제공합니다.",
+      "summary": "以묒냼湲곗뾽???ш퀬 愿由??쒖뒪??,
+      "description": "諛붿퐫???ㅼ틪怨??ㅼ떆媛??ш퀬 異붿쟻??媛?ν븳 ?ш퀬 愿由??붾（?섏엯?덈떎. 諛쒖＜ ?먮룞?붿? ?ш퀬 ?뚮┝ 湲곕뒫???쒓났?⑸땲??",
       "techStack": ["Vue.js", "TypeScript", "NestJS", "MySQL", "Docker"],
       "tags": ["Web", "Enterprise", "Dashboard"],
       "imageUrl": "/images/inventory.png",
       "screenshots": [
         {
-          "url": "https://placehold.co/800x600/475569/white?text=재고+현황",
-          "caption": "재고 현황"
+          "url": "https://placehold.co/800x600/475569/white?text=?ш퀬+?꾪솴",
+          "caption": "?ш퀬 ?꾪솴"
         },
         {
-          "url": "https://placehold.co/800x600/0891b2/white?text=바코드+스캔",
-          "caption": "바코드 스캔"
+          "url": "https://placehold.co/800x600/0891b2/white?text=諛붿퐫???ㅼ틪",
+          "caption": "諛붿퐫???ㅼ틪"
         }
       ],
       "githubUrl": "https://github.com/username/inventory-system",
       "startDate": "2024-09",
       "endDate": "2024-12",
       "features": [
-        "바코드/QR 스캔",
-        "실시간 재고 현황",
-        "자동 발주 알림",
-        "입출고 이력 관리",
-        "재고 리포트 생성"
+        "諛붿퐫??QR ?ㅼ틪",
+        "?ㅼ떆媛??ш퀬 ?꾪솴",
+        "?먮룞 諛쒖＜ ?뚮┝",
+        "?낆텧怨??대젰 愿由?,
+        "?ш퀬 由ы룷???앹꽦"
       ]
     },
     {
       "id": "10",
-      "categoryId": "cat-apps",
+      "portfolioCode": "cat-apps",
       "title": "Fitness Tracking App",
-      "summary": "운동 기록 및 건강 관리 모바일 앱",
-      "description": "운동 루틴 관리, 칼로리 계산, 진행 상황 추적이 가능한 피트니스 애플리케이션입니다.",
+      "summary": "?대룞 湲곕줉 諛?嫄닿컯 愿由?紐⑤컮????,
+      "description": "?대룞 猷⑦떞 愿由? 移쇰줈由?怨꾩궛, 吏꾪뻾 ?곹솴 異붿쟻??媛?ν븳 ?쇳듃?덉뒪 ?좏뵆由ъ??댁뀡?낅땲??",
       "techStack": ["Flutter", "Dart", "Firebase", "HealthKit", "Google Fit API"],
       "tags": ["Mobile", "Health", "API Integration"],
       "imageUrl": "/images/fitness.png",
       "screenshots": [
         {
-          "url": "https://placehold.co/400x800/ea580c/white?text=운동+기록",
-          "caption": "운동 기록"
+          "url": "https://placehold.co/400x800/ea580c/white?text=?대룞+湲곕줉",
+          "caption": "?대룞 湲곕줉"
         },
         {
-          "url": "https://placehold.co/400x800/0d9488/white?text=진행+상황",
-          "caption": "진행 상황"
+          "url": "https://placehold.co/400x800/0d9488/white?text=吏꾪뻾+?곹솴",
+          "caption": "吏꾪뻾 ?곹솴"
         },
         {
-          "url": "https://placehold.co/400x800/c026d3/white?text=루틴+설정",
-          "caption": "루틴 설정"
+          "url": "https://placehold.co/400x800/c026d3/white?text=猷⑦떞+?ㅼ젙",
+          "caption": "猷⑦떞 ?ㅼ젙"
         }
       ],
       "githubUrl": "https://github.com/username/fitness-app",
@@ -312,12 +312,13 @@
       "startDate": "2024-10",
       "endDate": "2024-12",
       "features": [
-        "운동 루틴 생성",
-        "칼로리 소모량 계산",
-        "진행 상황 그래프",
-        "목표 설정 및 알림",
-        "소셜 공유 기능"
+        "?대룞 猷⑦떞 ?앹꽦",
+        "移쇰줈由??뚮え??怨꾩궛",
+        "吏꾪뻾 ?곹솴 洹몃옒??,
+        "紐⑺몴 ?ㅼ젙 諛??뚮┝",
+        "?뚯뀥 怨듭쑀 湲곕뒫"
       ]
     }
   ]
 }
+

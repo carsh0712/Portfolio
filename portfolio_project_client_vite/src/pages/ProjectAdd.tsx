@@ -1,14 +1,14 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import ArrowLeftIcon from '../components/svg/ArrowLeftIcon';
-import type { PortfolioCategory } from '../types/category';
+import type { Portfolio } from '../types/portfolio';
 import type { Project } from '../types/project';
-import { getPortfolioCategoryDetail, createProject } from '../utils/api';
+import { getPortfolioDetail, createProject } from '../utils/api';
 import ProjectEditForm from '../components/ProjectEditForm';
 
 const emptyProject: Project = {
   id: '',
-  categoryId: '',
+  portfolioCode: '',
   code: '',
   title: '',
   summary: '',
@@ -27,17 +27,17 @@ export default function ProjectAdd() {
   const { portfolioCode } = useParams<{ portfolioCode: string }>();
   const navigate = useNavigate();
 
-  const [portfolio, setPortfolio] = useState<PortfolioCategory | null>(null);
+  const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchPortfolio() {
       try {
-        const found = await getPortfolioCategoryDetail(portfolioCode!);
+        const found = await getPortfolioDetail(portfolioCode!);
         setPortfolio(found);
       } catch (error) {
-        console.error('포트폴리오 조회 실패:', error);
+        console.error('?ы듃?대━??議고쉶 ?ㅽ뙣:', error);
         setPortfolio(null);
       } finally {
         setLoading(false);
@@ -85,7 +85,7 @@ export default function ProjectAdd() {
       await createProject(requestBody);
       navigate(`/portfolio/${portfolioCode}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '프로젝트 생성에 실패했습니다.');
+      setError(err instanceof Error ? err.message : '?꾨줈?앺듃 ?앹꽦???ㅽ뙣?덉뒿?덈떎.');
     }
   };
 
@@ -96,7 +96,7 @@ export default function ProjectAdd() {
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-gray-500">로딩 중...</div>
+        <div className="text-gray-500">濡쒕뵫 以?..</div>
       </div>
     );
   }
@@ -105,10 +105,9 @@ export default function ProjectAdd() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">포트폴리오를 찾을 수 없습니다</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">?ы듃?대━?ㅻ? 李얠쓣 ???놁뒿?덈떎</h1>
           <Link to="/home" className="text-blue-600 hover:text-blue-800 underline">
-            홈으로 돌아가기
-          </Link>
+            ?덉쑝濡??뚯븘媛湲?          </Link>
         </div>
       </div>
     );
@@ -121,8 +120,7 @@ export default function ProjectAdd() {
         className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-8"
       >
         <ArrowLeftIcon className="w-5 h-5 mr-2" />
-        {portfolio.name}으로 돌아가기
-      </Link>
+        {portfolio.name}?쇰줈 ?뚯븘媛湲?      </Link>
 
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
         <div className="h-64 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
@@ -136,7 +134,7 @@ export default function ProjectAdd() {
             </div>
           )}
           <ProjectEditForm
-            project={{ ...emptyProject, categoryId: portfolioCode || '' }}
+            project={{ ...emptyProject, portfolioCode: portfolioCode || '' }}
             onSave={handleSave}
             onCancel={handleCancel}
           />
@@ -145,3 +143,4 @@ export default function ProjectAdd() {
     </div>
   );
 }
+

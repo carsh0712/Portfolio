@@ -1,13 +1,13 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ArrowLeftIcon from '../components/svg/ArrowLeftIcon';
-import { createPortfolioCategory, getPortfolioCategories } from '../utils/api';
-import type { CreatePortfolioCategoryRequest } from '../types/category';
-import CategoryForm, { type CategoryFormData } from '../components/CategoryForm';
+import { createPortfolio, getPortfolios } from '../utils/api';
+import type { CreatePortfolioRequest } from '../types/portfolio';
+import PortfolioForm, { type PortfolioFormData } from '../components/PortfolioForm';
 
-export default function CategoryAdd() {
+export default function PortfolioAdd() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState<CategoryFormData>({
+  const [formData, setFormData] = useState<PortfolioFormData>({
     name: '',
     description: '',
     screenshotFileUuid: null,
@@ -23,13 +23,13 @@ export default function CategoryAdd() {
     setError(null);
 
     try {
-      const portfoliosResponse = await getPortfolioCategories(1, 100);
+      const portfoliosResponse = await getPortfolios(1, 100);
       const maxOrder = portfoliosResponse.items.reduce(
         (max, portfolio) => Math.max(max, portfolio.order),
         0
       );
 
-      const requestData: CreatePortfolioCategoryRequest = {
+      const requestData: CreatePortfolioRequest = {
         code: formData.code,
         name: formData.name,
         description: formData.description,
@@ -38,10 +38,10 @@ export default function CategoryAdd() {
         is_public: formData.isPublic,
       };
 
-      await createPortfolioCategory(requestData);
+      await createPortfolio(requestData);
       navigate('/home');
     } catch (err) {
-      setError(err instanceof Error ? err.message : '포트폴리오 추가에 실패했습니다.');
+      setError(err instanceof Error ? err.message : '?ы듃?대━??異붽????ㅽ뙣?덉뒿?덈떎.');
       console.error('Failed to create portfolio:', err);
     } finally {
       setLoading(false);
@@ -52,11 +52,10 @@ export default function CategoryAdd() {
     <div className="max-w-2xl mx-auto px-4 py-12">
       <Link to="/home" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-8">
         <ArrowLeftIcon className="w-5 h-5 mr-2" />
-        홈으로 돌아가기
-      </Link>
+        ?덉쑝濡??뚯븘媛湲?      </Link>
 
       <div className="bg-white rounded-xl shadow-lg p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">새 포트폴리오 추가</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">???ы듃?대━??異붽?</h1>
 
         {error && (
           <div className="p-4 mb-6 bg-red-50 border border-red-200 rounded-lg">
@@ -65,7 +64,7 @@ export default function CategoryAdd() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <CategoryForm formData={formData} onChange={setFormData} />
+          <PortfolioForm formData={formData} onChange={setFormData} />
 
           <div className="flex gap-4 pt-4">
             <button
@@ -74,14 +73,14 @@ export default function CategoryAdd() {
               disabled={loading}
               className="flex-1 py-3 bg-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              취소
+              痍⑥냼
             </button>
             <button
               type="submit"
               disabled={loading}
               className="flex-1 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
             >
-              {loading ? '추가 중...' : '포트폴리오 추가'}
+              {loading ? '異붽? 以?..' : '?ы듃?대━??異붽?'}
             </button>
           </div>
         </form>
@@ -89,3 +88,4 @@ export default function CategoryAdd() {
     </div>
   );
 }
+
