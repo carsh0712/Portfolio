@@ -10,7 +10,7 @@
   <header>
     <div class="inner">
       <h1>공통 정보</h1>
-      <p class="lead">클라이언트와 Flask 서버가 공유하는 도메인 개념, API 흐름, 인증 및 파일 처리 기준입니다.</p>
+      <p class="lead">클라이언트와 Flask 서버가 공유하는 도메인 개념, 인증 흐름, 공개 페이지, 파일 처리 기준입니다.</p>
     </div>
   </header>
 
@@ -20,7 +20,7 @@
       <a href="common.html">공통 정보</a>
       <a href="client.html">클라이언트</a>
       <a href="server.html">서버</a>
-      <a href="improvements.html">개선 사항</a>
+      <a href="improvements.html">개선 상태</a>
     </div>
   </nav>
 
@@ -31,11 +31,11 @@
       <table>
         <thead><tr><th>개념</th><th>정의</th><th>대표 코드</th></tr></thead>
         <tbody>
-          <tr><td>사용자</td><td>로그인 주체입니다. username, email, 인증 정보를 가집니다.</td><td><code>User</code>, <code>AuthUser</code></td></tr>
-          <tr><td>Portfolio</td><td>프로젝트를 묶는 상위 단위입니다. 클라이언트와 서버 모두 같은 용어를 사용합니다.</td><td><code>Portfolio</code>, <code>PortfolioForm</code>, <code>getPortfolios</code></td></tr>
-          <tr><td>Project</td><td>Portfolio 안에 포함되는 실제 작업물입니다. 설명, 기술 스택, 링크, 스크린샷을 가집니다.</td><td><code>Project</code>, <code>ProjectListItem</code>, <code>ProjectDetailResponse</code></td></tr>
-          <tr><td>파일</td><td>대표 이미지, 썸네일, 스크린샷으로 사용하는 업로드 파일입니다.</td><td><code>UploadFile</code>, <code>UploadFileResponse</code></td></tr>
-          <tr><td>공개 여부</td><td>Portfolio와 Project의 <code>is_public</code> 값으로 공개 페이지 노출을 제어합니다.</td><td><code>is_public</code></td></tr>
+          <tr><td>User</td><td>로그인 주체입니다. username, email, password hash를 가지며 Portfolio와 업로드 파일을 소유합니다.</td><td><code>User</code>, <code>AuthUser</code></td></tr>
+          <tr><td>Portfolio</td><td>Project를 묶는 상위 단위입니다. 클라이언트와 서버 모두 Portfolio 용어를 사용합니다.</td><td><code>Portfolio</code>, <code>PortfolioForm</code>, <code>getPortfolios</code></td></tr>
+          <tr><td>Project</td><td>Portfolio 안에 포함되는 실제 작업물입니다. 설명, 기술 스택, 태그, 링크, 스크린샷을 가집니다.</td><td><code>Project</code>, <code>ProjectDetailResponse</code>, <code>ProjectCard</code></td></tr>
+          <tr><td>UploadFile</td><td>대표 이미지, 썸네일, 스크린샷 등에 쓰이는 업로드 파일 메타데이터입니다.</td><td><code>UploadFile</code>, <code>uploadImage</code></td></tr>
+          <tr><td>공개 여부</td><td><code>Portfolio.is_public</code>과 <code>Project.is_public</code>이 공개 URL 노출 여부를 제어합니다.</td><td><code>is_public</code>, <code>PublicStatusBadge</code></td></tr>
         </tbody>
       </table>
     </section>
@@ -45,43 +45,43 @@
       <h2>연동 구조</h2>
       <div class="flow">
         <div class="step"><strong>React SPA</strong>가 화면 라우팅과 사용자 입력을 처리합니다.</div>
-        <div class="step"><strong>API 클라이언트</strong>인 <code>src/utils/api.ts</code>가 서버 REST API를 호출합니다.</div>
+        <div class="step"><strong>API 클라이언트</strong>인 <code>src/utils/api.ts</code>가 <code>VITE_API_BASE_URL</code> 또는 <code>http://localhost:8000</code>으로 요청합니다.</div>
         <div class="step"><strong>인증 요청</strong>에는 <code>Authorization: Bearer {access_token}</code> 헤더가 붙습니다.</div>
-        <div class="step"><strong>Flask 서버</strong>는 <code>/api/v1/*</code> 엔드포인트로 인증, Portfolio, Project, 파일 API를 제공합니다.</div>
-        <div class="step"><strong>DB와 uploads</strong>에는 사용자, Portfolio, Project, 파일 메타데이터와 실제 파일이 저장됩니다.</div>
+        <div class="step"><strong>Flask 서버</strong>는 <code>/api/v1/*</code> REST API를 Blueprint로 제공합니다.</div>
+        <div class="step"><strong>MySQL과 uploads</strong>에는 도메인 데이터와 실제 파일이 저장됩니다.</div>
       </div>
       <pre>Client SPA
   -> src/utils/api.ts
-  -> http://localhost:8000/api/v1/*
-  -> Flask app
+  -> /api/v1/*
+  -> Flask app.py
   -> routers / schemas / models
-  -> database + uploads directory</pre>
+  -> MySQL + uploads directory</pre>
     </section>
 
     <section>
       <div class="section-kicker">Flows</div>
-      <h2>공통 동작 흐름</h2>
+      <h2>주요 흐름</h2>
       <h3>로그인과 토큰 갱신</h3>
       <ol>
         <li>사용자가 <code>/login</code>에서 email과 password를 입력합니다.</li>
         <li>클라이언트가 <code>POST /api/v1/auth/login</code>을 호출합니다.</li>
-        <li>성공하면 access token과 refresh token을 <code>localStorage.auth_tokens</code>에 저장합니다.</li>
-        <li>인증 API에서 401 응답을 받으면 <code>/api/v1/auth/refresh</code>로 access token을 재발급받고 요청을 재시도합니다.</li>
+        <li>성공 시 access token과 refresh token을 <code>localStorage.auth_tokens</code>에 저장합니다.</li>
+        <li>인증 API에서 401을 받으면 <code>POST /api/v1/auth/refresh</code>로 access token을 재발급받고 요청을 재시도합니다.</li>
       </ol>
 
       <h3>Portfolio와 Project 관리</h3>
       <ol>
-        <li>사용자는 <code>/home</code>에서 Portfolio 목록을 확인합니다.</li>
-        <li>Portfolio 생성, 수정, 삭제는 <code>/api/v1/portfolios</code> API를 사용합니다.</li>
-        <li>특정 Portfolio 안의 Project 목록과 상세는 <code>/api/v1/projects</code> API를 사용합니다.</li>
-        <li>클라이언트 라우트 파라미터는 <code>:portfolioCode</code>와 <code>:projectCode</code>를 사용합니다.</li>
+        <li><code>/home</code>에서 로그인 사용자의 Portfolio 목록을 봅니다.</li>
+        <li><code>/portfolio/:portfolioCode</code>에서 해당 Portfolio의 Project 목록을 봅니다.</li>
+        <li>Project 상세 라우트는 <code>:projectCode</code>를 사용합니다. 실제 값은 Project id가 아니라 code입니다.</li>
+        <li>목록 검색은 태그 입력과 선택 태그를 기반으로 서버의 <code>search</code> query parameter를 활용합니다.</li>
       </ol>
 
       <h3>공개 페이지</h3>
       <ol>
-        <li>외부 사용자는 <code>/public/:username/:portfolioCode</code>로 공개 Project 목록에 접근합니다.</li>
-        <li>Project 상세는 <code>/public/:username/:portfolioCode/:projectCode</code>로 접근합니다.</li>
-        <li>공개 API는 인증 헤더 없이 호출되며 공개 상태인 Portfolio와 Project만 노출해야 합니다.</li>
+        <li><code>/public/:username/:portfolioCode</code>는 인증 없이 공개 Project 목록을 조회합니다.</li>
+        <li><code>/public/:username/:portfolioCode/:projectCode</code>는 인증 없이 공개 Project 상세를 조회합니다.</li>
+        <li>공개 API는 공개 상태인 Portfolio와 Project만 반환해야 합니다.</li>
       </ol>
     </section>
   </main>

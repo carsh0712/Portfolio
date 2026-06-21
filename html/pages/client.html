@@ -10,7 +10,7 @@
   <header>
     <div class="inner">
       <h1>클라이언트 정보</h1>
-      <p class="lead"><code>portfolio_project_client_vite</code>의 구조, 라우트, API 함수, 테스트 구성을 정리했습니다.</p>
+      <p class="lead"><code>portfolio_project_client_vite</code>의 라우팅, 컴포넌트, 훅, API 연동, 테스트 구성을 최신 코드 기준으로 정리합니다.</p>
     </div>
   </header>
 
@@ -20,7 +20,7 @@
       <a href="common.html">공통 정보</a>
       <a href="client.html">클라이언트</a>
       <a href="server.html">서버</a>
-      <a href="improvements.html">개선 사항</a>
+      <a href="improvements.html">개선 상태</a>
     </div>
   </nav>
 
@@ -31,7 +31,7 @@
       <div class="grid two">
         <div class="box">
           <h3>역할</h3>
-          <p>React 기반 Portfolio 관리 SPA입니다. 로그인 후 Portfolio와 Project를 생성, 수정하고 공개 URL로 Project를 노출합니다.</p>
+          <p>React 기반 Portfolio 관리 SPA입니다. 로그인 후 Portfolio와 Project를 생성, 수정, 조회하고 공개 URL을 복사해 외부에 공유할 수 있습니다.</p>
         </div>
         <div class="box">
           <h3>기술 스택</h3>
@@ -51,12 +51,14 @@
       <table>
         <thead><tr><th>경로</th><th>역할</th></tr></thead>
         <tbody>
-          <tr><td><code>src/App.tsx</code></td><td>React Router 구성입니다. 인증 페이지, 공개 페이지, 보호된 관리 페이지를 선언합니다.</td></tr>
-          <tr><td><code>src/pages</code></td><td><code>PortfolioList</code>, <code>PortfolioAdd</code>, <code>PortfolioEdit</code>, <code>ProjectList</code>, <code>ProjectAdd</code>, <code>ProjectDetail</code> 등 화면 단위 컴포넌트입니다.</td></tr>
-          <tr><td><code>src/components</code></td><td><code>PortfolioForm</code>, <code>ProjectEditForm</code>, 카드, 모달, 이미지 미리보기, SVG 아이콘 등 재사용 UI입니다.</td></tr>
-          <tr><td><code>src/types</code></td><td><code>portfolio.ts</code>와 <code>project.ts</code>로 Portfolio와 Project 타입을 분리합니다.</td></tr>
-          <tr><td><code>src/utils/api.ts</code></td><td>서버 API 호출 계층입니다. 인증 헤더 추가와 refresh token 재시도 로직을 포함합니다.</td></tr>
-          <tr><td><code>src/test</code>, <code>*.test.tsx</code></td><td>MSW 기반 API mock과 컴포넌트, 유틸 테스트입니다.</td></tr>
+          <tr><td><code>src/App.tsx</code></td><td>React Router 구성입니다. 인증 페이지, 공개 페이지, 보호 페이지를 분리합니다.</td></tr>
+          <tr><td><code>src/pages</code></td><td>화면 조립을 담당합니다. 최근 <code>PortfolioList</code>, <code>ProjectList</code>, <code>ProjectDetail</code>은 로직을 훅으로 분리하고 JSX 중심으로 정리했습니다.</td></tr>
+          <tr><td><code>src/hooks</code></td><td>페이지 상태/API 로직과 필터 로직을 담당합니다. <code>usePortfolioListPage</code>, <code>useProjectListPage</code>, <code>useProjectDetailPage</code>, <code>useProjectFilters</code>가 있습니다.</td></tr>
+          <tr><td><code>src/components</code></td><td>재사용 UI입니다. 폼 필드, 에러, 카드, 뒤로가기, Project 상세/편집/필터/라이트박스 컴포넌트가 분리되어 있습니다.</td></tr>
+          <tr><td><code>src/types</code></td><td><code>auth.ts</code>, <code>portfolio.ts</code>, <code>project.ts</code> 타입 정의입니다.</td></tr>
+          <tr><td><code>src/utils/api.ts</code></td><td>서버 API 호출 계층입니다. access token 자동 첨부와 refresh token 기반 재시도를 처리합니다.</td></tr>
+          <tr><td><code>src/utils/projectMappers.ts</code></td><td>서버 응답을 화면용 <code>Project</code> 타입으로 변환합니다.</td></tr>
+          <tr><td><code>src/test</code>, <code>*.test.tsx</code></td><td>MSW 기반 API mock과 컴포넌트/유틸 테스트입니다.</td></tr>
         </tbody>
       </table>
     </section>
@@ -69,16 +71,54 @@
         <tbody>
           <tr><td><code>/</code>, <code>/login</code></td><td><code>Login</code></td><td><span class="tag amber">불필요</span></td><td>이메일과 비밀번호로 로그인합니다.</td></tr>
           <tr><td><code>/register</code></td><td><code>Register</code></td><td><span class="tag amber">불필요</span></td><td>username, email, password로 회원가입합니다.</td></tr>
-          <tr><td><code>/home</code></td><td><code>PortfolioList</code></td><td><span class="tag">필수</span></td><td>로그인 사용자의 Portfolio 목록입니다.</td></tr>
+          <tr><td><code>/home</code></td><td><code>PortfolioList</code></td><td><span class="tag">필수</span></td><td>로그인 사용자의 Portfolio 목록입니다. 로직은 <code>usePortfolioListPage</code>에 있습니다.</td></tr>
           <tr><td><code>/portfolio/add</code></td><td><code>PortfolioAdd</code></td><td><span class="tag">필수</span></td><td>새 Portfolio를 생성합니다.</td></tr>
-          <tr><td><code>/portfolio/:portfolioCode/edit</code></td><td><code>PortfolioEdit</code></td><td><span class="tag">필수</span></td><td>Portfolio 이름, 설명, 대표 이미지, 공개 여부를 수정합니다.</td></tr>
-          <tr><td><code>/portfolio/:portfolioCode</code></td><td><code>ProjectList</code></td><td><span class="tag">필수</span></td><td>Portfolio 안의 Project 목록을 조회하고 태그로 검색합니다.</td></tr>
+          <tr><td><code>/portfolio/:portfolioCode/edit</code></td><td><code>PortfolioEdit</code></td><td><span class="tag">필수</span></td><td>Portfolio 이름, 설명, 이미지, 공개 여부, 순서를 수정합니다.</td></tr>
+          <tr><td><code>/portfolio/:portfolioCode</code></td><td><code>ProjectList</code></td><td><span class="tag">필수</span></td><td>Portfolio 안의 Project 목록입니다. 로직은 <code>useProjectListPage</code>에 있습니다.</td></tr>
           <tr><td><code>/portfolio/:portfolioCode/project/add</code></td><td><code>ProjectAdd</code></td><td><span class="tag">필수</span></td><td>새 Project를 등록합니다.</td></tr>
-          <tr><td><code>/portfolio/:portfolioCode/project/:projectCode</code></td><td><code>ProjectDetail</code></td><td><span class="tag">필수</span></td><td>Project 상세를 조회하고 수정합니다.</td></tr>
+          <tr><td><code>/portfolio/:portfolioCode/project/:projectCode</code></td><td><code>ProjectDetail</code></td><td><span class="tag">필수</span></td><td>Project 상세를 조회하고 수정합니다. 로직은 <code>useProjectDetailPage</code>에 있습니다.</td></tr>
+          <tr><td><code>/profile</code></td><td><code>Profile</code></td><td><span class="tag">필수</span></td><td>현재 로그인 사용자 정보를 표시합니다.</td></tr>
           <tr><td><code>/public/:username/:portfolioCode</code></td><td><code>PublicPortfolioList</code></td><td><span class="tag green">공개</span></td><td>공개 Portfolio의 Project 목록입니다.</td></tr>
           <tr><td><code>/public/:username/:portfolioCode/:projectCode</code></td><td><code>PublicProjectDetail</code></td><td><span class="tag green">공개</span></td><td>공개 Project 상세 페이지입니다.</td></tr>
         </tbody>
       </table>
+    </section>
+
+    <section>
+      <div class="section-kicker">Reusable Code</div>
+      <h2>재사용 구조</h2>
+      <div class="grid two">
+        <div class="box">
+          <h3>공통 폼/페이지 UI</h3>
+          <ul>
+            <li><code>AuthTextField</code>: 로그인/회원가입 입력 필드</li>
+            <li><code>FormTextField</code>, <code>FormTextarea</code>: 일반 폼 입력 필드</li>
+            <li><code>FormError</code>, <code>FormActions</code>: 에러 박스와 취소/저장 버튼</li>
+            <li><code>PageCard</code>, <code>PageState</code>, <code>BackLink</code>: 페이지 공통 레이아웃과 상태 화면</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h3>Project/Portfolio UI</h3>
+          <ul>
+            <li><code>PortfolioCard</code>, <code>PortfolioForm</code></li>
+            <li><code>ProjectCard</code>, <code>ProjectDetailView</code></li>
+            <li><code>ProjectEditForm</code>, <code>ProjectLinkEditor</code>, <code>ProjectScreenshotEditor</code>, <code>ProjectVisibilityFields</code></li>
+            <li><code>ProjectFilterBar</code>, <code>ProjectImageLightbox</code></li>
+          </ul>
+        </div>
+      </div>
+
+      <h3>렌더링과 로직 분리 예시</h3>
+      <pre>export default function ProjectList() {
+  const page = useProjectListPage();
+  const { filters } = page;
+
+  if (page.isLoading) return &lt;PageState loading message="..." /&gt;;
+
+  return (
+    // JSX 렌더링 중심
+  );
+}</pre>
     </section>
 
     <section>
@@ -94,13 +134,13 @@
           <tr><td><code>getPortfolioDetail</code></td><td><code>GET /api/v1/portfolios/{code}</code></td><td>Portfolio 상세 조회</td></tr>
           <tr><td><code>updatePortfolio</code></td><td><code>PUT /api/v1/portfolios/{code}</code></td><td>Portfolio 수정</td></tr>
           <tr><td><code>deletePortfolio</code></td><td><code>DELETE /api/v1/portfolios/{code}</code></td><td>Portfolio 삭제</td></tr>
-          <tr><td><code>getProjects</code></td><td><code>GET /api/v1/projects/</code></td><td>Portfolio별 Project 목록 조회</td></tr>
+          <tr><td><code>getProjects</code></td><td><code>GET /api/v1/projects/?portfolio_code=...</code></td><td>Project 목록과 태그/기술 검색</td></tr>
           <tr><td><code>getProjectDetail</code></td><td><code>GET /api/v1/projects/{portfolioCode}/{projectCode}</code></td><td>Project 상세 조회</td></tr>
           <tr><td><code>createProject</code></td><td><code>POST /api/v1/projects/</code></td><td>Project 생성</td></tr>
           <tr><td><code>updateProject</code></td><td><code>PUT /api/v1/projects/{portfolioCode}/{projectCode}</code></td><td>Project 수정</td></tr>
+          <tr><td><code>uploadImage</code></td><td><code>POST /api/v1/files/upload</code></td><td>이미지/파일 업로드</td></tr>
           <tr><td><code>getPublicProjects</code></td><td><code>GET /api/v1/public/{username}/{portfolioCode}/</code></td><td>공개 Project 목록</td></tr>
           <tr><td><code>getPublicProjectDetail</code></td><td><code>GET /api/v1/public/{username}/{portfolioCode}/{projectCode}/</code></td><td>공개 Project 상세</td></tr>
-          <tr><td><code>uploadImage</code></td><td><code>POST /api/v1/files/upload</code></td><td>이미지와 파일 업로드</td></tr>
         </tbody>
       </table>
     </section>
@@ -112,8 +152,9 @@
 npm install
 npm run dev
 npm test
+npm run build
 npm run test:e2e</pre>
-      <p>API 주소는 <code>VITE_API_BASE_URL</code> 환경 변수로 지정하고, 없으면 <code>http://localhost:8000</code>을 사용합니다.</p>
+      <p>API 주소는 <code>VITE_API_BASE_URL</code> 환경 변수로 지정합니다. 값이 없으면 <code>http://localhost:8000</code>을 사용합니다.</p>
     </section>
   </main>
 </body>

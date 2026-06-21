@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>개선 사항 - Portfolio 프로젝트</title>
+  <title>개선 상태 - Portfolio 프로젝트</title>
   <link rel="stylesheet" href="../assets/styles.css">
 </head>
 <body>
   <header>
     <div class="inner">
-      <h1>개선 사항</h1>
-      <p class="lead">정적 코드 분석과 문서화 과정에서 확인한 개선 내용과 현재 반영 상태입니다.</p>
+      <h1>개선 상태</h1>
+      <p class="lead">현재 코드에 반영된 개선과 아직 남아 있는 개선 후보를 정리합니다.</p>
     </div>
   </header>
 
@@ -20,23 +20,26 @@
       <a href="common.html">공통 정보</a>
       <a href="client.html">클라이언트</a>
       <a href="server.html">서버</a>
-      <a href="improvements.html">개선 사항</a>
+      <a href="improvements.html">개선 상태</a>
     </div>
   </nav>
 
   <main>
     <section>
       <div class="section-kicker">Completed</div>
-      <h2>진행 완료</h2>
+      <h2>반영 완료</h2>
       <div class="ok">
         <strong>서버 프로젝트명 정리:</strong>
         실제 구현이 Flask 기반인 점에 맞춰 서버 디렉터리와 문서를 <code>portfolio_project_server_flask</code> 기준으로 정리했습니다.
       </div>
       <ul>
         <li>상위 묶음 도메인을 <code>Portfolio</code>, 개별 작업물을 <code>Project</code>로 통일했습니다.</li>
-        <li>클라이언트 파일명과 컴포넌트명을 <code>PortfolioList</code>, <code>PortfolioAdd</code>, <code>PortfolioEdit</code>, <code>PortfolioForm</code>으로 변경했습니다.</li>
-        <li>Project 관련 API는 <code>getProjects</code>, <code>getProjectDetail</code>, <code>updateProject</code>로 분리했습니다.</li>
-        <li>서버 README 제목, HTML 문서의 실행 경로, 공통 아키텍처 설명을 Flask 기준으로 갱신했습니다.</li>
+        <li>클라이언트 라우트 파라미터는 Project id가 아니라 code를 의미하므로 <code>:projectCode</code> 기준으로 정리했습니다.</li>
+        <li>반복 UI를 <code>AuthTextField</code>, <code>FormTextField</code>, <code>FormTextarea</code>, <code>FormError</code>, <code>FormActions</code>, <code>PageCard</code>, <code>BackLink</code> 등으로 분리했습니다.</li>
+        <li>Project 상세/편집/필터/라이트박스 UI를 <code>ProjectDetailView</code>, <code>ProjectLinkEditor</code>, <code>ProjectScreenshotEditor</code>, <code>ProjectFilterBar</code>, <code>ProjectImageLightbox</code> 등으로 분리했습니다.</li>
+        <li><code>PortfolioList</code>, <code>ProjectList</code>, <code>ProjectDetail</code>의 상태/API/라우팅 로직을 각각 <code>usePortfolioListPage</code>, <code>useProjectListPage</code>, <code>useProjectDetailPage</code> 훅으로 분리했습니다.</li>
+        <li>서버 응답을 화면용 Project로 변환하는 <code>src/utils/projectMappers.ts</code>를 추가했습니다.</li>
+        <li>HTML 문서를 한 파일에 몰지 않고 <code>index.html</code> 진입점과 <code>pages</code> 하위 문서로 분리했습니다.</li>
       </ul>
     </section>
 
@@ -44,9 +47,11 @@
       <div class="section-kicker">Remaining</div>
       <h2>남은 개선 후보</h2>
       <ul>
-        <li>일부 테스트와 화면 문자열의 한국어가 깨진 상태로 남아 있습니다. 사용자에게 노출되는 문구는 UTF-8 기준으로 별도 복구가 필요합니다.</li>
-        <li>공개 파일 API는 username과 file UUID뿐 아니라 실제 공개 Portfolio 또는 Project에서 참조되는 파일인지까지 검증하는 방향을 검토할 수 있습니다.</li>
-        <li>Project 검색이 커지면 JSON 필드 문자열 검색 대신 DB 인덱스나 별도 검색 전략을 검토하는 것이 좋습니다.</li>
+        <li>일부 기존 TypeScript/Python 코드와 테스트 설명에는 아직 깨진 한국어 문자열이 남아 있습니다. 사용자에게 노출되는 문구부터 우선 복구하는 것이 좋습니다.</li>
+        <li>공개 파일 API는 username과 file UUID의 소유자는 확인하지만, 해당 파일이 실제 공개 Portfolio 또는 Project에서 참조되는지까지 검증하는 방향을 추가로 검토할 수 있습니다.</li>
+        <li>Project 검색은 JSON 필드를 문자열로 cast해 LIKE 검색합니다. 데이터가 커지면 별도 검색 인덱스나 정규화 테이블을 검토하는 것이 좋습니다.</li>
+        <li>클라이언트 번들 크기가 Vite 기준 500kB를 넘는 경고가 있습니다. 라우트 단위 lazy loading과 chunk 분리를 검토할 수 있습니다.</li>
+        <li>페이지 로직 훅에 대한 단위 테스트를 추가하면 렌더링 테스트 없이 API/상태 전이를 더 쉽게 검증할 수 있습니다.</li>
       </ul>
     </section>
   </main>
