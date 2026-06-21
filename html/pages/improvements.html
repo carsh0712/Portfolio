@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>개선 포인트 - Portfolio 프로젝트</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <header>
+    <div class="inner">
+      <h1>개선 포인트</h1>
+      <p class="lead">정적 코드 분석 과정에서 확인한 공통, 클라이언트, 서버 개선 사항을 분리했습니다.</p>
+    </div>
+  </header>
+
+  <nav aria-label="문서 메뉴">
+    <div class="inner">
+      <a href="../index.html">요약</a>
+      <a href="common.html">공통 정보</a>
+      <a href="client.html">클라이언트</a>
+      <a href="server.html">서버</a>
+      <a href="improvements.html">개선 포인트</a>
+    </div>
+  </nav>
+
+  <main>
+    <section>
+      <div class="section-kicker">Common</div>
+      <h2>공통 개선</h2>
+      <div class="danger">
+        <strong>인코딩 깨짐:</strong>
+        여러 Python/TypeScript 파일의 한국어 주석과 사용자 메시지가 깨진 문자열로 보입니다.
+        기능 로직은 읽히지만, 사용자에게 보이는 에러 메시지와 문서 주석은 UTF-8 기준으로 복구하는 것이 좋습니다.
+      </div>
+      <ul>
+        <li>클라이언트의 Category 용어와 서버의 Portfolio 용어를 하나로 맞추면 유지보수성이 좋아집니다.</li>
+        <li>클라이언트 <code>ProjectDetail</code> 라우트 파라미터 <code>:id</code>는 실제로 project code로 쓰이므로 <code>:projectCode</code>로 바꾸는 편이 명확합니다.</li>
+        <li>문서 작성 과정에서 테스트는 실행하지 않았습니다. 현재 문서는 정적 코드 분석 기준입니다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <div class="section-kicker">Client</div>
+      <h2>클라이언트 개선</h2>
+      <ul>
+        <li>README가 기본 Vite 템플릿 설명에 가깝습니다. 실제 앱 실행법, 환경변수, API 서버 연결법을 보강하는 것이 좋습니다.</li>
+        <li><code>Project.links</code>는 camelCase와 snake_case를 모두 허용하고 있어 응답 표준을 통일하면 변환 코드가 줄어듭니다.</li>
+        <li>공개 페이지와 관리 페이지의 이미지 URL 생성 규칙이 분리되어 있으므로, 이미지 접근 권한 기준을 문서화하면 혼동을 줄일 수 있습니다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <div class="section-kicker">Server</div>
+      <h2>서버 개선</h2>
+      <ul>
+        <li><code>portfolio_project_server_fastapi</code>라는 이름과 README 제목은 실제 Flask 구현과 맞지 않습니다.</li>
+        <li><code>database.py</code>에 기본 DB 비밀번호가 코드에 들어 있습니다. 개발 편의값이라도 환경변수 중심으로 정리하는 편이 안전합니다.</li>
+        <li><code>JWT_SECRET_KEY</code> 기본값이 <code>fallback-secret-change-me</code>입니다. 운영 환경에서는 반드시 강한 시크릿을 환경변수로 설정해야 합니다.</li>
+        <li>공개 파일 API는 username과 file_uuid 소유권만 확인합니다. 특정 파일이 실제 공개 portfolio/project에서 참조되는지까지 확인하지는 않습니다.</li>
+        <li>검색은 JSON 필드를 문자열로 cast한 뒤 LIKE를 사용합니다. 규모가 커지면 MySQL JSON 검색 또는 별도 색인 전략이 필요합니다.</li>
+      </ul>
+      <div class="ok">
+        <strong>현재 코드의 큰 방향:</strong>
+        개인 관리용 CRUD 화면과 공개 포트폴리오 화면이 모두 준비되어 있고,
+        서버도 인증/소유권/공개 여부를 기준으로 API 경계를 나누고 있습니다.
+      </div>
+    </section>
+  </main>
+</body>
+</html>
