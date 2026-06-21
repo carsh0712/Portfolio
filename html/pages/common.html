@@ -10,7 +10,7 @@
   <header>
     <div class="inner">
       <h1>공통 정보</h1>
-      <p class="lead">클라이언트와 서버가 공유하는 도메인 개념, API 흐름, 인증 및 파일 처리 기준을 정리했습니다.</p>
+      <p class="lead">클라이언트와 Flask 서버가 공유하는 도메인 개념, API 흐름, 인증 및 파일 처리 기준입니다.</p>
     </div>
   </header>
 
@@ -29,13 +29,11 @@
       <div class="section-kicker">Domain</div>
       <h2>공통 도메인 개념</h2>
       <table>
-        <thead>
-          <tr><th>개념</th><th>정의</th><th>대표 코드</th></tr>
-        </thead>
+        <thead><tr><th>개념</th><th>정의</th><th>대표 코드</th></tr></thead>
         <tbody>
           <tr><td>사용자</td><td>로그인 주체입니다. username, email, 인증 정보를 가집니다.</td><td><code>User</code>, <code>AuthUser</code></td></tr>
-          <tr><td>Portfolio</td><td>프로젝트를 묶는 상위 단위입니다. 클라이언트와 서버의 상위 묶음 용어를 Portfolio로 통일했습니다.</td><td><code>Portfolio</code>, <code>PortfolioForm</code>, <code>getPortfolios</code></td></tr>
-          <tr><td>Project</td><td>Portfolio 안에 포함되는 실제 작업물입니다. 제목, 설명, 기술 스택, 태그, 링크, 스크린샷을 가집니다.</td><td><code>Project</code>, <code>ProjectListItem</code>, <code>ProjectDetailResponse</code></td></tr>
+          <tr><td>Portfolio</td><td>프로젝트를 묶는 상위 단위입니다. 클라이언트와 서버 모두 같은 용어를 사용합니다.</td><td><code>Portfolio</code>, <code>PortfolioForm</code>, <code>getPortfolios</code></td></tr>
+          <tr><td>Project</td><td>Portfolio 안에 포함되는 실제 작업물입니다. 설명, 기술 스택, 링크, 스크린샷을 가집니다.</td><td><code>Project</code>, <code>ProjectListItem</code>, <code>ProjectDetailResponse</code></td></tr>
           <tr><td>파일</td><td>대표 이미지, 썸네일, 스크린샷으로 사용하는 업로드 파일입니다.</td><td><code>UploadFile</code>, <code>UploadFileResponse</code></td></tr>
           <tr><td>공개 여부</td><td>Portfolio와 Project의 <code>is_public</code> 값으로 공개 페이지 노출을 제어합니다.</td><td><code>is_public</code></td></tr>
         </tbody>
@@ -49,14 +47,14 @@
         <div class="step"><strong>React SPA</strong>가 화면 라우팅과 사용자 입력을 처리합니다.</div>
         <div class="step"><strong>API 클라이언트</strong>인 <code>src/utils/api.ts</code>가 서버 REST API를 호출합니다.</div>
         <div class="step"><strong>인증 요청</strong>에는 <code>Authorization: Bearer {access_token}</code> 헤더가 붙습니다.</div>
-        <div class="step"><strong>FastAPI 서버</strong>는 <code>/api/v1/*</code> 엔드포인트로 인증, Portfolio, Project, 파일 API를 제공합니다.</div>
-        <div class="step"><strong>DB와 uploads</strong>에는 사용자, Portfolio, Project, 업로드 파일 메타데이터와 실제 파일이 저장됩니다.</div>
+        <div class="step"><strong>Flask 서버</strong>는 <code>/api/v1/*</code> 엔드포인트로 인증, Portfolio, Project, 파일 API를 제공합니다.</div>
+        <div class="step"><strong>DB와 uploads</strong>에는 사용자, Portfolio, Project, 파일 메타데이터와 실제 파일이 저장됩니다.</div>
       </div>
       <pre>Client SPA
   -> src/utils/api.ts
   -> http://localhost:8000/api/v1/*
-  -> FastAPI app
-  -> routers/services/models
+  -> Flask app
+  -> routers / schemas / models
   -> database + uploads directory</pre>
     </section>
 
@@ -74,8 +72,8 @@
       <h3>Portfolio와 Project 관리</h3>
       <ol>
         <li>사용자는 <code>/home</code>에서 Portfolio 목록을 확인합니다.</li>
-        <li>Portfolio 생성, 수정, 삭제는 <code>/api/v1/portfolios</code> 계열 API를 사용합니다.</li>
-        <li>특정 Portfolio 안의 Project 목록과 상세는 <code>/api/v1/projects</code> 계열 API를 사용합니다.</li>
+        <li>Portfolio 생성, 수정, 삭제는 <code>/api/v1/portfolios</code> API를 사용합니다.</li>
+        <li>특정 Portfolio 안의 Project 목록과 상세는 <code>/api/v1/projects</code> API를 사용합니다.</li>
         <li>클라이언트 라우트 파라미터는 <code>:portfolioCode</code>와 <code>:projectCode</code>를 사용합니다.</li>
       </ol>
 

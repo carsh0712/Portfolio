@@ -1,4 +1,7 @@
 /.claude
+/.pytest_cache
+/.venv
+/__pycache__
 /logs
 *.pyc
 /uploads

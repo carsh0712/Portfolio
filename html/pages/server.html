@@ -10,7 +10,7 @@
   <header>
     <div class="inner">
       <h1>서버 정보</h1>
-      <p class="lead"><code>portfolio_project_server_fastapi</code>의 Flask 서버 구조, API, 데이터 모델을 정리했습니다.</p>
+      <p class="lead"><code>portfolio_project_server_flask</code>의 Flask 서버 구조, API, 데이터 모델, 환경 변수 설정을 정리했습니다.</p>
     </div>
   </header>
 
@@ -20,7 +20,7 @@
       <a href="common.html">공통 정보</a>
       <a href="client.html">클라이언트</a>
       <a href="server.html">서버</a>
-      <a href="improvements.html">개선 포인트</a>
+      <a href="improvements.html">개선 사항</a>
     </div>
   </nav>
 
@@ -31,15 +31,15 @@
       <div class="grid two">
         <div class="box">
           <h3>역할</h3>
-          <p>Flask 기반 API 서버입니다. Blueprint 라우터, SQLAlchemy ORM, Pydantic 스키마, JWT 인증, 파일 업로드/다운로드, 공개 조회 API를 제공합니다.</p>
+          <p>Flask 기반 REST API 서버입니다. 인증, Portfolio, Project, 파일 업로드/다운로드, 공개 조회 API를 제공합니다.</p>
         </div>
         <div class="box">
           <h3>주요 의존성</h3>
           <ul>
             <li><code>Flask</code>: HTTP 서버와 Blueprint 라우팅</li>
-            <li><code>SQLAlchemy</code>, <code>pymysql</code>: MySQL ORM/드라이버</li>
+            <li><code>SQLAlchemy</code>, <code>pymysql</code>: MySQL ORM 및 드라이버</li>
             <li><code>pydantic</code>: 요청/응답 스키마 검증</li>
-            <li><code>python-jose</code>, <code>passlib[bcrypt]</code>: JWT와 비밀번호 해싱</li>
+            <li><code>python-jose</code>, <code>passlib[bcrypt]</code>: JWT와 비밀번호 해시</li>
             <li><code>flasgger</code>: 개발 환경 Swagger UI</li>
           </ul>
         </div>
@@ -51,22 +51,20 @@
       <h2>실행 구조</h2>
       <ul>
         <li><code>app.py</code>의 <code>create_app()</code>이 Flask 앱을 생성합니다.</li>
-        <li>요청 시작 전 <code>g.db = SessionLocal()</code>로 DB 세션을 열고, 앱 컨텍스트 종료 시 세션을 닫습니다.</li>
-        <li><code>Base.metadata.create_all(bind=engine)</code>으로 테이블을 자동 생성합니다.</li>
-        <li>개발 환경에서는 <code>/docs</code>에 Flasgger 기반 Swagger UI가 활성화됩니다.</li>
+        <li>요청 시작 시 <code>g.db = SessionLocal()</code>로 DB 세션을 열고, 요청 종료 시 세션을 닫습니다.</li>
+        <li><code>Base.metadata.create_all(bind=engine)</code>로 필요한 테이블을 생성합니다.</li>
+        <li>개발 환경에서는 <code>/docs</code>에 Flasgger 기반 Swagger UI가 등록됩니다.</li>
         <li>기본 실행 포트는 <code>8000</code>입니다.</li>
       </ul>
 
       <h3>Swagger 문서 URL</h3>
       <p>
-        서버를 개발 환경으로 실행하면 Swagger UI는
+        개발 환경에서 서버를 실행하면 Swagger UI는
         <a href="http://localhost:8000/docs"><code>http://localhost:8000/docs</code></a>에서 확인할 수 있습니다.
-        OpenAPI JSON 스펙은 <a href="http://localhost:8000/apispec.json"><code>http://localhost:8000/apispec.json</code></a>으로 제공됩니다.
+        OpenAPI JSON 스펙은 <a href="http://localhost:8000/apispec.json"><code>http://localhost:8000/apispec.json</code></a>로 제공합니다.
       </p>
       <div class="warning">
-        <strong>조건:</strong>
-        Swagger UI는 <code>APP_ENV=development</code>일 때만 활성화됩니다.
-        <code>APP_ENV=production</code>에서는 문서 UI가 등록되지 않습니다.
+        <strong>조건:</strong> Swagger UI는 <code>APP_ENV=development</code>에서만 활성화됩니다.
       </div>
     </section>
 
@@ -74,20 +72,14 @@
       <div class="section-kicker">Blueprint</div>
       <h2>Blueprint 구성</h2>
       <table>
-        <thead>
-          <tr>
-            <th>Blueprint</th>
-            <th>URL prefix</th>
-            <th>담당 기능</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Blueprint</th><th>URL prefix</th><th>담당 기능</th></tr></thead>
         <tbody>
           <tr><td><code>auth</code></td><td><code>/api/v1/auth</code></td><td>회원가입, 로그인, 토큰 재발급, 로그아웃</td></tr>
-          <tr><td><code>user</code></td><td><code>/api/v1/user</code></td><td>현재 사용자 조회, username 변경, 비밀번호 변경, 계정 삭제</td></tr>
-          <tr><td><code>public</code></td><td><code>/api/v1/public</code></td><td>인증 없는 공개 프로젝트 목록/상세/파일 조회</td></tr>
-          <tr><td><code>portfolios</code></td><td><code>/api/v1/portfolios</code></td><td>카테고리 CRUD</td></tr>
-          <tr><td><code>projects</code></td><td><code>/api/v1/projects</code></td><td>프로젝트 CRUD와 검색</td></tr>
+          <tr><td><code>user</code></td><td><code>/api/v1/user</code></td><td>현재 사용자 조회, 프로필 변경, 비밀번호 변경, 계정 삭제</td></tr>
+          <tr><td><code>portfolios</code></td><td><code>/api/v1/portfolios</code></td><td>Portfolio 목록, 생성, 상세, 수정, 삭제</td></tr>
+          <tr><td><code>projects</code></td><td><code>/api/v1/projects</code></td><td>Project 목록, 생성, 상세, 수정, 삭제, 검색</td></tr>
           <tr><td><code>files</code></td><td><code>/api/v1/files</code></td><td>파일 업로드, 목록, 다운로드, 삭제</td></tr>
+          <tr><td><code>public</code></td><td><code>/api/v1/public</code></td><td>인증 없는 공개 Project 목록, 상세, 파일 조회</td></tr>
         </tbody>
       </table>
     </section>
@@ -96,40 +88,26 @@
       <div class="section-kicker">API</div>
       <h2>주요 엔드포인트</h2>
       <table>
-        <thead>
-          <tr>
-            <th>Method</th>
-            <th>Path</th>
-            <th>인증</th>
-            <th>설명</th>
-          </tr>
-        </thead>
+        <thead><tr><th>Method</th><th>Path</th><th>인증</th><th>설명</th></tr></thead>
         <tbody>
           <tr><td>POST</td><td><code>/api/v1/auth/signup</code></td><td>없음</td><td>사용자 생성. username/email 중복 시 409.</td></tr>
           <tr><td>POST</td><td><code>/api/v1/auth/login</code></td><td>없음</td><td>email/password 검증 후 access/refresh token 발급.</td></tr>
           <tr><td>POST</td><td><code>/api/v1/auth/refresh</code></td><td>refresh token</td><td>refresh token 검증 후 새 access token 발급.</td></tr>
-          <tr><td>POST</td><td><code>/api/v1/auth/logout</code></td><td>필수</td><td>access token과 refresh token을 revoked_token에 기록.</td></tr>
           <tr><td>GET</td><td><code>/api/v1/user/me</code></td><td>필수</td><td>현재 사용자 정보 반환.</td></tr>
-          <tr><td>PUT</td><td><code>/api/v1/user/profile</code></td><td>필수</td><td>username 변경.</td></tr>
-          <tr><td>PUT</td><td><code>/api/v1/user/password</code></td><td>필수</td><td>현재 비밀번호 확인 후 새 비밀번호 저장.</td></tr>
-          <tr><td>DELETE</td><td><code>/api/v1/user/account</code></td><td>필수</td><td>비밀번호 확인 후 사용자와 관련 파일 삭제.</td></tr>
-          <tr><td>GET</td><td><code>/api/v1/portfolios/</code></td><td>필수</td><td>로그인 사용자의 카테고리 목록. pagination 지원.</td></tr>
-          <tr><td>POST</td><td><code>/api/v1/portfolios/</code></td><td>필수</td><td>카테고리 생성. 사용자별 code 유니크.</td></tr>
-          <tr><td>GET</td><td><code>/api/v1/portfolios/{code}</code></td><td>필수</td><td>카테고리 상세.</td></tr>
-          <tr><td>PUT</td><td><code>/api/v1/portfolios/{code}</code></td><td>필수</td><td>카테고리 수정.</td></tr>
-          <tr><td>DELETE</td><td><code>/api/v1/portfolios/{code}</code></td><td>필수</td><td>카테고리 삭제 및 연결 파일 정리.</td></tr>
-          <tr><td>GET</td><td><code>/api/v1/projects/?portfolio_code=...</code></td><td>필수</td><td>프로젝트 목록. tags/tech_stack 대상 search 지원.</td></tr>
-          <tr><td>POST</td><td><code>/api/v1/projects/</code></td><td>필수</td><td>프로젝트 생성. portfolio 안에서 code 유니크.</td></tr>
-          <tr><td>GET</td><td><code>/api/v1/projects/{portfolio_code}/{project_code}</code></td><td>필수</td><td>프로젝트 상세.</td></tr>
-          <tr><td>PUT</td><td><code>/api/v1/projects/{portfolio_code}/{project_code}</code></td><td>필수</td><td>프로젝트 수정.</td></tr>
-          <tr><td>DELETE</td><td><code>/api/v1/projects/{portfolio_code}/{project_code}</code></td><td>필수</td><td>프로젝트 삭제 및 연결 파일 정리.</td></tr>
-          <tr><td>POST</td><td><code>/api/v1/files/upload</code></td><td>필수</td><td>multipart 파일 업로드. 허용 확장자와 최대 크기 검증.</td></tr>
-          <tr><td>GET</td><td><code>/api/v1/files/</code></td><td>필수</td><td>사용자의 업로드 파일 목록.</td></tr>
-          <tr><td>GET</td><td><code>/api/v1/files/{file_uuid}</code></td><td>필수</td><td>인증 사용자 소유 파일 다운로드.</td></tr>
-          <tr><td>DELETE</td><td><code>/api/v1/files/{file_uuid}</code></td><td>필수</td><td>파일 레코드와 실제 파일 삭제.</td></tr>
-          <tr><td>GET</td><td><code>/api/v1/public/{username}/{portfolio_code}/</code></td><td>없음</td><td>공개 카테고리의 공개 프로젝트 목록.</td></tr>
-          <tr><td>GET</td><td><code>/api/v1/public/{username}/{portfolio_code}/{project_code}/</code></td><td>없음</td><td>공개 프로젝트 상세.</td></tr>
-          <tr><td>GET</td><td><code>/api/v1/public/{username}/file/{file_uuid}</code></td><td>없음</td><td>해당 사용자가 소유한 공개 페이지용 파일 다운로드.</td></tr>
+          <tr><td>GET</td><td><code>/api/v1/portfolios/</code></td><td>필수</td><td>로그인 사용자의 Portfolio 목록.</td></tr>
+          <tr><td>POST</td><td><code>/api/v1/portfolios/</code></td><td>필수</td><td>Portfolio 생성.</td></tr>
+          <tr><td>GET</td><td><code>/api/v1/portfolios/{code}</code></td><td>필수</td><td>Portfolio 상세.</td></tr>
+          <tr><td>PUT</td><td><code>/api/v1/portfolios/{code}</code></td><td>필수</td><td>Portfolio 수정.</td></tr>
+          <tr><td>DELETE</td><td><code>/api/v1/portfolios/{code}</code></td><td>필수</td><td>Portfolio 삭제와 연결 파일 정리.</td></tr>
+          <tr><td>GET</td><td><code>/api/v1/projects/?portfolio_code=...</code></td><td>필수</td><td>Portfolio별 Project 목록과 검색.</td></tr>
+          <tr><td>POST</td><td><code>/api/v1/projects/</code></td><td>필수</td><td>Project 생성.</td></tr>
+          <tr><td>GET</td><td><code>/api/v1/projects/{portfolio_code}/{project_code}</code></td><td>필수</td><td>Project 상세.</td></tr>
+          <tr><td>PUT</td><td><code>/api/v1/projects/{portfolio_code}/{project_code}</code></td><td>필수</td><td>Project 수정.</td></tr>
+          <tr><td>DELETE</td><td><code>/api/v1/projects/{portfolio_code}/{project_code}</code></td><td>필수</td><td>Project 삭제와 연결 파일 정리.</td></tr>
+          <tr><td>POST</td><td><code>/api/v1/files/upload</code></td><td>필수</td><td>multipart 파일 업로드.</td></tr>
+          <tr><td>GET</td><td><code>/api/v1/public/{username}/{portfolio_code}/</code></td><td>없음</td><td>공개 Project 목록.</td></tr>
+          <tr><td>GET</td><td><code>/api/v1/public/{username}/{portfolio_code}/{project_code}/</code></td><td>없음</td><td>공개 Project 상세.</td></tr>
+          <tr><td>GET</td><td><code>/api/v1/public/{username}/file/{file_uuid}</code></td><td>없음</td><td>공개 페이지 파일 다운로드.</td></tr>
         </tbody>
       </table>
     </section>
@@ -138,52 +116,27 @@
       <div class="section-kicker">Models</div>
       <h2>데이터 모델</h2>
       <table>
-        <thead>
-          <tr>
-            <th>모델</th>
-            <th>주요 필드</th>
-            <th>관계/제약</th>
-          </tr>
-        </thead>
+        <thead><tr><th>모델</th><th>주요 필드</th><th>관계와 제약</th></tr></thead>
         <tbody>
-          <tr><td><code>User</code></td><td><code>id</code>, <code>username</code>, <code>email</code>, <code>password_hash</code>, timestamps</td><td><code>username</code>, <code>email</code> unique. Portfolio, UploadFile과 1:N.</td></tr>
-          <tr><td><code>Portfolio</code></td><td><code>user_id</code>, <code>code</code>, <code>name</code>, <code>description</code>, <code>file_uuid</code>, <code>order</code>, <code>is_public</code></td><td>사용자별 <code>code</code> unique. Project와 1:N. User 삭제 시 cascade.</td></tr>
-          <tr><td><code>Project</code></td><td><code>portfolio_id</code>, <code>code</code>, <code>title</code>, <code>summary</code>, <code>thumbnail_file_uuid</code>, <code>tags</code>, <code>tech_stack</code>, <code>screenshots</code>, <code>links</code>, <code>features</code></td><td>포트폴리오별 <code>code</code> unique. JSON 필드로 상세 데이터를 저장.</td></tr>
-          <tr><td><code>UploadFile</code></td><td><code>uuid</code>, <code>user_id</code>, <code>original_filename</code>, <code>stored_filename</code>, <code>file_size</code>, <code>content_type</code>, <code>upload_path</code></td><td>사용자별 파일 소유권 검증에 사용. 실제 파일 경로를 DB에 저장.</td></tr>
-          <tr><td><code>CorsOrigin</code></td><td><code>server_code</code>, <code>origin</code></td><td>DB 기반 CORS 허용 origin 목록. <code>server_code + origin</code> unique.</td></tr>
-          <tr><td><code>RevokedToken</code></td><td><code>jti</code>, <code>expired_at</code>, <code>revoked_at</code></td><td>로그아웃된 access/refresh token의 jti를 저장해 재사용을 차단.</td></tr>
+          <tr><td><code>User</code></td><td><code>id</code>, <code>username</code>, <code>email</code>, <code>password_hash</code></td><td><code>username</code>, <code>email</code> unique. Portfolio, UploadFile과 1:N.</td></tr>
+          <tr><td><code>Portfolio</code></td><td><code>user_id</code>, <code>code</code>, <code>name</code>, <code>description</code>, <code>file_uuid</code>, <code>order</code>, <code>is_public</code></td><td>사용자별 <code>code</code> unique. Project와 1:N.</td></tr>
+          <tr><td><code>Project</code></td><td><code>portfolio_id</code>, <code>code</code>, <code>title</code>, <code>summary</code>, <code>tags</code>, <code>tech_stack</code>, <code>screenshots</code>, <code>links</code></td><td>Portfolio별 <code>code</code> unique. 상세 데이터는 JSON 필드를 사용합니다.</td></tr>
+          <tr><td><code>UploadFile</code></td><td><code>uuid</code>, <code>user_id</code>, <code>stored_filename</code>, <code>file_size</code>, <code>upload_path</code></td><td>사용자별 파일 소유권 검증에 사용합니다.</td></tr>
+          <tr><td><code>CorsOrigin</code></td><td><code>server_code</code>, <code>origin</code></td><td>DB 기반 CORS 허용 origin 목록.</td></tr>
+          <tr><td><code>RevokedToken</code></td><td><code>jti</code>, <code>expired_at</code>, <code>revoked_at</code></td><td>로그아웃된 JWT 차단에 사용합니다.</td></tr>
         </tbody>
       </table>
-
-      <pre>User
-  1 -- N Portfolio
-          1 -- N Project
-
-User
-  1 -- N UploadFile
-
-Portfolio.file_uuid -> UploadFile.uuid
-Project.thumbnail_file_uuid -> UploadFile.uuid
-Project.screenshots[].file_uuid -> UploadFile.uuid</pre>
     </section>
 
     <section>
       <div class="section-kicker">Environment</div>
       <h2>.env 파일 작성 방법</h2>
-      <p>
-        서버는 <code>core/config.py</code>에서 환경변수를 로드합니다. <code>APP_ENV</code> 값이
-        <code>development</code>이면 <code>.env.development</code>, <code>production</code>이면
-        <code>.env.production</code>을 우선 읽고, 해당 파일이 없으면 <code>.env</code>를 읽습니다.
-      </p>
+      <p><code>core/config.py</code>는 <code>APP_ENV</code> 값에 따라 <code>.env.development</code>, <code>.env.production</code>, <code>.env</code> 순서로 환경 변수를 로드합니다.</p>
 
       <h3>1. 서버 디렉터리로 이동</h3>
-      <pre>cd portfolio_project_server_fastapi</pre>
+      <pre>cd portfolio_project_server_flask</pre>
 
-      <h3>2. 개발용 .env 파일 생성</h3>
-      <p>
-        로컬 개발 환경에서는 <code>.env.development</code> 파일을 만드는 방식을 권장합니다.
-        운영 환경 값과 개발 환경 값을 분리할 수 있기 때문입니다.
-      </p>
+      <h3>2. 개발 환경 예시</h3>
       <pre>APP_ENV=development
 SERVER_CODE=PORTFOLIO_API
 
@@ -203,11 +156,7 @@ MAX_FILE_SIZE=10485760
 DB_MAX_RETRIES=2
 DB_RETRY_DELAY=3</pre>
 
-      <h3>3. 운영용 .env 파일 생성</h3>
-      <p>
-        운영 배포에서는 <code>.env.production</code>을 만들고 <code>APP_ENV=production</code>을 설정합니다.
-        특히 <code>JWT_SECRET_KEY</code>와 DB 비밀번호는 예시값을 그대로 쓰면 안 됩니다.
-      </p>
+      <h3>3. 운영 환경 예시</h3>
       <pre>APP_ENV=production
 SERVER_CODE=PORTFOLIO_API
 
@@ -228,33 +177,21 @@ DB_MAX_RETRIES=5
 DB_RETRY_DELAY=3</pre>
 
       <h3>4. CORS origin 등록</h3>
-      <p>
-        이 서버는 CORS 허용 origin을 <code>cors_origin</code> 테이블에서 조회합니다.
-        프론트엔드 개발 서버가 <code>http://localhost:5173</code>에서 실행된다면,
-        같은 <code>SERVER_CODE</code> 값으로 origin을 DB에 등록해야 브라우저 요청이 허용됩니다.
-      </p>
       <pre>INSERT INTO cors_origin (server_code, origin, created_at)
 VALUES ('PORTFOLIO_API', 'http://localhost:5173', NOW());</pre>
 
       <div class="warning">
-        <strong>주의:</strong>
-        코드에는 기본 DB 비밀번호와 fallback JWT secret이 들어 있지만, 실제 실행 환경에서는 반드시
-        <code>.env</code> 계열 파일이나 시스템 환경변수로 안전한 값을 지정해야 합니다.
+        <strong>주의:</strong> 실제 실행 환경에서는 DB 비밀번호와 <code>JWT_SECRET_KEY</code>를 반드시 안전한 값으로 지정해야 합니다.
       </div>
     </section>
 
     <section>
       <div class="section-kicker">Runbook</div>
       <h2>실행과 테스트</h2>
-      <pre>cd portfolio_project_server_fastapi
+      <pre>cd portfolio_project_server_flask
 pip install -r requirements.txt
 python app.py
 pytest</pre>
-      <p>
-        서버는 MySQL 연결을 먼저 시도합니다. <code>MYSQL_HOST</code>, <code>MYSQL_PORT</code>,
-        <code>MYSQL_DB</code>, <code>MYSQL_USER</code>, <code>MYSQL_PASSWORD</code>,
-        <code>JWT_SECRET_KEY</code>, <code>UPLOAD_DIR</code>, <code>APP_ENV</code> 등의 환경변수를 확인해야 합니다.
-      </p>
     </section>
   </main>
 </body>
