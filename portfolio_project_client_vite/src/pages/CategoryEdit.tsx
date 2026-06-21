@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import ArrowLeftIcon from '../components/svg/ArrowLeftIcon';
-import { getCategoryDetail, updateCategory } from '../utils/api';
-import type { Category } from '../types/category';
+import { getPortfolioCategoryDetail, updatePortfolioCategory } from '../utils/api';
+import type { PortfolioCategory } from '../types/category';
 import CategoryForm, { type CategoryFormData } from '../components/CategoryForm';
 
 export default function CategoryEdit() {
   const { portfolioCode } = useParams<{ portfolioCode: string }>();
   const navigate = useNavigate();
-  const [category, setCategory] = useState<Category | null>(null);
+  const [portfolio, setPortfolio] = useState<PortfolioCategory | null>(null);
   const [formData, setFormData] = useState<CategoryFormData>({
     name: '',
     description: '',
@@ -21,12 +21,12 @@ export default function CategoryEdit() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchCategory = useCallback(async () => {
+  const fetchPortfolio = useCallback(async () => {
     if (!portfolioCode) return;
     try {
       setLoading(true);
-      const found = await getCategoryDetail(portfolioCode);
-      setCategory(found);
+      const found = await getPortfolioCategoryDetail(portfolioCode);
+      setPortfolio(found);
       setFormData({
         code: found.code,
         name: found.name,
@@ -36,34 +36,34 @@ export default function CategoryEdit() {
         isPublic: found.is_public,
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : '카테고리를 불러오는데 실패했습니다.');
+      setError(err instanceof Error ? err.message : '포트폴리오를 불러오지 못했습니다.');
     } finally {
       setLoading(false);
     }
   }, [portfolioCode]);
 
   useEffect(() => {
-    fetchCategory();
-  }, [fetchCategory]);
+    fetchPortfolio();
+  }, [fetchPortfolio]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!category) return;
+    if (!portfolio) return;
     setSubmitting(true);
     setError(null);
 
     try {
-      await updateCategory(category.code, {
+      await updatePortfolioCategory(portfolio.code, {
         code: formData.code,
         name: formData.name,
         description: formData.description,
         screenshot: formData.screenshotFileUuid ? { file_uuid: formData.screenshotFileUuid } : null,
-        order: formData.order ?? category.order,
+        order: formData.order ?? portfolio.order,
         is_public: formData.isPublic,
       });
       navigate(`/portfolio/${formData.code}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '카테고리 수정에 실패했습니다.');
+      setError(err instanceof Error ? err.message : '포트폴리오 수정에 실패했습니다.');
     } finally {
       setSubmitting(false);
     }
@@ -74,17 +74,17 @@ export default function CategoryEdit() {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">카테고리를 불러오는 중...</p>
+          <p className="text-gray-600">포트폴리오를 불러오는 중...</p>
         </div>
       </div>
     );
   }
 
-  if (!category) {
+  if (!portfolio) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">카테고리를 찾을 수 없습니다</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">포트폴리오를 찾을 수 없습니다</h2>
           <Link to="/home" className="text-blue-600 hover:text-blue-800">
             홈으로 돌아가기
           </Link>
@@ -100,11 +100,11 @@ export default function CategoryEdit() {
         className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-8"
       >
         <ArrowLeftIcon className="w-5 h-5 mr-2" />
-        카테고리로 돌아가기
+        포트폴리오로 돌아가기
       </Link>
 
       <div className="bg-white rounded-xl shadow-lg p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">카테고리 편집</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">포트폴리오 편집</h1>
 
         {error && (
           <div className="p-4 mb-6 bg-red-50 border border-red-200 rounded-lg">

@@ -27,9 +27,9 @@ function App() {
           <Route path="/register" element={<Register />} />
 
           {/* 공개 포트폴리오 페이지 (Header 없음, 인증 불필요) */}
-          <Route path="/public/:username/:categoryCode" element={<PublicPortfolioList />} />
+          <Route path="/public/:username/:portfolioCode" element={<PublicPortfolioList />} />
           <Route
-            path="/public/:username/:categoryCode/:portfolioCode"
+            path="/public/:username/:portfolioCode/:projectCode"
             element={<PublicProjectDetail />}
           />
 
@@ -68,7 +68,7 @@ function App() {
             }
           />
           <Route
-            path="/portfolio/:portfolioCode/project/:id"
+            path="/portfolio/:portfolioCode/project/:projectCode"
             element={
               <ProtectedRoute>
                 <div className="min-h-screen bg-slate-50">

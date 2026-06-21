@@ -7,15 +7,14 @@ import PlusIcon from '../components/svg/PlusIcon';
 import SettingsIcon from '../components/svg/SettingsIcon';
 import ShareIcon from '../components/svg/ShareIcon';
 import type { AuthUser } from '../types/auth';
-import type { Category } from '../types/category';
+import type { PortfolioCategory } from '../types/category';
 import type { PortfolioItem, Project } from '../types/project';
-import { getCategoryDetail, getCurrentUser, getPortfolios } from '../utils/api';
+import { getPortfolioCategoryDetail, getCurrentUser, getPortfolios } from '../utils/api';
 
-// Helper function to convert PortfolioItem to Project
-function portfolioItemToProject(item: PortfolioItem, categoryCode: string): Project {
+function portfolioItemToProject(item: PortfolioItem, portfolioCode: string): Project {
   return {
     id: item.code,
-    categoryId: categoryCode,
+    categoryId: portfolioCode,
     code: item.code,
     title: item.title,
     summary: item.summary,
@@ -33,23 +32,20 @@ export default function ProjectList() {
   const { portfolioCode } = useParams<{ portfolioCode: string }>();
   const navigate = useNavigate();
 
-  // State
   const [projects, setProjects] = useState<Project[]>([]);
-  const [category, setCategory] = useState<Category | null>(null);
+  const [portfolio, setPortfolio] = useState<PortfolioCategory | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [page] = useState(1); // TODO: 페이지네이션 UI 추가 시 사용
-
-  // TODO: 실제 사용자 권한은 API나 Context에서 가져와야 함
-  const isCurator = true;
+  const [page] = useState(1);
   const [tagInput, setTagInput] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [showCopiedMessage, setShowCopiedMessage] = useState(false);
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
-  // Debounce tag input for API search
+  // TODO: 실제 사용자 권한은 API나 AuthContext에서 가져오도록 변경한다.
+  const isCurator = true;
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(tagInput.trim());
@@ -57,7 +53,6 @@ export default function ProjectList() {
     return () => clearTimeout(timer);
   }, [tagInput]);
 
-  // Load current user from API
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -70,41 +65,39 @@ export default function ProjectList() {
     fetchUser();
   }, []);
 
-  // Fetch category info
   useEffect(() => {
     if (!portfolioCode) return;
 
     setIsLoading(true);
     setError(null);
 
-    getCategoryDetail(portfolioCode)
-      .then((foundCategory) => {
-        setCategory(foundCategory);
+    getPortfolioCategoryDetail(portfolioCode)
+      .then((foundPortfolio) => {
+        setPortfolio(foundPortfolio);
       })
       .catch((err) => {
-        setError(err instanceof Error ? err.message : '데이터를 불러오는데 실패했습니다.');
-        console.error('Failed to fetch category:', err);
+        setError(err instanceof Error ? err.message : '포트폴리오를 불러오지 못했습니다.');
+        console.error('Failed to fetch portfolio:', err);
         setIsLoading(false);
       });
   }, [portfolioCode]);
 
-  // Fetch portfolios (re-fetch when search or tag filter changes)
-  const isInitialLoad = category === null || (isLoading && projects.length === 0);
+  const isInitialLoad = portfolio === null || (isLoading && projects.length === 0);
   useEffect(() => {
-    if (!category) return;
+    if (!portfolio) return;
 
     const fetchProjects = async () => {
       try {
         const search =
           debouncedSearch ||
           (selectedTags.length > 0 ? selectedTags[selectedTags.length - 1] : undefined);
-        const portfoliosResponse = await getPortfolios(category.code, page, 100, search);
+        const portfoliosResponse = await getPortfolios(portfolio.code, page, 100, search);
         const convertedProjects = portfoliosResponse.items.map((item) =>
-          portfolioItemToProject(item, category.code)
+          portfolioItemToProject(item, portfolio.code)
         );
         setProjects(convertedProjects);
       } catch (err) {
-        setError(err instanceof Error ? err.message : '데이터를 불러오는데 실패했습니다.');
+        setError(err instanceof Error ? err.message : '프로젝트를 불러오지 못했습니다.');
         console.error('Failed to fetch projects:', err);
       } finally {
         setIsLoading(false);
@@ -112,7 +105,7 @@ export default function ProjectList() {
     };
 
     fetchProjects();
-  }, [category, page, selectedTags, debouncedSearch]);
+  }, [portfolio, page, selectedTags, debouncedSearch]);
 
   const allTags = useMemo(() => {
     const tagSet = new Set<string>();
@@ -132,16 +125,11 @@ export default function ProjectList() {
   }, [tagInput, allTags, selectedTags]);
 
   const filteredProjects = useMemo(() => {
-    let result = projects;
+    if (selectedTags.length === 0) return projects;
 
-    // 태그 필터링
-    if (selectedTags.length > 0) {
-      result = result.filter((project) =>
-        selectedTags.every((tag) => project.tags.includes(tag) || project.techStack.includes(tag))
-      );
-    }
-
-    return result;
+    return projects.filter((project) =>
+      selectedTags.every((tag) => project.tags.includes(tag) || project.techStack.includes(tag))
+    );
   }, [projects, selectedTags]);
 
   const handleAddTag = (tag: string) => {
@@ -169,9 +157,9 @@ export default function ProjectList() {
   };
 
   const handleShareClick = async () => {
-    if (!category || !currentUser) return;
+    if (!portfolio || !currentUser) return;
 
-    const publicUrl = `${window.location.origin}/public/${currentUser.username}/${category.code}`;
+    const publicUrl = `${window.location.origin}/public/${currentUser.username}/${portfolio.code}`;
 
     try {
       await navigator.clipboard.writeText(publicUrl);
@@ -183,7 +171,6 @@ export default function ProjectList() {
     }
   };
 
-  // Loading state (only for initial load, not search re-fetches)
   if (isInitialLoad) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -195,7 +182,6 @@ export default function ProjectList() {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -213,12 +199,11 @@ export default function ProjectList() {
     );
   }
 
-  // Category not found
-  if (!category) {
+  if (!portfolio) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">카테고리를 찾을 수 없습니다</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">포트폴리오를 찾을 수 없습니다</h1>
           <Link to="/home" className="text-blue-600 hover:text-blue-800 underline">
             홈으로 돌아가기
           </Link>
@@ -240,9 +225,9 @@ export default function ProjectList() {
 
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-4 mb-4">
-            <h1 className="text-4xl font-bold text-gray-900">{category.name}</h1>
+            <h1 className="text-4xl font-bold text-gray-900">{portfolio.name}</h1>
             <div className="flex items-center gap-2">
-              {category.is_public && currentUser && (
+              {portfolio.is_public && currentUser && (
                 <div className="relative">
                   <button
                     onClick={handleShareClick}
@@ -253,7 +238,7 @@ export default function ProjectList() {
                   </button>
                   {showCopiedMessage && (
                     <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-sm px-3 py-1 rounded whitespace-nowrap">
-                      링크가 복사되었습니다!
+                      링크가 복사되었습니다
                     </div>
                   )}
                 </div>
@@ -262,14 +247,14 @@ export default function ProjectList() {
                 <button
                   onClick={() => navigate(`/portfolio/${portfolioCode}/edit`)}
                   className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                  title="카테고리 편집"
+                  title="포트폴리오 편집"
                 >
                   <SettingsIcon className="w-6 h-6" />
                 </button>
               )}
             </div>
           </div>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">{category.description}</p>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">{portfolio.description}</p>
         </div>
 
         <div className="mb-8">
@@ -343,7 +328,6 @@ export default function ProjectList() {
             <ProjectCard key={project.id} project={project} />
           ))}
 
-          {/* Curator 권한: 새 프로젝트 추가 카드 */}
           {isCurator && (
             <ActionCard
               icon={
@@ -358,7 +342,7 @@ export default function ProjectList() {
 
         {filteredProjects.length === 0 && (
           <div className="text-center py-20">
-            <p className="text-gray-500 text-lg">해당 태그를 가진 프로젝트가 없습니다.</p>
+            <p className="text-gray-500 text-lg">조건에 맞는 프로젝트가 없습니다.</p>
           </div>
         )}
       </div>

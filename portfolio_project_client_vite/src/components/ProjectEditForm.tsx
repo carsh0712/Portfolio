@@ -65,7 +65,6 @@ export default function ProjectEditForm({ project, onSave, onCancel }: ProjectEd
     setEditData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // 링크
   const handleAddLink = () => {
     setEditData((prev) => ({
       ...prev,
@@ -87,7 +86,6 @@ export default function ProjectEditForm({ project, onSave, onCancel }: ProjectEd
     }));
   };
 
-  // 스크린샷
   const handleAddScreenshot = () => {
     setEditData((prev) => ({
       ...prev,
@@ -137,7 +135,7 @@ export default function ProjectEditForm({ project, onSave, onCancel }: ProjectEd
   };
 
   const confirmCancel = () => {
-    if (window.confirm('편집을 취소하시겠습니까? 변경된 내용이 저장되지 않습니다.')) {
+    if (window.confirm('편집을 취소하시겠습니까? 변경된 내용은 저장되지 않습니다.')) {
       handleCancel();
     }
   };
@@ -151,23 +149,26 @@ export default function ProjectEditForm({ project, onSave, onCancel }: ProjectEd
       {toastMessage && (
         <Toast message={toastMessage} type="error" onClose={() => setToastMessage(null)} />
       )}
-      {/* 제목 + 버튼 */}
+
       <div className="flex items-start justify-between mb-2">
         <input
           type="text"
           name="title"
           value={editData.title}
           onChange={handleEditChange}
+          placeholder="프로젝트 제목"
           className="text-3xl font-bold text-gray-900 w-full border-b-2 border-blue-500 focus:outline-none bg-transparent"
         />
         <div className="flex gap-2 ml-4 flex-shrink-0">
           <button
+            type="button"
             onClick={confirmCancel}
             className="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-300 transition-colors"
           >
             취소
           </button>
           <button
+            type="button"
             onClick={handleSave}
             className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
           >
@@ -176,10 +177,9 @@ export default function ProjectEditForm({ project, onSave, onCancel }: ProjectEd
         </div>
       </div>
 
-      {/* 프로젝트 코드 */}
       <FormSection
         title="프로젝트 코드"
-        description="프로젝트를 식별하는 고유 코드입니다"
+        description="프로젝트를 식별하는 고유 코드입니다."
         className="mb-4"
       >
         <input
@@ -187,36 +187,33 @@ export default function ProjectEditForm({ project, onSave, onCancel }: ProjectEd
           name="code"
           value={editData.code}
           onChange={handleEditChange}
-          placeholder="프로젝트 고유 코드 (예: PRJ001)"
+          placeholder="예: PRJ001"
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
       </FormSection>
 
-      {/* 태그 */}
-      <FormSection title="태그" description="쉼표(,)로 구분하여 입력하세요" className="mb-4">
+      <FormSection title="태그" description="쉼표(,)로 구분하여 입력하세요." className="mb-4">
         <input
           type="text"
           name="tags"
           value={editData.tags}
           onChange={handleEditChange}
-          placeholder="태그 (쉼표로 구분)"
+          placeholder="React, TypeScript"
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
       </FormSection>
 
-      {/* 요약 */}
-      <FormSection title="요약">
+      <FormSection title="요약" className="mb-4">
         <input
           type="text"
           name="summary"
           value={editData.summary}
           onChange={handleEditChange}
-          placeholder="요약"
-          className="w-full text-lg text-gray-600 mb-6 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          placeholder="프로젝트 요약"
+          className="w-full text-lg text-gray-600 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
       </FormSection>
 
-      {/* 링크 관리 */}
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">링크 관리</h3>
         <div className="space-y-4">
@@ -290,13 +287,12 @@ export default function ProjectEditForm({ project, onSave, onCancel }: ProjectEd
               <PlusIcon className="w-16 h-16 text-gray-400 group-hover:text-blue-500 transition-colors" />
             }
             title="링크 추가"
-            description="새로운 링크를 추가합니다"
+            description="새 링크를 추가합니다"
             onClick={handleAddLink}
           />
         </div>
       </div>
 
-      {/* 스크린샷 관리 */}
       <div className="border-t border-gray-200 pt-8 mb-8">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">스크린샷 관리</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -327,16 +323,15 @@ export default function ProjectEditForm({ project, onSave, onCancel }: ProjectEd
               <PlusIcon className="w-16 h-16 text-gray-400 group-hover:text-blue-500 transition-colors" />
             }
             title="스크린샷 추가"
-            description="새로운 스크린샷을 추가합니다"
+            description="새 스크린샷을 추가합니다"
             onClick={handleAddScreenshot}
           />
         </div>
       </div>
 
-      {/* 프로젝트 설명 */}
       <FormSection
         title="프로젝트 설명"
-        description="프로젝트에 대한 상세 설명을 입력하세요"
+        description="프로젝트에 대한 상세 설명을 입력하세요."
         className="mb-8"
       >
         <textarea
@@ -348,10 +343,9 @@ export default function ProjectEditForm({ project, onSave, onCancel }: ProjectEd
         />
       </FormSection>
 
-      {/* 기술 스택 */}
       <FormSection
         title="기술 스택 태그"
-        description="쉼표(,)로 구분하여 입력하세요"
+        description="쉼표(,)로 구분하여 입력하세요."
         className="mb-8"
       >
         <input
@@ -359,24 +353,22 @@ export default function ProjectEditForm({ project, onSave, onCancel }: ProjectEd
           name="techStack"
           value={editData.techStack}
           onChange={handleEditChange}
-          placeholder="React, TypeScript, Tailwind (쉼표로 구분)"
+          placeholder="React, TypeScript, Tailwind"
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
       </FormSection>
 
-      {/* 주요 기능 */}
-      <FormSection title="주요 기능" description="한 줄에 하나씩 입력하세요" className="mb-8">
+      <FormSection title="주요 기능" description="한 줄에 하나씩 입력하세요." className="mb-8">
         <textarea
           name="features"
           value={editData.features}
           onChange={handleEditChange}
           rows={5}
-          placeholder="기능 1&#10;기능 2&#10;기능 3"
+          placeholder={'기능 1\n기능 2\n기능 3'}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
         />
       </FormSection>
 
-      {/* 날짜 / 공개여부 */}
       <div className="mt-8 pt-8 border-t border-gray-200">
         <div className="flex flex-wrap gap-4 items-end">
           <div>
@@ -419,15 +411,16 @@ export default function ProjectEditForm({ project, onSave, onCancel }: ProjectEd
         </div>
       </div>
 
-      {/* 하단 저장/취소 버튼 */}
       <div className="flex justify-end gap-2 mt-8 pt-8 border-t border-gray-200">
         <button
+          type="button"
           onClick={confirmCancel}
           className="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-300 transition-colors"
         >
           취소
         </button>
         <button
+          type="button"
           onClick={handleSave}
           className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
         >

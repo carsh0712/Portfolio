@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import Modal from './Modal';
-import type { Category } from '../types/category';
-import { updateCategory } from '../utils/api';
+import type { PortfolioCategory } from '../types/category';
+import { updatePortfolioCategory } from '../utils/api';
 import CategoryForm, { type CategoryFormData } from './CategoryForm';
 
 interface CategoryEditDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  category: Category;
+  category: PortfolioCategory;
   onSuccess: () => void;
 }
 
@@ -34,7 +34,7 @@ export default function CategoryEditDialog({
     setError(null);
 
     try {
-      await updateCategory(category.code, {
+      await updatePortfolioCategory(category.code, {
         code: formData.code,
         name: formData.name,
         description: formData.description,
@@ -45,14 +45,14 @@ export default function CategoryEditDialog({
       onSuccess();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : '카테고리 수정에 실패했습니다.');
+      setError(err instanceof Error ? err.message : '포트폴리오 수정에 실패했습니다.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="카테고리 편집">
+    <Modal isOpen={isOpen} onClose={onClose} title="포트폴리오 편집">
       <form onSubmit={handleSubmit} className="space-y-6">
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">

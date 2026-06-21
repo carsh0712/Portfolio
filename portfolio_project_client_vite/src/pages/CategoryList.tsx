@@ -3,13 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import ActionCard from '../components/ActionCard';
 import PlusIcon from '../components/svg/PlusIcon';
 import PublicStatusBadge from '../components/PublicStatusBadge';
-import type { Category } from '../types/category';
-import { getCategories } from '../utils/api';
+import type { PortfolioCategory } from '../types/category';
+import { getPortfolioCategories } from '../utils/api';
 import AuthImage from '../components/AuthImage';
 
 export default function CategoryList() {
   const navigate = useNavigate();
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [portfolios, setPortfolios] = useState<PortfolioCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -17,10 +17,10 @@ export default function CategoryList() {
   const [hasMore, setHasMore] = useState(true);
   const observerRef = useRef<HTMLDivElement | null>(null);
 
-  // TODO: 실제 사용자 권한은 API나 Context에서 가져와야 함
+  // TODO: 실제 사용자 권한은 API나 AuthContext에서 가져오도록 변경한다.
   const isCurator = true;
 
-  const fetchCategories = useCallback(async (pageNum: number) => {
+  const fetchPortfolios = useCallback(async (pageNum: number) => {
     try {
       if (pageNum === 1) {
         setLoading(true);
@@ -28,19 +28,19 @@ export default function CategoryList() {
         setLoadingMore(true);
       }
       setError(null);
-      const response = await getCategories(pageNum, 10);
+      const response = await getPortfolioCategories(pageNum, 10);
       const sorted = response.items.sort((a, b) => a.order - b.order);
 
       if (pageNum === 1) {
-        setCategories(sorted);
+        setPortfolios(sorted);
       } else {
-        setCategories((prev) => [...prev, ...sorted]);
+        setPortfolios((prev) => [...prev, ...sorted]);
       }
 
       setHasMore(pageNum < response.meta.total_pages);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '카테고리를 불러오는데 실패했습니다.');
-      console.error('Failed to fetch categories:', err);
+      setError(err instanceof Error ? err.message : '포트폴리오를 불러오지 못했습니다.');
+      console.error('Failed to fetch portfolios:', err);
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -48,8 +48,8 @@ export default function CategoryList() {
   }, []);
 
   useEffect(() => {
-    fetchCategories(page);
-  }, [page, fetchCategories]);
+    fetchPortfolios(page);
+  }, [page, fetchPortfolios]);
 
   useEffect(() => {
     if (!hasMore || loadingMore) return;
@@ -71,7 +71,7 @@ export default function CategoryList() {
     };
   }, [hasMore, loadingMore]);
 
-  const handleAddCategory = () => {
+  const handleAddPortfolio = () => {
     navigate('/portfolio/add');
   };
 
@@ -80,17 +80,17 @@ export default function CategoryList() {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">카테고리를 불러오는 중...</p>
+          <p className="text-gray-600">포트폴리오를 불러오는 중...</p>
         </div>
       </div>
     );
   }
 
-  if (error && categories.length === 0) {
+  if (error && portfolios.length === 0) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-red-500 text-5xl mb-4">⚠️</div>
+          <div className="text-red-500 text-5xl mb-4">!</div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">오류가 발생했습니다</h2>
           <p className="text-gray-600 mb-4">{error}</p>
           <button
@@ -114,49 +114,47 @@ export default function CategoryList() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {categories.map((category) => (
+          {portfolios.map((portfolio) => (
             <Link
-              key={category.id}
-              to={`/portfolio/${category.code}`}
+              key={portfolio.id}
+              to={`/portfolio/${portfolio.code}`}
               className="group block bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300"
             >
               <div className="aspect-video overflow-hidden">
-                {category.screenshot ? (
+                {portfolio.screenshot ? (
                   <AuthImage
-                    fileUuid={category.screenshot.file_uuid}
-                    alt={category.name}
+                    fileUuid={portfolio.screenshot.file_uuid}
+                    alt={portfolio.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                    <span className="text-white text-4xl font-bold">{category.name[0]}</span>
+                    <span className="text-white text-4xl font-bold">{portfolio.name[0]}</span>
                   </div>
                 )}
               </div>
               <div className="p-6">
                 <h2 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors mb-2">
-                  {category.name}
+                  {portfolio.name}
                 </h2>
-                <p className="text-gray-600 mb-3">{category.description}</p>
-                <PublicStatusBadge isPublic={category.is_public} />
+                <p className="text-gray-600 mb-3">{portfolio.description}</p>
+                <PublicStatusBadge isPublic={portfolio.is_public} />
               </div>
             </Link>
           ))}
 
-          {/* Curator 권한: 새 카테고리 추가 카드 */}
           {isCurator && (
             <ActionCard
               icon={
                 <PlusIcon className="w-16 h-16 text-gray-400 group-hover:text-blue-500 transition-colors" />
               }
-              title="새 카테고리 추가"
-              description="클릭하여 새 카테고리를 만드세요"
-              onClick={handleAddCategory}
+              title="새 포트폴리오 추가"
+              description="클릭하여 새 포트폴리오를 만드세요"
+              onClick={handleAddPortfolio}
             />
           )}
         </div>
 
-        {/* 무한 스크롤 감지 영역 */}
         {hasMore && <div ref={observerRef} className="h-10 mt-8" />}
 
         {loadingMore && (

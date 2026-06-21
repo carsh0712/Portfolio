@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import ArrowLeftIcon from '../components/svg/ArrowLeftIcon';
-import { createCategory, getCategories } from '../utils/api';
-import type { CreateCategoryRequest } from '../types/category';
+import { createPortfolioCategory, getPortfolioCategories } from '../utils/api';
+import type { CreatePortfolioCategoryRequest } from '../types/category';
 import CategoryForm, { type CategoryFormData } from '../components/CategoryForm';
 
 export default function CategoryAdd() {
@@ -23,12 +23,13 @@ export default function CategoryAdd() {
     setError(null);
 
     try {
-      // Fetch current categories to determine next order
-      const categoriesResponse = await getCategories(1, 100);
-      const maxOrder = categoriesResponse.items.reduce((max, cat) => Math.max(max, cat.order), 0);
+      const portfoliosResponse = await getPortfolioCategories(1, 100);
+      const maxOrder = portfoliosResponse.items.reduce(
+        (max, portfolio) => Math.max(max, portfolio.order),
+        0
+      );
 
-      // Convert camelCase to snake_case for API
-      const requestData: CreateCategoryRequest = {
+      const requestData: CreatePortfolioCategoryRequest = {
         code: formData.code,
         name: formData.name,
         description: formData.description,
@@ -37,11 +38,11 @@ export default function CategoryAdd() {
         is_public: formData.isPublic,
       };
 
-      await createCategory(requestData);
+      await createPortfolioCategory(requestData);
       navigate('/home');
     } catch (err) {
-      setError(err instanceof Error ? err.message : '카테고리 추가에 실패했습니다.');
-      console.error('Failed to create category:', err);
+      setError(err instanceof Error ? err.message : '포트폴리오 추가에 실패했습니다.');
+      console.error('Failed to create portfolio:', err);
     } finally {
       setLoading(false);
     }
@@ -55,7 +56,7 @@ export default function CategoryAdd() {
       </Link>
 
       <div className="bg-white rounded-xl shadow-lg p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">새 카테고리 추가</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">새 포트폴리오 추가</h1>
 
         {error && (
           <div className="p-4 mb-6 bg-red-50 border border-red-200 rounded-lg">
@@ -80,7 +81,7 @@ export default function CategoryAdd() {
               disabled={loading}
               className="flex-1 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
             >
-              {loading ? '추가 중...' : '카테고리 추가'}
+              {loading ? '추가 중...' : '포트폴리오 추가'}
             </button>
           </div>
         </form>

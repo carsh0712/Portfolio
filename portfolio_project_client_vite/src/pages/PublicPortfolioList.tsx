@@ -22,7 +22,7 @@ function publicPortfolioItemToProject(item: PublicPortfolioItem): Project {
 }
 
 export default function PublicPortfolioList() {
-  const { username, categoryCode } = useParams<{ username: string; categoryCode: string }>();
+  const { username, portfolioCode } = useParams<{ username: string; portfolioCode: string }>();
 
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -31,19 +31,19 @@ export default function PublicPortfolioList() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   useEffect(() => {
-    if (!username || !categoryCode) return;
+    if (!username || !portfolioCode) return;
 
     const fetchData = async () => {
       setIsLoading(true);
       setError(null);
 
       try {
-        const publicPortfolios = await getPublicPortfolios(username, categoryCode);
+        const publicPortfolios = await getPublicPortfolios(username, portfolioCode);
         const publicProjects = publicPortfolios.filter((p) => p.is_public === true);
         const convertedProjects = publicProjects.map(publicPortfolioItemToProject);
         setProjects(convertedProjects);
       } catch (err) {
-        setError(err instanceof Error ? err.message : '데이터를 불러오는데 실패했습니다.');
+        setError(err instanceof Error ? err.message : '프로젝트를 불러오지 못했습니다.');
         console.error('Failed to fetch public portfolios:', err);
       } finally {
         setIsLoading(false);
@@ -51,7 +51,7 @@ export default function PublicPortfolioList() {
     };
 
     fetchData();
-  }, [username, categoryCode]);
+  }, [username, portfolioCode]);
 
   const allTags = useMemo(() => {
     const tagSet = new Set<string>();
@@ -131,7 +131,7 @@ export default function PublicPortfolioList() {
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">{username}의 포트폴리오</h1>
-          <p className="text-xl text-gray-600">{categoryCode}</p>
+          <p className="text-xl text-gray-600">{portfolioCode}</p>
         </div>
 
         <div className="mb-8">
@@ -145,19 +145,7 @@ export default function PublicPortfolioList() {
                   >
                     {tag}
                     <button onClick={() => handleRemoveTag(tag)} className="hover:text-blue-600">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
+                      ×
                     </button>
                   </span>
                 ))}
@@ -205,7 +193,7 @@ export default function PublicPortfolioList() {
             <ProjectCard
               key={project.id}
               project={project}
-              linkPath={`/public/${username}/${categoryCode}/${project.code}`}
+              linkPath={`/public/${username}/${portfolioCode}/${project.code}`}
               thumbnailUrl={
                 project.thumbnailFileUuid && username
                   ? getPublicFileUrl(username, project.thumbnailFileUuid)

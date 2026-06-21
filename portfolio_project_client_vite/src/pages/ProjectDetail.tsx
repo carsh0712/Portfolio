@@ -8,8 +8,7 @@ import { useAuth } from '../contexts/AuthContext';
 import type { Portfolio, Project } from '../types/project';
 import { getPortfolioDetail, updatePortfolio } from '../utils/api';
 
-// Helper function to convert Portfolio to Project
-function portfolioDetailToProject(detail: Portfolio, categoryCode: string): Project {
+function portfolioDetailToProject(detail: Portfolio, portfolioCode: string): Project {
   const githubLink = detail.links?.find((l) => l.name.toLowerCase().includes('github'));
   const demoLink = detail.links?.find((l) => l.name.toLowerCase().includes('demo'));
   const downloadLink = detail.links?.find((l) => l.name.toLowerCase().includes('download'));
@@ -17,7 +16,7 @@ function portfolioDetailToProject(detail: Portfolio, categoryCode: string): Proj
 
   return {
     id: String(detail.id),
-    categoryId: categoryCode,
+    categoryId: portfolioCode,
     code: detail.code,
     title: detail.title,
     summary: detail.summary,
@@ -43,7 +42,10 @@ function portfolioDetailToProject(detail: Portfolio, categoryCode: string): Proj
 }
 
 export default function ProjectDetail() {
-  const { portfolioCode, id } = useParams<{ portfolioCode: string; id: string }>();
+  const { portfolioCode, projectCode } = useParams<{
+    portfolioCode: string;
+    projectCode: string;
+  }>();
 
   const [project, setProject] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,34 +53,34 @@ export default function ProjectDetail() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   const { user } = useAuth();
-  // TODO: 실제 사용자 권한은 API나 Context에서 가져와야 함
+  // TODO: 실제 사용자 권한은 API나 AuthContext에서 가져오도록 변경한다.
   const isCurator = true;
   const [isEditing, setIsEditing] = useState(false);
   const [portfolioId, setPortfolioId] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    if (!id) return;
+    if (!portfolioCode || !projectCode) return;
 
     const fetchData = async () => {
       setIsLoading(true);
       setError(null);
 
       try {
-        const detailResponse = await getPortfolioDetail(portfolioCode!, id);
-        const projectData = portfolioDetailToProject(detailResponse, portfolioCode || '');
+        const detailResponse = await getPortfolioDetail(portfolioCode, projectCode);
+        const projectData = portfolioDetailToProject(detailResponse, portfolioCode);
         setProject(projectData);
         setPortfolioId(detailResponse.portfolio_id);
       } catch (err) {
-        setError(err instanceof Error ? err.message : '데이터를 불러오는데 실패했습니다.');
-        console.error('Failed to fetch portfolio data:', err);
+        setError(err instanceof Error ? err.message : '프로젝트를 불러오지 못했습니다.');
+        console.error('Failed to fetch project data:', err);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [id, portfolioCode]);
+  }, [projectCode, portfolioCode]);
 
   const screenshots = project?.screenshots || [];
   const selectedImage = selectedIndex !== null ? screenshots[selectedIndex] : null;
@@ -126,7 +128,7 @@ export default function ProjectDetail() {
     endDate: string;
     isPublic: boolean;
   }) => {
-    if (!id || !project) return;
+    if (!projectCode || !project || !portfolioCode) return;
 
     setError(null);
 
@@ -158,11 +160,11 @@ export default function ProjectDetail() {
           .filter(Boolean),
       };
 
-      const updated = await updatePortfolio(portfolioCode!, id!, requestBody);
-      setProject(portfolioDetailToProject(updated, portfolioCode || ''));
+      const updated = await updatePortfolio(portfolioCode, projectCode, requestBody);
+      setProject(portfolioDetailToProject(updated, portfolioCode));
       setIsEditing(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '포트폴리오 수정에 실패했습니다.');
+      setError(err instanceof Error ? err.message : '프로젝트 수정에 실패했습니다.');
     }
   };
 
@@ -255,39 +257,13 @@ export default function ProjectDetail() {
                       disabled={!user?.username || !portfolioCode || !project.code}
                       className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-                        />
-                      </svg>
-                      {copied ? '복사됨!' : '공유'}
+                      {copied ? '복사됨' : '공유'}
                     </button>
                     {isCurator && (
                       <button
                         onClick={() => setIsEditing(true)}
                         className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
                       >
-                        <svg
-                          className="w-4 h-4"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                          />
-                        </svg>
                         편집
                       </button>
                     )}
@@ -357,19 +333,7 @@ export default function ProjectDetail() {
                   <ul className="space-y-3">
                     {project.features.map((feature, index) => (
                       <li key={index} className="flex items-start">
-                        <svg
-                          className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
+                        <span className="text-green-500 mr-3 mt-0.5 flex-shrink-0">✓</span>
                         <span className="text-gray-700">{feature}</span>
                       </li>
                     ))}
@@ -413,14 +377,7 @@ export default function ProjectDetail() {
               onClick={handleNext}
               className="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-white hover:text-gray-300 bg-black/50 rounded-full hover:bg-black/70 transition-colors"
             >
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
+              <span className="text-4xl leading-none">›</span>
             </button>
           )}
 
@@ -429,14 +386,7 @@ export default function ProjectDetail() {
               onClick={() => setSelectedIndex(null)}
               className="absolute -top-10 right-0 text-white hover:text-gray-300"
             >
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <span className="text-4xl leading-none">×</span>
             </button>
             <AuthImage
               fileUuid={selectedImage.file_uuid}

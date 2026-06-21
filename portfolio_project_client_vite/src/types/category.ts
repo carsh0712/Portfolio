@@ -1,4 +1,4 @@
-export interface Category {
+export interface PortfolioCategory {
   id: number;
   user_id: number;
   code: string;
@@ -11,8 +11,8 @@ export interface Category {
   updated_at: string;
 }
 
-export interface CategoryListResponse {
-  items: Category[];
+export interface PortfolioCategoryListResponse {
+  items: PortfolioCategory[];
   meta: {
     total: number;
     page: number;
@@ -21,16 +21,7 @@ export interface CategoryListResponse {
   };
 }
 
-// 기존 코드와의 호환성을 위한 alias
-export interface PortfolioCategory {
-  id: string;
-  name: string;
-  description: string;
-  imageUrl?: string;
-  order: number;
-}
-
-export interface CreateCategoryRequest {
+export interface CreatePortfolioCategoryRequest {
   code: string;
   name: string;
   description: string;
@@ -39,9 +30,9 @@ export interface CreateCategoryRequest {
   is_public: boolean;
 }
 
-export type CreateCategoryResponse = Category;
+export type CreatePortfolioCategoryResponse = PortfolioCategory;
 
-export interface UpdateCategoryRequest {
+export interface UpdatePortfolioCategoryRequest {
   code: string;
   name: string;
   description: string;
@@ -50,4 +41,12 @@ export interface UpdateCategoryRequest {
   is_public: boolean;
 }
 
-export type UpdateCategoryResponse = Category;
+export type UpdatePortfolioCategoryResponse = PortfolioCategory;
+
+// Backward-compatible aliases for older components/tests.
+export type Category = PortfolioCategory;
+export type CategoryListResponse = PortfolioCategoryListResponse;
+export type CreateCategoryRequest = CreatePortfolioCategoryRequest;
+export type CreateCategoryResponse = CreatePortfolioCategoryResponse;
+export type UpdateCategoryRequest = UpdatePortfolioCategoryRequest;
+export type UpdateCategoryResponse = UpdatePortfolioCategoryResponse;

@@ -187,11 +187,11 @@ export const handlers = [
   }),
 
   // Public APIs
-  http.get('*/api/v1/public/:username/:categoryCode/', () => {
+  http.get('*/api/v1/public/:username/:portfolioCode/', () => {
     return HttpResponse.json([mockPublicPortfolioItem]);
   }),
 
-  http.get('*/api/v1/public/:username/:categoryCode/:portfolioCode/', () => {
+  http.get('*/api/v1/public/:username/:portfolioCode/:projectCode/', () => {
     return HttpResponse.json(mockPortfolioDetail);
   }),
 

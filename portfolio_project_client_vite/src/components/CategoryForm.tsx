@@ -60,7 +60,7 @@ export default function CategoryForm({ formData, onChange, showOrder }: Category
       )}
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-          카테고리 이름 <span className="text-red-500">*</span>
+          포트폴리오 이름 <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
@@ -76,7 +76,7 @@ export default function CategoryForm({ formData, onChange, showOrder }: Category
 
       <div>
         <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-2">
-          카테고리 코드 <span className="text-red-500">*</span>
+          포트폴리오 코드 <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
@@ -89,7 +89,9 @@ export default function CategoryForm({ formData, onChange, showOrder }: Category
           pattern="[a-z0-9-]+"
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
         />
-        <p className="mt-1 text-sm text-gray-500">영문 소문자, 숫자, 하이픈(-)만 사용 가능합니다</p>
+        <p className="mt-1 text-sm text-gray-500">
+          영문 소문자, 숫자, 하이픈(-)만 사용할 수 있습니다.
+        </p>
       </div>
 
       <div>
@@ -103,7 +105,7 @@ export default function CategoryForm({ formData, onChange, showOrder }: Category
           onChange={handleChange}
           required
           rows={3}
-          placeholder="카테고리에 대한 간단한 설명을 입력하세요"
+          placeholder="포트폴리오에 대한 간단한 설명을 입력하세요."
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"
         />
       </div>
@@ -111,7 +113,6 @@ export default function CategoryForm({ formData, onChange, showOrder }: Category
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">이미지 (선택)</label>
         <div className="space-y-3">
-          {/* 파일 업로드 */}
           <div className="flex items-center gap-3">
             <button
               type="button"
@@ -135,11 +136,10 @@ export default function CategoryForm({ formData, onChange, showOrder }: Category
 
           {uploadError && <p className="text-sm text-red-600">{uploadError}</p>}
 
-          {/* 이미지 미리보기 (카드) */}
           {formData.screenshotFileUuid && (
             <ImagePreviewCard
               fileUuid={formData.screenshotFileUuid}
-              alt="카테고리 이미지 미리보기"
+              alt="포트폴리오 이미지 미리보기"
               onRemove={() => {
                 onChange({ ...formData, screenshotFileUuid: null });
               }}
@@ -175,7 +175,7 @@ export default function CategoryForm({ formData, onChange, showOrder }: Category
           className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
         />
         <label htmlFor="isPublic" className="text-sm font-medium text-gray-700">
-          공개 카테고리로 설정
+          공개 포트폴리오로 설정
         </label>
         <span className="text-xs text-gray-500">
           ({formData.isPublic ? '다른 사용자가 볼 수 있습니다' : '나만 볼 수 있습니다'})

@@ -30,10 +30,10 @@ function publicProjectDetailToProject(detail: PublicProjectDetailType): Project 
 }
 
 export default function PublicProjectDetail() {
-  const { username, categoryCode, portfolioCode } = useParams<{
+  const { username, portfolioCode, projectCode } = useParams<{
     username: string;
-    categoryCode: string;
     portfolioCode: string;
+    projectCode: string;
   }>();
 
   const [project, setProject] = useState<Project | null>(null);
@@ -42,18 +42,18 @@ export default function PublicProjectDetail() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!username || !categoryCode || !portfolioCode) return;
+    if (!username || !portfolioCode || !projectCode) return;
 
     const fetchData = async () => {
       setIsLoading(true);
       setError(null);
 
       try {
-        const detailResponse = await getPublicProjectDetail(username, categoryCode, portfolioCode);
+        const detailResponse = await getPublicProjectDetail(username, portfolioCode, projectCode);
         const projectData = publicProjectDetailToProject(detailResponse);
         setProject(projectData);
       } catch (err) {
-        setError(err instanceof Error ? err.message : '데이터를 불러오는데 실패했습니다.');
+        setError(err instanceof Error ? err.message : '프로젝트를 불러오지 못했습니다.');
         console.error('Failed to fetch public project:', err);
       } finally {
         setIsLoading(false);
@@ -61,7 +61,7 @@ export default function PublicProjectDetail() {
     };
 
     fetchData();
-  }, [username, categoryCode, portfolioCode]);
+  }, [username, portfolioCode, projectCode]);
 
   const screenshots = project?.screenshots || [];
   const selectedImage = selectedIndex !== null ? screenshots[selectedIndex] : null;
@@ -98,7 +98,7 @@ export default function PublicProjectDetail() {
           <h1 className="text-2xl font-bold text-red-600 mb-4">오류가 발생했습니다</h1>
           <p className="text-gray-600 mb-4">{error}</p>
           <Link
-            to={`/public/${username}/${categoryCode}`}
+            to={`/public/${username}/${portfolioCode}`}
             className="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             목록으로 돌아가기
@@ -114,7 +114,7 @@ export default function PublicProjectDetail() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">프로젝트를 찾을 수 없습니다</h1>
           <Link
-            to={`/public/${username}/${categoryCode}`}
+            to={`/public/${username}/${portfolioCode}`}
             className="text-blue-600 hover:text-blue-800 underline"
           >
             목록으로 돌아가기
@@ -128,7 +128,7 @@ export default function PublicProjectDetail() {
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-4xl mx-auto px-4 py-12">
         <Link
-          to={`/public/${username}/${categoryCode}`}
+          to={`/public/${username}/${portfolioCode}`}
           className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-8"
         >
           <ArrowLeftIcon className="w-5 h-5 mr-2" />
@@ -222,19 +222,7 @@ export default function PublicProjectDetail() {
                   <ul className="space-y-3 mb-8">
                     {project.features.map((feature, index) => (
                       <li key={index} className="flex items-start">
-                        <svg
-                          className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
+                        <span className="text-green-500 mr-3 mt-0.5 flex-shrink-0">✓</span>
                         <span className="text-gray-700">{feature}</span>
                       </li>
                     ))}
@@ -278,19 +266,7 @@ export default function PublicProjectDetail() {
               onClick={handleNext}
               className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 p-3 md:p-2 text-white hover:text-gray-300 bg-black/80 rounded-full hover:bg-black/90 transition-colors z-10 shadow-lg"
             >
-              <svg
-                className="w-6 h-6 md:w-8 md:h-8"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
+              <span className="text-4xl leading-none">›</span>
             </button>
           )}
 
@@ -299,14 +275,7 @@ export default function PublicProjectDetail() {
               onClick={() => setSelectedIndex(null)}
               className="absolute -top-10 right-0 text-white hover:text-gray-300"
             >
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
+              <span className="text-4xl leading-none">×</span>
             </button>
             <img
               src={username ? getPublicFileUrl(username, selectedImage.file_uuid) : ''}
