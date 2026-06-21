@@ -1,0 +1,8 @@
+/.claude
+/logs
+*.pyc
+/uploads
+/.vscode
+.env
+.env.*
+nul
