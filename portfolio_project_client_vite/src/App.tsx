@@ -1,121 +1,112 @@
-﻿import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
+import { lazy, Suspense, type ReactNode } from 'react';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Header from './components/Header';
+import PageState from './components/PageState';
+import ProtectedRoute from './components/ProtectedRoute';
 import ScrollToTop from './components/ScrollToTop';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Profile from './pages/Profile';
-import PortfolioList from './pages/PortfolioList';
-import PortfolioAdd from './pages/PortfolioAdd';
-import PortfolioEdit from './pages/PortfolioEdit';
-import ProjectList from './pages/ProjectList';
-import ProjectAdd from './pages/ProjectAdd';
-import ProjectDetail from './pages/ProjectDetail';
-import PublicPortfolioList from './pages/PublicPortfolioList';
-import PublicProjectDetail from './pages/PublicProjectDetail';
+import { AuthProvider } from './contexts/AuthContext';
+
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const Profile = lazy(() => import('./pages/Profile'));
+const PortfolioList = lazy(() => import('./pages/PortfolioList'));
+const PortfolioAdd = lazy(() => import('./pages/PortfolioAdd'));
+const PortfolioEdit = lazy(() => import('./pages/PortfolioEdit'));
+const ProjectList = lazy(() => import('./pages/ProjectList'));
+const ProjectAdd = lazy(() => import('./pages/ProjectAdd'));
+const ProjectDetail = lazy(() => import('./pages/ProjectDetail'));
+const PublicPortfolioList = lazy(() => import('./pages/PublicPortfolioList'));
+const PublicProjectDetail = lazy(() => import('./pages/PublicProjectDetail'));
+
+function ProtectedPage({ children }: { children: ReactNode }) {
+  return (
+    <ProtectedRoute>
+      <div className="min-h-screen bg-slate-50">
+        <Header />
+        {children}
+      </div>
+    </ProtectedRoute>
+  );
+}
 
 function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
       <AuthProvider>
-        <Routes>
-          {/* ?몄쬆 ?섏씠吏 (Header ?놁쓬) */}
-          <Route path="/" element={<Login />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+        <Suspense fallback={<PageState loading message="Loading page..." />}>
+          <Routes>
+            <Route path="/" element={<Login />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
-          {/* 怨듦컻 ?ы듃?대━???섏씠吏 (Header ?놁쓬, ?몄쬆 遺덊븘?? */}
-          <Route path="/public/:username/:portfolioCode" element={<PublicPortfolioList />} />
-          <Route
-            path="/public/:username/:portfolioCode/:projectCode"
-            element={<PublicProjectDetail />}
-          />
+            <Route path="/public/:username/:portfolioCode" element={<PublicPortfolioList />} />
+            <Route
+              path="/public/:username/:portfolioCode/:projectCode"
+              element={<PublicProjectDetail />}
+            />
 
-          {/* 蹂댄샇???섏씠吏 (Header ?덉쓬) */}
-          <Route
-            path="/home"
-            element={
-              <ProtectedRoute>
-                <div className="min-h-screen bg-slate-50">
-                  <Header />
+            <Route
+              path="/home"
+              element={
+                <ProtectedPage>
                   <PortfolioList />
-                </div>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/portfolio/:portfolioCode"
-            element={
-              <ProtectedRoute>
-                <div className="min-h-screen bg-slate-50">
-                  <Header />
+                </ProtectedPage>
+              }
+            />
+            <Route
+              path="/portfolio/:portfolioCode"
+              element={
+                <ProtectedPage>
                   <ProjectList />
-                </div>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/portfolio/:portfolioCode/project/add"
-            element={
-              <ProtectedRoute>
-                <div className="min-h-screen bg-slate-50">
-                  <Header />
+                </ProtectedPage>
+              }
+            />
+            <Route
+              path="/portfolio/:portfolioCode/project/add"
+              element={
+                <ProtectedPage>
                   <ProjectAdd />
-                </div>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/portfolio/:portfolioCode/project/:projectCode"
-            element={
-              <ProtectedRoute>
-                <div className="min-h-screen bg-slate-50">
-                  <Header />
+                </ProtectedPage>
+              }
+            />
+            <Route
+              path="/portfolio/:portfolioCode/project/:projectCode"
+              element={
+                <ProtectedPage>
                   <ProjectDetail />
-                </div>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <div className="min-h-screen bg-slate-50">
-                  <Header />
+                </ProtectedPage>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedPage>
                   <Profile />
-                </div>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/portfolio/:portfolioCode/edit"
-            element={
-              <ProtectedRoute>
-                <div className="min-h-screen bg-slate-50">
-                  <Header />
+                </ProtectedPage>
+              }
+            />
+            <Route
+              path="/portfolio/:portfolioCode/edit"
+              element={
+                <ProtectedPage>
                   <PortfolioEdit />
-                </div>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/portfolio/add"
-            element={
-              <ProtectedRoute>
-                <div className="min-h-screen bg-slate-50">
-                  <Header />
+                </ProtectedPage>
+              }
+            />
+            <Route
+              path="/portfolio/add"
+              element={
+                <ProtectedPage>
                   <PortfolioAdd />
-                </div>
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
+                </ProtectedPage>
+              }
+            />
+          </Routes>
+        </Suspense>
       </AuthProvider>
     </BrowserRouter>
   );
 }
 
 export default App;
-
