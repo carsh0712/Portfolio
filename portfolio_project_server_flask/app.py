@@ -1,6 +1,7 @@
 import sys
 import logging
 import traceback
+from pathlib import Path
 
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s] [%(levelname)s] %(message)s")
 _boot_logger = logging.getLogger("boot")
@@ -8,7 +9,7 @@ _boot_logger.info("=== 서버 시작 ===")
 
 try:
     _boot_logger.info("Flask 모듈 로딩...")
-    from flask import Flask, g, jsonify
+    from flask import Flask, g, jsonify, send_from_directory
     from sqlalchemy import text
     _boot_logger.info("Flask 모듈 로딩 완료")
 
@@ -26,6 +27,7 @@ from core.errors import register_error_handlers
 from core.cors import handle_cors_preflight, add_cors_headers_after
 
 logger = setup_logger("app")
+CLIENT_DIST_DIR = Path(__file__).resolve().parent.parent / "portfolio_project_client_vite" / "dist"
 
 
 def create_app():
@@ -386,6 +388,9 @@ def create_app():
     # 루트 엔드포인트
     @app.route("/")
     def read_root():
+        if (CLIENT_DIST_DIR / "index.html").is_file():
+            return send_from_directory(CLIENT_DIST_DIR, "index.html")
+
         return jsonify({
             "message": "Welcome to the Portfolio API. Go to /docs to see the API documentation."
         })
@@ -402,6 +407,20 @@ def create_app():
         except Exception as e:
             logger.error(f"Health check failed: {e}")
             return jsonify({"detail": "Database unavailable"}), 503
+
+    @app.route("/<path:path>")
+    def serve_client_app(path):
+        if path.startswith(("api/", "flasgger_static/")) or path in {"docs", "apispec.json"}:
+            return jsonify({"detail": "Not Found"}), 404
+
+        file_path = CLIENT_DIST_DIR / path
+        if file_path.is_file():
+            return send_from_directory(CLIENT_DIST_DIR, path)
+
+        if (CLIENT_DIST_DIR / "index.html").is_file():
+            return send_from_directory(CLIENT_DIST_DIR, "index.html")
+
+        return jsonify({"detail": "Not Found"}), 404
 
     return app
 

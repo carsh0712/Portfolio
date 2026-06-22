@@ -28,6 +28,18 @@ class TestDynamicCors:
         assert resp.status_code == 200
         assert "access-control-allow-origin" not in resp.headers
 
+    def test_same_origin_allowed_without_db_registration(self, auth_client):
+        """서버와 같은 origin은 DB 등록 없이 허용한다."""
+        resp = auth_client.get(
+            "/ping",
+            headers={
+                "Host": "localhost:8000",
+                "Origin": "http://localhost:8000",
+            },
+        )
+        assert resp.status_code == 200
+        assert resp.headers.get("access-control-allow-origin") == "http://localhost:8000"
+
     def test_preflight_allowed(self, auth_client):
         """preflight OPTIONS 요청 — 등록된 origin"""
         with patch("core.cors._is_origin_allowed", return_value=True):

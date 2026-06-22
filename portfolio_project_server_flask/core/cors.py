@@ -1,5 +1,6 @@
 """DB 기반 동적 CORS 미들웨어."""
 import os
+from urllib.parse import urlparse
 
 from flask import request, make_response
 
@@ -12,6 +13,10 @@ SERVER_CODE = os.getenv("SERVER_CODE", "PORTFOLIO_API")
 
 def _is_origin_allowed(origin: str) -> bool:
     """DB에서 현재 서버 코드에 해당하는 origin인지 조회한다."""
+    parsed_origin = urlparse(origin)
+    if parsed_origin.netloc == request.host:
+        return True
+
     db = SessionLocal()
     try:
         return (

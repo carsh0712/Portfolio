@@ -46,7 +46,7 @@
       <h2>연동 구조</h2>
       <div class="flow">
         <div class="step"><strong>React SPA</strong>가 화면 라우팅과 사용자 입력을 처리합니다.</div>
-        <div class="step"><strong>API 클라이언트</strong>인 <code>src/utils/api.ts</code>가 <code>VITE_API_BASE_URL</code> 또는 <code>http://localhost:8000</code>으로 요청합니다.</div>
+        <div class="step"><strong>API 클라이언트</strong>인 <code>src/utils/api.ts</code>가 <code>VITE_API_BASE_URL</code> 또는 같은 origin의 <code>/api/v1/*</code> 경로로 요청합니다.</div>
         <div class="step"><strong>인증 요청</strong>에는 <code>Authorization: Bearer {access_token}</code> 헤더가 붙습니다.</div>
         <div class="step"><strong>Flask 서버</strong>는 <code>/api/v1/*</code> REST API를 Blueprint로 제공합니다.</div>
         <div class="step"><strong>MySQL과 uploads</strong>에는 도메인 데이터와 실제 파일이 저장됩니다.</div>

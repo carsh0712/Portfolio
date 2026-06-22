@@ -11,6 +11,18 @@ python app.py
 
 기본 포트는 `8000`입니다.
 
+클라이언트를 함께 제공하려면 먼저 Vite 앱을 빌드합니다.
+
+```bash
+cd ../portfolio_project_client_vite
+npm install
+npm run build
+cd ../portfolio_project_server_flask
+python app.py
+```
+
+`portfolio_project_client_vite/dist/index.html`이 있으면 `http://localhost:8000/`에서 빌드된 클라이언트를 제공합니다. API는 기존처럼 `/api/v1/*`, Swagger는 개발 환경에서 `/docs`를 사용합니다.
+
 ## Swagger 문서
 
 개발 환경에서 실행하면 다음 URL을 사용할 수 있습니다.
