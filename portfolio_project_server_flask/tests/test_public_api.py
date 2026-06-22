@@ -430,27 +430,160 @@ class TestGetPublicProjectDetail:
 class TestGetPublicFile:
     """GET /api/v1/public/{username}/file/{file_uuid} 테스트"""
 
-    def test_success(self, auth_client, db_session, test_user, tmp_path):
-        """공개 파일 다운로드 성공"""
-        file_path = tmp_path / "test.png"
-        file_path.write_bytes(b"fake image content")
+    def _create_file(self, db_session, user, tmp_path, name="test.png", content=b"fake image content"):
+        file_path = tmp_path / name
+        file_path.write_bytes(content)
 
         db_file = UploadFile(
-            user_id=test_user.id,
-            original_filename="test.png",
-            stored_filename="stored.png",
-            file_size=18,
+            user_id=user.id,
+            original_filename=name,
+            stored_filename=f"stored_{name}",
+            file_size=len(content),
             content_type="image/png",
             upload_path=str(file_path),
         )
         db_session.add(db_file)
         db_session.commit()
         db_session.refresh(db_file)
+        return db_file
+
+    def test_success(self, auth_client, db_session, test_user, tmp_path):
+        """공개 파일 다운로드 성공"""
+        db_file = self._create_file(db_session, test_user, tmp_path)
+        portfolio = Portfolio(
+            user_id=test_user.id,
+            code="PUBFL",
+            name="Public File Portfolio",
+            description="Public file reference",
+            file_uuid=db_file.uuid,
+            order=0,
+            is_public=True,
+        )
+        db_session.add(portfolio)
+        db_session.commit()
 
         resp = auth_client.get(f"/api/v1/public/{test_user.username}/file/{db_file.uuid}")
         assert resp.status_code == 200
         assert resp.data == b"fake image content"
         assert "max-age=86400" in resp.headers.get("cache-control", "")
+
+    def test_success_with_public_project_thumbnail(self, auth_client, db_session, test_user, tmp_path):
+        db_file = self._create_file(db_session, test_user, tmp_path, name="thumbnail.png", content=b"thumbnail")
+        portfolio = Portfolio(
+            user_id=test_user.id,
+            code="THUMB",
+            name="Thumbnail Portfolio",
+            description="Public portfolio",
+            order=0,
+            is_public=True,
+        )
+        db_session.add(portfolio)
+        db_session.commit()
+        db_session.refresh(portfolio)
+
+        project = Project(
+            portfolio_id=portfolio.id,
+            code="THUMBITEM",
+            title="Thumbnail Item",
+            summary="Uses thumbnail",
+            thumbnail_file_uuid=db_file.uuid,
+            order=0,
+            is_public=True,
+        )
+        db_session.add(project)
+        db_session.commit()
+
+        resp = auth_client.get(f"/api/v1/public/{test_user.username}/file/{db_file.uuid}")
+        assert resp.status_code == 200
+        assert resp.data == b"thumbnail"
+
+    def test_success_with_public_project_screenshot(self, auth_client, db_session, test_user, tmp_path):
+        db_file = self._create_file(db_session, test_user, tmp_path, name="screenshot.png", content=b"screenshot")
+        portfolio = Portfolio(
+            user_id=test_user.id,
+            code="SHOT1",
+            name="Screenshot Portfolio",
+            description="Public portfolio",
+            order=0,
+            is_public=True,
+        )
+        db_session.add(portfolio)
+        db_session.commit()
+        db_session.refresh(portfolio)
+
+        project = Project(
+            portfolio_id=portfolio.id,
+            code="SHOTITEM",
+            title="Screenshot Item",
+            summary="Uses screenshot",
+            screenshots=[{"file_uuid": db_file.uuid, "caption": "Main"}],
+            order=0,
+            is_public=True,
+        )
+        db_session.add(project)
+        db_session.commit()
+
+        resp = auth_client.get(f"/api/v1/public/{test_user.username}/file/{db_file.uuid}")
+        assert resp.status_code == 200
+        assert resp.data == b"screenshot"
+
+    def test_file_not_publicly_referenced(self, auth_client, db_session, test_user, tmp_path):
+        db_file = self._create_file(db_session, test_user, tmp_path)
+
+        resp = auth_client.get(f"/api/v1/public/{test_user.username}/file/{db_file.uuid}")
+        assert resp.status_code == 404
+        assert resp.get_json()["detail"] == "File not found"
+        assert resp.headers.get("cache-control") == "no-store"
+
+    def test_file_referenced_by_private_portfolio(self, auth_client, db_session, test_user, tmp_path):
+        db_file = self._create_file(db_session, test_user, tmp_path)
+        portfolio = Portfolio(
+            user_id=test_user.id,
+            code="PRVFL",
+            name="Private File Portfolio",
+            description="Private file reference",
+            file_uuid=db_file.uuid,
+            order=0,
+            is_public=False,
+        )
+        db_session.add(portfolio)
+        db_session.commit()
+
+        resp = auth_client.get(f"/api/v1/public/{test_user.username}/file/{db_file.uuid}")
+        assert resp.status_code == 404
+        assert resp.get_json()["detail"] == "File not found"
+        assert resp.headers.get("cache-control") == "no-store"
+
+    def test_file_referenced_by_private_project(self, auth_client, db_session, test_user, tmp_path):
+        db_file = self._create_file(db_session, test_user, tmp_path)
+        portfolio = Portfolio(
+            user_id=test_user.id,
+            code="PUBPF",
+            name="Public Portfolio Private Project",
+            description="Public portfolio",
+            order=0,
+            is_public=True,
+        )
+        db_session.add(portfolio)
+        db_session.commit()
+        db_session.refresh(portfolio)
+
+        project = Project(
+            portfolio_id=portfolio.id,
+            code="PRIVATEITEM",
+            title="Private Item",
+            summary="Private project",
+            thumbnail_file_uuid=db_file.uuid,
+            order=0,
+            is_public=False,
+        )
+        db_session.add(project)
+        db_session.commit()
+
+        resp = auth_client.get(f"/api/v1/public/{test_user.username}/file/{db_file.uuid}")
+        assert resp.status_code == 404
+        assert resp.get_json()["detail"] == "File not found"
+        assert resp.headers.get("cache-control") == "no-store"
 
     def test_user_not_found(self, auth_client):
         """존재하지 않는 username"""
@@ -501,6 +634,18 @@ class TestGetPublicFile:
         db_session.add(db_file)
         db_session.commit()
         db_session.refresh(db_file)
+
+        portfolio = Portfolio(
+            user_id=test_user.id,
+            code="MISSF",
+            name="Missing File Portfolio",
+            description="References a missing file",
+            file_uuid=db_file.uuid,
+            order=0,
+            is_public=True,
+        )
+        db_session.add(portfolio)
+        db_session.commit()
 
         resp = auth_client.get(f"/api/v1/public/{test_user.username}/file/{db_file.uuid}")
         assert resp.status_code == 404

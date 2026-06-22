@@ -9,6 +9,43 @@ from core.errors import api_abort
 bp = Blueprint("public", __name__)
 
 
+def _has_public_file_reference(db, user_id, file_uuid):
+    """Return True when a file is referenced by public portfolio content."""
+    portfolio_reference_exists = (
+        db.query(Portfolio.id)
+        .filter(
+            Portfolio.user_id == user_id,
+            Portfolio.file_uuid == file_uuid,
+            Portfolio.is_public == True
+        )
+        .first()
+        is not None
+    )
+    if portfolio_reference_exists:
+        return True
+
+    public_projects = (
+        db.query(Project)
+        .join(Portfolio, Project.portfolio_id == Portfolio.id)
+        .filter(
+            Portfolio.user_id == user_id,
+            Portfolio.is_public == True,
+            Project.is_public == True,
+        )
+        .all()
+    )
+
+    for project in public_projects:
+        if project.thumbnail_file_uuid == file_uuid:
+            return True
+
+        for screenshot in project.screenshots or []:
+            if isinstance(screenshot, dict) and screenshot.get("file_uuid") == file_uuid:
+                return True
+
+    return False
+
+
 @bp.route("/<username>/<portfolio_code>/", methods=["GET"])
 def get_public_projects(username, portfolio_code):
     """공개된 프로젝트 목록을 조회합니다.
@@ -166,6 +203,9 @@ def get_public_file(username, file_uuid):
         .first()
     )
     if db_file is None:
+        api_abort(404, "File not found", headers=no_cache)
+
+    if not _has_public_file_reference(db, user.id, file_uuid):
         api_abort(404, "File not found", headers=no_cache)
 
     file_path = Path(db_file.upload_path)
