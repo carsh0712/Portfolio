@@ -14,11 +14,15 @@ MYSQL_HOST = os.getenv("MYSQL_HOST", "localhost")
 MYSQL_PORT = os.getenv("MYSQL_PORT", "64306")
 MYSQL_DB = os.getenv("MYSQL_DB", "portfolio")
 MYSQL_USER = os.getenv("MYSQL_USER", "portfolio")
-MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "dsc111")
+MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD")
 
 # DB 연결 재시도 설정
 MAX_RETRIES = int(os.getenv("DB_MAX_RETRIES", "2"))  # 기본 2회 (총 2번 시도)
 RETRY_DELAY = int(os.getenv("DB_RETRY_DELAY", "3"))  # 기본 3초 대기
+
+if not MYSQL_PASSWORD:
+    logger.error("MYSQL_PASSWORD 환경 변수가 설정되어 있지 않습니다. .env 파일 또는 실행 환경에 값을 지정하세요.")
+    sys.exit(1)
 
 DATABASE_URL = f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}?charset=utf8mb4"
 
