@@ -54,13 +54,13 @@ DB_RETRY_DELAY=3
 ## 데이터베이스 초기화
 
 ```bash
-python scripts/reset_db.py
+python ../scripts/reset_db.py
 ```
 
 PowerShell에서 환경을 지정하려면 다음처럼 실행합니다.
 
 ```powershell
-$env:APP_ENV="development"; python scripts/reset_db.py
+$env:APP_ENV="development"; python ../scripts/reset_db.py
 ```
 
 ## 테스트

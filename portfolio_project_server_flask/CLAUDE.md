@@ -7,7 +7,7 @@
 - 함수, 클래스의 docstring은 간결하고 명확하게 작성한다.
 
 ### 데이터베이스 모델 변경
-- `models.py`에서 ORM 모델을 변경할 경우, 반드시 `./scripts/seed_data.sql`도 함께 업데이트한다.
+- `models.py`에서 ORM 모델을 변경할 경우, 반드시 `../scripts/seed_data.sql`도 함께 업데이트한다.
 - 새로운 컬럼 추가 시: INSERT 문에 해당 컬럼과 값을 추가
 - 컬럼 삭제 시: INSERT 문에서 해당 컬럼을 제거
 - 컬럼 이름 변경 시: INSERT 문에서 컬럼 이름을 변경
