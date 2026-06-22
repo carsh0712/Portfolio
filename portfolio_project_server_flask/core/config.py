@@ -21,11 +21,14 @@ def load_env():
 
     if os.path.exists(env_file):
         load_dotenv(env_file, override=True)
+        return env_file
     elif os.path.exists(fallback_file):
         load_dotenv(fallback_file, override=True)
+        return fallback_file
+    return None
 
 
 # 모듈 임포트 시 자동 로드
-load_env()
+LOADED_ENV_FILE = load_env()
 
 ENV = get_environment()
