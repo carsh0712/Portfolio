@@ -28,7 +28,8 @@ from core.errors import register_error_handlers
 from core.cors import handle_cors_preflight, add_cors_headers_after
 
 logger = setup_logger("app")
-DEFAULT_CLIENT_DIST_DIR = Path(__file__).resolve().parent.parent / "portfolio_project_client_vite" / "dist"
+SERVER_DIR = Path(__file__).resolve().parent
+DEFAULT_CLIENT_DIST_DIR = SERVER_DIR.parent / "portfolio_project_client_vite" / "dist"
 
 
 def get_client_dist_dir() -> Path:
@@ -38,8 +39,8 @@ def get_client_dist_dir() -> Path:
 
     path = Path(configured_path)
     if path.is_absolute():
-        return path
-    return Path(__file__).resolve().parent.parent / path
+        return path.resolve()
+    return (SERVER_DIR / path).resolve()
 
 
 CLIENT_DIST_DIR = get_client_dist_dir()

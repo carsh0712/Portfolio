@@ -37,6 +37,14 @@ def test_client_dist_dir_can_be_overridden_by_env(monkeypatch, tmp_path):
     assert app_module.get_client_dist_dir() == dist
 
 
+def test_relative_client_dist_dir_is_resolved_from_server_dir(monkeypatch):
+    import app as app_module
+
+    monkeypatch.setenv("CLIENT_DIST_DIR", "../portfolio_project_client_vite/dist")
+
+    assert app_module.get_client_dist_dir() == app_module.DEFAULT_CLIENT_DIST_DIR
+
+
 def test_serves_dist_assets_and_spa_fallback(monkeypatch, tmp_path):
     import app as app_module
 

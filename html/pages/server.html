@@ -219,7 +219,7 @@ VALUES ('PORTFOLIO_API', 'http://localhost:5173', NOW());</pre>
         <tbody>
           <tr><td>DB</td><td><code>MYSQL_HOST</code>, <code>MYSQL_PORT</code>, <code>MYSQL_DB</code>, <code>MYSQL_USER</code>, <code>MYSQL_PASSWORD</code></td></tr>
           <tr><td>JWT</td><td><code>JWT_SECRET_KEY</code>, <code>JWT_ALGORITHM</code>, access/refresh token 만료 시간</td></tr>
-          <tr><td>업로드/정적 파일</td><td><code>UPLOAD_DIR</code> 절대 경로, <code>CLIENT_DIST_DIR</code> 클라이언트 빌드 경로, <code>MAX_FILE_SIZE</code></td></tr>
+          <tr><td>업로드/정적 파일</td><td><code>UPLOAD_DIR</code> 절대 경로, <code>CLIENT_DIST_DIR</code> 클라이언트 빌드 경로. 상대 경로는 서버 디렉터리 기준으로 해석, <code>MAX_FILE_SIZE</code></td></tr>
           <tr><td>DB 재시도</td><td><code>DB_MAX_RETRIES</code>, <code>DB_RETRY_DELAY</code></td></tr>
           <tr><td>CORS</td><td><code>--cors-origin</code>으로 운영 공개 origin 지정 여부</td></tr>
         </tbody>
@@ -243,6 +243,24 @@ npm run build
 cd ../portfolio_project_server_flask
 python app.py</pre>
       <p><code>http://localhost:8000/</code>으로 접속하면 빌드된 클라이언트가 열리고, API는 기존처럼 <code>/api/v1/*</code> 경로를 사용합니다.</p>
+
+      <h3>Seed 로그인 정보</h3>
+      <table>
+        <thead>
+          <tr><th>용도</th><th>Email</th><th>Password</th><th>비고</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>개발 seed 계정</td>
+            <td><code>admin@portfolio.com</code></td>
+            <td><code>admin123</code></td>
+            <td><code>scripts/seed_data.sql</code>, <code>scripts/reset_db.py</code> 기준</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="warning">
+        <strong>주의:</strong> 위 계정은 로컬 개발/seed 데이터 확인용입니다. 운영 환경에서는 사용하지 말고 별도 관리자 계정을 생성하세요.
+      </div>
     </section>
   </main>
 </body>

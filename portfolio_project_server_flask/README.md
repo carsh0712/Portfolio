@@ -89,6 +89,7 @@ node scripts/check-production-env.mjs \
 - CORS: 운영 공개 origin 지정 여부
 
 검사 성공 시 `cors_origin` 테이블에 등록할 SQL을 함께 출력합니다.
+`CLIENT_DIST_DIR`의 상대 경로는 `portfolio_project_server_flask` 디렉터리 기준으로 해석됩니다.
 
 ## 데이터베이스 초기화
 
