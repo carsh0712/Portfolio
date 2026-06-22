@@ -22,7 +22,28 @@ sys.path.insert(0, str(SERVER_DIR))
 os.chdir(SERVER_DIR)
 
 from sqlalchemy import text  # noqa: E402
-from core.config import ENV  # noqa: E402
+from core.config import ENV, LOADED_ENV_FILE  # noqa: E402
+
+
+def _print_runtime_target() -> None:
+    env_file = LOADED_ENV_FILE if LOADED_ENV_FILE else "(not found; using defaults/process env)"
+    mysql_host = os.getenv("MYSQL_HOST", "localhost")
+    mysql_port = os.getenv("MYSQL_PORT", "64306")
+    mysql_db = os.getenv("MYSQL_DB", "portfolio")
+    mysql_user = os.getenv("MYSQL_USER", "portfolio")
+
+    print("=" * 50)
+    print("  Reset database target")
+    print("=" * 50)
+    print(f"  APP_ENV  : {ENV}")
+    print(f"  Env file : {env_file}")
+    print(f"  Database : mysql+pymysql://{mysql_user}:****@{mysql_host}:{mysql_port}/{mysql_db}")
+    print("=" * 50)
+    print()
+
+
+_print_runtime_target()
+
 from database import Base, MYSQL_DB, engine  # noqa: E402
 
 # Import models so Base.metadata knows every table.
