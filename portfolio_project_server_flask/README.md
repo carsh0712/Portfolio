@@ -58,10 +58,37 @@ JWT_ACCESS_TOKEN_EXPIRE_MINUTES=30
 JWT_REFRESH_TOKEN_EXPIRE_DAYS=7
 
 UPLOAD_DIR=./uploads
+CLIENT_DIST_DIR=../portfolio_project_client_vite/dist
 MAX_FILE_SIZE=10485760
 DB_MAX_RETRIES=2
 DB_RETRY_DELAY=3
 ```
+
+## 운영 배포 전 환경 체크
+
+프로젝트 루트에서 운영 환경 변수 누락 여부를 확인할 수 있습니다.
+
+```bash
+node scripts/check-production-env.mjs --cors-origin https://your-portfolio-domain.com
+```
+
+다른 환경 파일을 검사하려면 `--env-path`를 사용합니다.
+
+```bash
+node scripts/check-production-env.mjs \
+  --env-path portfolio_project_server_flask/.env.production \
+  --cors-origin https://your-portfolio-domain.com
+```
+
+체크 항목:
+
+- DB: `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_DB`, `MYSQL_USER`, `MYSQL_PASSWORD`
+- JWT: `JWT_SECRET_KEY`, `JWT_ALGORITHM`, 토큰 만료 시간
+- 업로드/정적 파일: `UPLOAD_DIR`, `CLIENT_DIST_DIR`, `MAX_FILE_SIZE`
+- 안정성: `DB_MAX_RETRIES`, `DB_RETRY_DELAY`
+- CORS: 운영 공개 origin 지정 여부
+
+검사 성공 시 `cors_origin` 테이블에 등록할 SQL을 함께 출력합니다.
 
 ## 데이터베이스 초기화
 

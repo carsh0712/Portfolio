@@ -1,6 +1,7 @@
 import sys
 import logging
 import traceback
+import os
 from pathlib import Path
 
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s] [%(levelname)s] %(message)s")
@@ -27,7 +28,21 @@ from core.errors import register_error_handlers
 from core.cors import handle_cors_preflight, add_cors_headers_after
 
 logger = setup_logger("app")
-CLIENT_DIST_DIR = Path(__file__).resolve().parent.parent / "portfolio_project_client_vite" / "dist"
+DEFAULT_CLIENT_DIST_DIR = Path(__file__).resolve().parent.parent / "portfolio_project_client_vite" / "dist"
+
+
+def get_client_dist_dir() -> Path:
+    configured_path = os.getenv("CLIENT_DIST_DIR")
+    if not configured_path:
+        return DEFAULT_CLIENT_DIST_DIR
+
+    path = Path(configured_path)
+    if path.is_absolute():
+        return path
+    return Path(__file__).resolve().parent.parent / path
+
+
+CLIENT_DIST_DIR = get_client_dist_dir()
 
 
 def create_app():

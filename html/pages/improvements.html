@@ -3,14 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>개선 상태 - Portfolio 프로젝트</title>
+  <title>개선 항목 - Portfolio 프로젝트</title>
   <link rel="stylesheet" href="../assets/styles.css">
 </head>
 <body>
   <header>
     <div class="inner">
-      <h1>개선 상태</h1>
-      <p class="lead">현재 코드에 반영된 개선과 아직 남아 있는 개선 후보를 정리합니다.</p>
+      <h1>개선 항목</h1>
+      <p class="lead">현재 코드에 반영된 개선과 앞으로 확인하면 좋은 항목을 기능, 운영, 보안 관점으로 정리합니다.</p>
+      <div class="meta">
+        <span class="pill">업데이트: 2026-06-22</span>
+        <span class="pill">Client: React + Vite</span>
+        <span class="pill">Server: Flask</span>
+      </div>
     </div>
   </header>
 
@@ -20,7 +25,7 @@
       <a href="common.html">공통 정보</a>
       <a href="client.html">클라이언트</a>
       <a href="server.html">서버</a>
-      <a href="improvements.html">개선 상태</a>
+      <a href="improvements.html">개선 항목</a>
       <a href="note.html">Note</a>
     </div>
   </nav>
@@ -29,31 +34,120 @@
     <section>
       <div class="section-kicker">Completed</div>
       <h2>반영 완료</h2>
-      <div class="ok">
-        <strong>서버 프로젝트명 정리:</strong>
-        실제 구현이 Flask 기반인 점에 맞춰 서버 디렉터리와 문서를 <code>portfolio_project_server_flask</code> 기준으로 정리했습니다.
+      <div class="grid two">
+        <div class="box">
+          <h3>이미지 업로드 최적화</h3>
+          <ul>
+            <li>JPG, PNG, WebP 업로드 시 서버에서 WebP 상세 이미지로 변환합니다.</li>
+            <li>상세 이미지는 긴 변 2048px 이하로 제한합니다.</li>
+            <li>썸네일은 긴 변 480px 이하의 <code>.thumb.webp</code> 파일로 별도 생성합니다.</li>
+            <li><code>?variant=thumbnail</code> 쿼리로 썸네일을 조회할 수 있습니다.</li>
+            <li>파일 삭제와 포트폴리오/프로젝트 정리 시 썸네일도 함께 삭제합니다.</li>
+          </ul>
+        </div>
+
+        <div class="box">
+          <h3>클라이언트 이미지 사용 분리</h3>
+          <ul>
+            <li>목록 카드, 업로드 미리보기, 상세 화면의 작은 스크린샷은 썸네일을 사용합니다.</li>
+            <li>라이트박스와 크게 보는 화면은 상세 이미지를 사용합니다.</li>
+            <li>공개 페이지 이미지 URL도 <code>thumbnail</code>과 <code>detail</code> 변형을 구분합니다.</li>
+          </ul>
+        </div>
+
+        <div class="box">
+          <h3>Flask에서 빌드 클라이언트 제공</h3>
+          <ul>
+            <li><code>portfolio_project_client_vite/dist/index.html</code>이 있으면 <code>http://localhost:8000/</code>에서 클라이언트를 제공합니다.</li>
+            <li><code>CLIENT_DIST_DIR</code> 환경변수로 빌드 클라이언트 경로를 오버라이드할 수 있습니다.</li>
+            <li><code>/assets/*</code>, <code>/red_potion.png</code> 같은 빌드 산출물도 Flask가 서빙합니다.</li>
+            <li><code>/public/admin/MYAPPS</code> 같은 SPA 직접 접근 경로는 <code>index.html</code>로 fallback 됩니다.</li>
+            <li><code>/api/v1/*</code>, <code>/docs</code>, <code>/apispec.json</code>은 API/Swagger 경로로 유지합니다.</li>
+          </ul>
+        </div>
+
+        <div class="box">
+          <h3>API base와 CORS 정리</h3>
+          <ul>
+            <li>서버에서 같이 제공되는 빌드 클라이언트는 기본적으로 같은 origin의 <code>/api/v1/*</code>를 호출합니다.</li>
+            <li><code>.env.production</code>에 운영 API 도메인이 고정되어 빌드되는 문제를 제거했습니다.</li>
+            <li>같은 origin 요청은 CORS DB 등록 없이 허용합니다.</li>
+            <li>외부 origin은 기존처럼 <code>cors_origin</code> 테이블 등록 여부를 기준으로 허용합니다.</li>
+          </ul>
+        </div>
+
+        <div class="box">
+          <h3>보안 기본값 정리</h3>
+          <ul>
+            <li>추적 파일에 남아 있던 DB 비밀번호 기본값 <code>dsc111</code>을 제거했습니다.</li>
+            <li><code>MYSQL_PASSWORD</code>가 없으면 서버가 명확한 에러 메시지와 함께 종료됩니다.</li>
+            <li><code>.env</code>, <code>.env.*</code>, <code>dist</code>, <code>uploads</code>, <code>logs</code>는 Git ignore 대상으로 확인했습니다.</li>
+          </ul>
+        </div>
+
+        <div class="box">
+          <h3>운영 배포 환경 체크</h3>
+          <ul>
+            <li><code>scripts/check-production-env.mjs</code>를 추가했습니다.</li>
+            <li>DB, JWT, 업로드 경로, 클라이언트 빌드 경로, DB 재시도 설정 누락을 배포 전에 확인합니다.</li>
+            <li><code>--cors-origin</code>으로 운영 공개 origin 지정 여부를 확인합니다.</li>
+            <li>검사 성공 시 <code>cors_origin</code> 등록 SQL을 출력합니다.</li>
+          </ul>
+        </div>
+
+        <div class="box">
+          <h3>문서와 테스트 보강</h3>
+          <ul>
+            <li>서버 문서에 이미지 변형 API, 클라이언트 빌드 제공 방식, 실행 방법을 반영했습니다.</li>
+            <li>이미지 리사이즈와 썸네일 생성 테스트를 추가했습니다.</li>
+            <li>SPA fallback과 같은-origin CORS 테스트를 추가했습니다.</li>
+            <li>프론트 테스트와 빌드 검증을 통과했습니다.</li>
+          </ul>
+        </div>
       </div>
+    </section>
+
+    <section>
+      <div class="section-kicker">Watch List</div>
+      <h2>확인 필요</h2>
       <ul>
-        <li>상위 묶음 도메인을 <code>Portfolio</code>, 개별 작업물을 <code>Project</code>로 통일했습니다.</li>
-        <li>클라이언트 라우트 파라미터는 Project id가 아니라 code를 의미하므로 <code>:projectCode</code> 기준으로 정리했습니다.</li>
-        <li>반복 UI를 <code>AuthTextField</code>, <code>FormTextField</code>, <code>FormTextarea</code>, <code>FormError</code>, <code>FormActions</code>, <code>PageCard</code>, <code>BackLink</code> 등으로 분리했습니다.</li>
-        <li>Project 상세/편집/필터/라이트박스 UI를 <code>ProjectDetailView</code>, <code>ProjectLinkEditor</code>, <code>ProjectScreenshotEditor</code>, <code>ProjectFilterBar</code>, <code>ProjectImageLightbox</code> 등으로 분리했습니다.</li>
-        <li><code>PortfolioList</code>, <code>ProjectList</code>, <code>ProjectDetail</code>의 상태/API/라우팅 로직을 각각 <code>usePortfolioListPage</code>, <code>useProjectListPage</code>, <code>useProjectDetailPage</code> 훅으로 분리했습니다.</li>
-        <li>서버 응답을 화면용 Project로 변환하는 <code>src/utils/projectMappers.ts</code>를 추가했습니다.</li>
-        <li>HTML 문서를 한 파일에 몰지 않고 <code>index.html</code> 진입점과 <code>pages</code> 하위 문서로 분리했습니다.</li>
+        <li>기존 TypeScript/Python 코드와 일부 테스트 설명에는 깨진 한글 문자열이 남아 있습니다. 사용자에게 보이는 문구부터 우선 복구하는 것이 좋습니다.</li>
+        <li>업로드 이미지의 원본 보존 정책을 확정해야 합니다. 현재는 서비스용 상세 이미지와 썸네일 중심으로 저장합니다.</li>
+        <li>GIF는 현재 허용 확장자에는 있지만 리사이즈 대상에서는 제외됩니다. 애니메이션 보존, 첫 프레임 썸네일 생성, 업로드 제한 중 하나를 선택할 필요가 있습니다.</li>
+        <li>공개 파일 API는 공개 Portfolio/Project 참조 여부를 확인합니다. 데이터가 늘어나면 참조 검사 비용을 줄이는 인덱스나 별도 매핑 테이블을 검토할 수 있습니다.</li>
+        <li>프로젝트 검색은 JSON 필드를 문자열로 조회하는 방식입니다. 데이터가 커지면 검색 인덱스나 정규화 테이블을 검토하는 것이 좋습니다.</li>
       </ul>
     </section>
 
     <section>
-      <div class="section-kicker">Remaining</div>
-      <h2>남은 개선 후보</h2>
-      <ul>
-        <li>일부 기존 TypeScript/Python 코드와 테스트 설명에는 아직 깨진 한국어 문자열이 남아 있습니다. 사용자에게 노출되는 문구부터 우선 복구하는 것이 좋습니다.</li>
-        <li>공개 파일 API는 username과 file UUID의 소유자는 확인하지만, 해당 파일이 실제 공개 Portfolio 또는 Project에서 참조되는지까지 검증하는 방향을 추가로 검토할 수 있습니다.</li>
-        <li>Project 검색은 JSON 필드를 문자열로 cast해 LIKE 검색합니다. 데이터가 커지면 별도 검색 인덱스나 정규화 테이블을 검토하는 것이 좋습니다.</li>
-        <li>클라이언트 번들 크기가 Vite 기준 500kB를 넘는 경고가 있습니다. 라우트 단위 lazy loading과 chunk 분리를 검토할 수 있습니다.</li>
-        <li>페이지 로직 훅에 대한 단위 테스트를 추가하면 렌더링 테스트 없이 API/상태 전이를 더 쉽게 검증할 수 있습니다.</li>
-      </ul>
+      <div class="section-kicker">Next</div>
+      <h2>다음 개선 후보</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>우선순위</th>
+            <th>항목</th>
+            <th>기대 효과</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="tag red">높음</span></td>
+            <td>사용자 노출 문구의 깨진 한글 복구</td>
+            <td>페이지 품질과 오류 메시지 가독성을 바로 개선합니다.</td>
+          </tr>
+          <tr>
+            <td><span class="tag amber">중간</span></td>
+            <td>이미지 업로드 정책 문서화</td>
+            <td>허용 확장자, 최대 크기, 변환 품질, 원본 보존 여부를 운영 기준으로 고정합니다.</td>
+          </tr>
+          <tr>
+            <td><span class="tag">낮음</span></td>
+            <td>번들 크기 모니터링</td>
+            <td>Vite 경고가 커질 경우 chunk 분리와 lazy loading 효과를 추적할 수 있습니다.</td>
+          </tr>
+        </tbody>
+      </table>
     </section>
   </main>
 </body>

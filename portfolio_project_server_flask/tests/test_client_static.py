@@ -28,6 +28,15 @@ def test_root_serves_built_client_when_dist_exists(monkeypatch, tmp_path):
     assert b"Client" in response.data
 
 
+def test_client_dist_dir_can_be_overridden_by_env(monkeypatch, tmp_path):
+    import app as app_module
+
+    dist = _create_dist(tmp_path)
+    monkeypatch.setenv("CLIENT_DIST_DIR", str(dist))
+
+    assert app_module.get_client_dist_dir() == dist
+
+
 def test_serves_dist_assets_and_spa_fallback(monkeypatch, tmp_path):
     import app as app_module
 

@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "dev:frontend": "npm --prefix portfolio_project_client_vite run dev",
-    "dev:backend": "node scripts/dev.mjs backend"
+    "dev:backend": "node scripts/dev.mjs backend",
+    "check:prod-env": "node scripts/check-production-env.mjs"
   }
 }
