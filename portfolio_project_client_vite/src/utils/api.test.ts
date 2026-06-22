@@ -19,10 +19,10 @@ import {
   API_BASE_URL,
 } from './api';
 
-describe('API ?좏떥由ы떚', () => {
+describe('API 유틸리티', () => {
   beforeEach(() => {
     localStorage.clear();
-    // ?몄쬆 ?좏겙 ?ㅼ젙
+    // 인증 토큰 설정
     localStorage.setItem(
       'auth_tokens',
       JSON.stringify({
@@ -34,7 +34,7 @@ describe('API ?좏떥由ы떚', () => {
   });
 
   describe('signup', () => {
-    it('?뚯썝媛?낆쓣 ?깃났?곸쑝濡??꾨즺?댁빞 ?쒕떎', async () => {
+    it('회원가입을 성공적으로 완료해야 한다', async () => {
       const result = await signup({
         email: 'newuser@example.com',
         password: 'password123',
@@ -45,10 +45,10 @@ describe('API ?좏떥由ы떚', () => {
       expect(result.email).toBe('newuser@example.com');
     });
 
-    it('以묐났??username?????먮윭瑜?throw?댁빞 ?쒕떎', async () => {
+    it('중복된 username이면 에러를 throw해야 한다', async () => {
       server.use(
         http.post('*/api/v1/auth/signup', () => {
-          return HttpResponse.json({ detail: '以묐났??username?낅땲??' }, { status: 409 });
+          return HttpResponse.json({ detail: '중복된 username입니다.' }, { status: 409 });
         })
       );
       await expect(
@@ -57,13 +57,13 @@ describe('API ?좏떥由ы떚', () => {
           password: 'password123',
           username: 'testuser',
         })
-      ).rejects.toThrow('以묐났??username?낅땲??');
+      ).rejects.toThrow('중복된 username입니다.');
     });
 
-    it('以묐났??email?????먮윭瑜?throw?댁빞 ?쒕떎', async () => {
+    it('중복된 email이면 에러를 throw해야 한다', async () => {
       server.use(
         http.post('*/api/v1/auth/signup', () => {
-          return HttpResponse.json({ detail: '以묐났??email?낅땲??' }, { status: 409 });
+          return HttpResponse.json({ detail: '중복된 email입니다.' }, { status: 409 });
         })
       );
       await expect(
@@ -72,17 +72,17 @@ describe('API ?좏떥由ы떚', () => {
           password: 'password123',
           username: 'newuser',
         })
-      ).rejects.toThrow('以묐났??email?낅땲??');
+      ).rejects.toThrow('중복된 email입니다.');
     });
 
-    it('?좏슚??寃利??ㅽ뙣 ???먮윭瑜?throw?댁빞 ?쒕떎', async () => {
+    it('유효성 검증 실패 시 에러를 throw해야 한다', async () => {
       server.use(
         http.post('*/api/v1/auth/signup', () => {
           return HttpResponse.json(
             {
               detail: [
-                { msg: '鍮꾨?踰덊샇??8???댁긽?댁뼱???⑸땲??' },
-                { msg: '?대찓???뺤떇???щ컮瑜댁? ?딆뒿?덈떎.' },
+                { msg: '비밀번호는 8자 이상이어야 합니다.' },
+                { msg: '이메일 형식이 올바르지 않습니다.' },
               ],
             },
             { status: 422 }
@@ -95,19 +95,19 @@ describe('API ?좏떥由ы떚', () => {
           password: '123',
           username: 'newuser',
         })
-      ).rejects.toThrow('鍮꾨?踰덊샇??8???댁긽?댁뼱???⑸땲??, ?대찓???뺤떇???щ컮瑜댁? ?딆뒿?덈떎.');
+      ).rejects.toThrow('비밀번호는 8자 이상이어야 합니다., 이메일 형식이 올바르지 않습니다.');
     });
   });
 
   describe('getCurrentUser', () => {
-    it('?꾩옱 ?ъ슜???뺣낫瑜?媛?몄????쒕떎', async () => {
+    it('현재 사용자 정보를 가져와야 한다', async () => {
       const user = await getCurrentUser();
       expect(user.id).toBe(1);
       expect(user.username).toBe('testuser');
       expect(user.email).toBe('test@example.com');
     });
 
-    it('?붿껌 ?ㅽ뙣 ???먮윭瑜?throw?댁빞 ?쒕떎', async () => {
+    it('요청 실패 시 에러를 throw해야 한다', async () => {
       server.use(
         http.get('*/api/v1/user/me', () => {
           return HttpResponse.json(null, { status: 500 });
@@ -118,7 +118,7 @@ describe('API ?좏떥由ы떚', () => {
   });
 
   describe('getProjects', () => {
-    it('移댄뀒怨좊━ 紐⑸줉??媛?몄????쒕떎', async () => {
+    it('포트폴리오 목록을 가져와야 한다', async () => {
       server.use(
         http.get('*/api/v1/portfolios/', () => {
           return HttpResponse.json({
@@ -146,27 +146,27 @@ describe('API ?좏떥由ы떚', () => {
       expect(result.meta.total).toBe(1);
     });
 
-    it('?섏씠吏?ㅼ씠???뚮씪誘명꽣瑜??꾨떖?????덉뼱???쒕떎', async () => {
+    it('페이지와 페이지 크기 파라미터를 전달할 수 있어야 한다', async () => {
       const result = await getPortfolios(2, 5);
       expect(result.items).toBeDefined();
     });
   });
 
   describe('getPortfolioDetail', () => {
-    it('肄붾뱶濡?移댄뀒怨좊━ ?곸꽭瑜?媛?몄????쒕떎', async () => {
+    it('코드로 포트폴리오 상세를 가져와야 한다', async () => {
       const result = await getPortfolioDetail('web');
       expect(result.id).toBe(1);
       expect(result.code).toBe('web');
       expect(result.name).toBe('Web Projects');
     });
 
-    it('議댁옱?섏? ?딅뒗 肄붾뱶?????먮윭瑜?throw?댁빞 ?쒕떎', async () => {
+    it('존재하지 않는 코드이면 에러를 throw해야 한다', async () => {
       await expect(getPortfolioDetail('nonexistent')).rejects.toThrow();
     });
   });
 
   describe('createPortfolio', () => {
-    it('移댄뀒怨좊━瑜??앹꽦?댁빞 ?쒕떎', async () => {
+    it('포트폴리오를 생성해야 한다', async () => {
       const result = await createPortfolio({
         code: 'web',
         name: 'Web Projects',
@@ -178,10 +178,10 @@ describe('API ?좏떥由ы떚', () => {
       expect(result.code).toBe('web');
     });
 
-    it('?앹꽦 ?ㅽ뙣 ???먮윭 硫붿떆吏瑜??ы븿?댁빞 ?쒕떎', async () => {
+    it('생성 실패 시 에러 메시지를 포함해야 한다', async () => {
       server.use(
         http.post('*/api/v1/portfolios/', () => {
-          return HttpResponse.json({ detail: '?대? 議댁옱?섎뒗 肄붾뱶?낅땲??' }, { status: 400 });
+          return HttpResponse.json({ detail: '이미 존재하는 코드입니다.' }, { status: 400 });
         })
       );
       await expect(
@@ -193,12 +193,12 @@ describe('API ?좏떥由ы떚', () => {
           order: 1,
           is_public: true,
         })
-      ).rejects.toThrow('?대? 議댁옱?섎뒗 肄붾뱶?낅땲??');
+      ).rejects.toThrow('이미 존재하는 코드입니다.');
     });
   });
 
   describe('updatePortfolio', () => {
-    it('肄붾뱶濡?移댄뀒怨좊━瑜??낅뜲?댄듃?댁빞 ?쒕떎', async () => {
+    it('코드로 포트폴리오를 업데이트해야 한다', async () => {
       const result = await updatePortfolio('web', {
         code: 'web',
         name: 'Updated Web Projects',
@@ -212,36 +212,36 @@ describe('API ?좏떥由ы떚', () => {
   });
 
   describe('deletePortfolio', () => {
-    it('肄붾뱶濡?移댄뀒怨좊━瑜???젣?댁빞 ?쒕떎', async () => {
+    it('코드로 포트폴리오를 삭제해야 한다', async () => {
       await expect(deletePortfolio('web')).resolves.toBeUndefined();
     });
 
-    it('議댁옱?섏? ?딅뒗 肄붾뱶?????먮윭瑜?throw?댁빞 ?쒕떎', async () => {
+    it('존재하지 않는 코드이면 에러를 throw해야 한다', async () => {
       await expect(deletePortfolio('nonexistent')).rejects.toThrow();
     });
   });
 
   describe('getPortfolios', () => {
-    it('?ы듃?대━??紐⑸줉??媛?몄????쒕떎', async () => {
+    it('프로젝트 목록을 가져와야 한다', async () => {
       const result = await getProjects('test-portfolio');
       expect(result.items).toHaveLength(1);
       expect(result.items[0].title).toBe('Test Project');
     });
 
-    it('search ?뚮씪誘명꽣濡??꾪꽣留곹빐???쒕떎', async () => {
+    it('search 파라미터로 필터링해야 한다', async () => {
       const result = await getProjects('test-portfolio', 1, 10, 'React');
       expect(result.items).toHaveLength(1);
       expect(result.items[0].tech_stack).toContain('React');
     });
 
-    it('議댁옱?섏? ?딅뒗 search濡??꾪꽣留곹븯硫?鍮?紐⑸줉??諛섑솚?댁빞 ?쒕떎', async () => {
+    it('존재하지 않는 search로 필터링하면 빈 목록을 반환해야 한다', async () => {
       const result = await getProjects('test-portfolio', 1, 10, 'NonExistentTag');
       expect(result.items).toHaveLength(0);
     });
   });
 
   describe('getProjectDetail', () => {
-    it('?ы듃?대━???곸꽭瑜?媛?몄????쒕떎', async () => {
+    it('프로젝트 상세를 가져와야 한다', async () => {
       const result = await getProjectDetail('test-portfolio', 'test-project');
       expect(result.title).toBe('Test Project');
       expect(result.tech_stack).toContain('React');
@@ -249,7 +249,7 @@ describe('API ?좏떥由ы떚', () => {
   });
 
   describe('updateProject', () => {
-    it('?ы듃?대━?ㅻ? ?섏젙?댁빞 ?쒕떎', async () => {
+    it('프로젝트를 수정해야 한다', async () => {
       const result = await updateProject('test-portfolio', 'test-project', {
         portfolio_id: 1,
         code: 'updated-project',
@@ -271,10 +271,10 @@ describe('API ?좏떥由ы떚', () => {
       expect(result.title).toBe('Updated Project');
     });
 
-    it('?섏젙 ?ㅽ뙣 ???먮윭 硫붿떆吏瑜??ы븿?댁빞 ?쒕떎', async () => {
+    it('수정 실패 시 에러 메시지를 포함해야 한다', async () => {
       server.use(
         http.put('*/api/v1/projects/:portfolioCode/:projectCode', () => {
-          return HttpResponse.json({ detail: '?섏젙 沅뚰븳???놁뒿?덈떎.' }, { status: 403 });
+          return HttpResponse.json({ detail: '수정 권한이 없습니다.' }, { status: 403 });
         })
       );
       await expect(
@@ -295,7 +295,7 @@ describe('API ?좏떥由ы떚', () => {
           end_date: '',
           features: [],
         })
-      ).rejects.toThrow('?섏젙 沅뚰븳???놁뒿?덈떎.');
+      ).rejects.toThrow('수정 권한이 없습니다.');
     });
   });
 
@@ -318,34 +318,34 @@ describe('API ?좏떥由ы떚', () => {
       features: ['Feature 1'],
     };
 
-    it('?꾨줈?앺듃瑜??앹꽦?댁빞 ?쒕떎', async () => {
+    it('프로젝트를 생성해야 한다', async () => {
       const result = await createProject(validRequest);
       expect(result.id).toBe(1);
       expect(result.code).toBe('new-project');
       expect(result.title).toBe('New Project');
     });
 
-    it('以묐났??肄붾뱶?????먮윭瑜?throw?댁빞 ?쒕떎', async () => {
+    it('중복된 코드이면 에러를 throw해야 한다', async () => {
       server.use(
         http.post('*/api/v1/projects/', () => {
-          return HttpResponse.json({ detail: '以묐났???꾨줈?앺듃 肄붾뱶' }, { status: 400 });
+          return HttpResponse.json({ detail: '중복된 프로젝트 코드' }, { status: 400 });
         })
       );
-      await expect(createProject(validRequest)).rejects.toThrow('以묐났???꾨줈?앺듃 肄붾뱶');
+      await expect(createProject(validRequest)).rejects.toThrow('중복된 프로젝트 코드');
     });
 
-    it('?ы듃?대━?ㅺ? ?놁쓣 ???먮윭瑜?throw?댁빞 ?쒕떎', async () => {
+    it('포트폴리오가 없을 때 에러를 throw해야 한다', async () => {
       server.use(
         http.post('*/api/v1/projects/', () => {
-          return HttpResponse.json({ detail: '?ы듃?대━???놁쓬' }, { status: 404 });
+          return HttpResponse.json({ detail: '포트폴리오 없음' }, { status: 404 });
         })
       );
-      await expect(createProject(validRequest)).rejects.toThrow('?ы듃?대━???놁쓬');
+      await expect(createProject(validRequest)).rejects.toThrow('포트폴리오 없음');
     });
   });
 
   describe('getPublicProjects', () => {
-    it('怨듦컻 ?ы듃?대━??紐⑸줉??媛?몄????쒕떎', async () => {
+    it('공개 프로젝트 목록을 가져와야 한다', async () => {
       const result = await getPublicProjects('testuser', 'web');
       expect(result).toHaveLength(1);
       expect(result[0].title).toBe('Test Project');
@@ -353,14 +353,14 @@ describe('API ?좏떥由ы떚', () => {
   });
 
   describe('getPublicProjectDetail', () => {
-    it('怨듦컻 ?꾨줈?앺듃 ?곸꽭瑜?媛?몄????쒕떎', async () => {
+    it('공개 프로젝트 상세를 가져와야 한다', async () => {
       const result = await getPublicProjectDetail('testuser', 'web', 'test-project');
       expect(result.title).toBe('Test Project');
     });
   });
 
   describe('getPublicFileUrl', () => {
-    it('怨듦컻 ?뚯씪 URL???щ컮瑜닿쾶 ?앹꽦?댁빞 ?쒕떎', () => {
+    it('공개 파일 URL을 올바르게 생성해야 한다', () => {
       const url = getPublicFileUrl('testuser', 'mock-uuid-123');
       expect(url).toBe(`${API_BASE_URL}/api/v1/public/testuser/file/mock-uuid-123`);
     });

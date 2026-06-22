@@ -1,26 +1,25 @@
-﻿{
+{
   "portfolios": [
     {
       "id": "cat-apps",
-      "name": "?닿? 留뚮뱺 ??,
-      "description": "吏곸젒 媛쒕컻???좏뵆由ъ??댁뀡 紐⑥쓬",
+      "name": "내가 만든 앱",
+      "description": "직접 개발한 애플리케이션 모음",
       "imageUrl": "https://placehold.co/400x300/3b82f6/white?text=Apps",
       "order": 1
     },
     {
       "id": "cat-games",
-      "name": "?닿? 源?寃뚯엫",
-      "description": "?대━?댄븳 寃뚯엫 紐⑸줉怨??뚮젅???꾧린",
+      "name": "내가 깬 게임",
+      "description": "클리어한 게임 목록과 플레이 후기",
       "imageUrl": "https://placehold.co/400x300/10b981/white?text=Games",
       "order": 2
     },
     {
       "id": "cat-artworks",
-      "name": "?닿? 洹몃┛ 洹몃┝",
-      "description": "?붿????꾪듃 諛??쇰윭?ㅽ듃 ?묓뭹",
+      "name": "내가 그린 그림",
+      "description": "디지털 아트 및 일러스트 작품",
       "imageUrl": "https://placehold.co/400x300/8b5cf6/white?text=Artworks",
       "order": 3
     }
   ]
 }
-

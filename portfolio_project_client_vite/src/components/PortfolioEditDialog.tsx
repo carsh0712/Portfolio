@@ -45,14 +45,14 @@ export default function PortfolioEditDialog({
       onSuccess();
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : '?ы듃?대━???섏젙???ㅽ뙣?덉뒿?덈떎.');
+      setError(err instanceof Error ? err.message : '포트폴리오 수정에 실패했습니다.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="?ы듃?대━???몄쭛">
+    <Modal isOpen={isOpen} onClose={onClose} title="포트폴리오 편집">
       <form onSubmit={handleSubmit} className="space-y-6">
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
@@ -69,7 +69,7 @@ export default function PortfolioEditDialog({
             className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             disabled={isSubmitting}
           >
-            痍⑥냼
+            취소
           </button>
           <button
             type="submit"
