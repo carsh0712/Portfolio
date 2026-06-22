@@ -5,7 +5,7 @@ import ProjectDetailView from '../components/ProjectDetailView';
 import ProjectImageLightbox from '../components/ProjectImageLightbox';
 import ArrowLeftIcon from '../components/svg/ArrowLeftIcon';
 import type { Project } from '../types/project';
-import { getPublicFileUrl, getPublicProjectDetail } from '../utils/api';
+import { getPublicFileUrl, getPublicProjectDetail, type FileVariant } from '../utils/api';
 import { publicProjectDetailToProject } from '../utils/projectMappers';
 
 export default function PublicProjectDetail() {
@@ -42,8 +42,17 @@ export default function PublicProjectDetail() {
     fetchData();
   }, [username, portfolioCode, projectCode]);
 
-  const renderPublicImage = (fileUuid: string, alt: string, className: string) => (
-    <img src={username ? getPublicFileUrl(username, fileUuid) : ''} alt={alt} className={className} />
+  const renderPublicImage = (
+    fileUuid: string,
+    alt: string,
+    className: string,
+    variant: FileVariant = 'detail'
+  ) => (
+    <img
+      src={username ? getPublicFileUrl(username, fileUuid, variant) : ''}
+      alt={alt}
+      className={className}
+    />
   );
 
   if (isLoading) {
@@ -87,7 +96,12 @@ export default function PublicProjectDetail() {
         <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
           {project.thumbnailFileUuid ? (
             <div className="h-64 overflow-hidden">
-              {renderPublicImage(project.thumbnailFileUuid, project.title, 'w-full h-full object-cover')}
+              {renderPublicImage(
+                project.thumbnailFileUuid,
+                project.title,
+                'w-full h-full object-cover',
+                'thumbnail'
+              )}
             </div>
           ) : (
             <div className="h-64 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">

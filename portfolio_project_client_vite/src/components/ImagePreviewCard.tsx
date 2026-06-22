@@ -18,7 +18,7 @@ export default function ImagePreviewCard({
 
   useEffect(() => {
     let revoke: string | null = null;
-    fetchFileAsObjectUrl(fileUuid)
+    fetchFileAsObjectUrl(fileUuid, 'thumbnail')
       .then((url) => {
         revoke = url;
         setObjectUrl(url);

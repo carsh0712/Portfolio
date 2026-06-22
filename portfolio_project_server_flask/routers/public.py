@@ -1,10 +1,11 @@
 from pathlib import Path
 
-from flask import Blueprint, g, jsonify, send_file
+from flask import Blueprint, g, jsonify, request, send_file
 
 from models import Portfolio, Project, UploadFile, User
 from schemas.project import ProjectResponse
 from core.errors import api_abort
+from utils.image_processing import get_thumbnail_path
 
 bp = Blueprint("public", __name__)
 
@@ -208,7 +209,15 @@ def get_public_file(username, file_uuid):
     if not _has_public_file_reference(db, user.id, file_uuid):
         api_abort(404, "File not found", headers=no_cache)
 
+    variant = request.args.get("variant", "detail")
     file_path = Path(db_file.upload_path)
+    if variant == "thumbnail":
+        thumbnail_path = get_thumbnail_path(file_path)
+        if thumbnail_path.exists():
+            file_path = thumbnail_path
+    elif variant not in {"detail", "original"}:
+        api_abort(400, "Invalid file variant", headers=no_cache)
+
     if not file_path.exists():
         api_abort(404, "파일을 찾을 수 없습니다.", headers=no_cache)
 

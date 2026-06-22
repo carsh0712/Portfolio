@@ -37,6 +37,36 @@ class TestUploadFile:
         assert parts[1].endswith(".png")
         assert "created_at" in data
 
+    def test_upload_image_creates_resized_detail_and_thumbnail(self, client, tmp_path):
+        """실제 이미지 업로드 시 WebP 상세 이미지와 썸네일을 저장한다."""
+        pil = pytest.importorskip("PIL.Image")
+        image_bytes = io.BytesIO()
+        pil.new("RGB", (3000, 1800), color=(40, 120, 200)).save(image_bytes, format="PNG")
+
+        with patch("routers.upload.UPLOAD_DIR", str(tmp_path)):
+            response = client.post(
+                "/api/v1/files/upload",
+                data=_file_data("large.png", image_bytes.getvalue(), "image/png"),
+                content_type="multipart/form-data",
+            )
+            file_uuid = response.get_json()["uuid"]
+            detail_response = client.get(f"/api/v1/files/{file_uuid}")
+            thumb_response = client.get(f"/api/v1/files/{file_uuid}?variant=thumbnail")
+
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data["stored_filename"].endswith(".webp")
+        assert data["content_type"] == "image/webp"
+        assert data["file_size"] < len(image_bytes.getvalue())
+        assert (tmp_path / data["stored_filename"]).exists()
+        assert (tmp_path / data["stored_filename"].replace(".webp", ".thumb.webp")).exists()
+
+        assert detail_response.status_code == 200
+        assert detail_response.headers["content-type"].startswith("image/webp")
+        assert thumb_response.status_code == 200
+        assert thumb_response.headers["content-type"].startswith("image/webp")
+        assert len(thumb_response.data) < len(detail_response.data)
+
     def test_upload_disallowed_extension(self, client, tmp_path):
         """허용되지 않은 확장자 업로드 시 400 반환."""
         with patch("routers.upload.UPLOAD_DIR", str(tmp_path)):

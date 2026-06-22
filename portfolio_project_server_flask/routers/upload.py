@@ -10,6 +10,7 @@ from schemas.upload import FileUploadResponse
 from core.security import login_required
 from core.errors import api_abort
 from utils.pagination import paginate_query
+from utils.image_processing import build_image_variants, get_thumbnail_path, is_processable_image
 
 bp = Blueprint("files", __name__)
 
@@ -67,18 +68,32 @@ def upload_file():
     upload_path = Path(UPLOAD_DIR)
     upload_path.mkdir(parents=True, exist_ok=True)
 
-    stored_filename = f"{current_user.id}-{uuid.uuid4().hex}.{ext}"
+    stored_base = f"{current_user.id}-{uuid.uuid4().hex}"
+    stored_filename = f"{stored_base}.{ext}"
     file_path = upload_path / stored_filename
+    saved_content = content
+    content_type = file.content_type or "application/octet-stream"
+
+    if is_processable_image(ext):
+        variants = build_image_variants(content)
+        if variants is not None:
+            saved_content, thumbnail_content = variants
+            stored_filename = f"{stored_base}.webp"
+            file_path = upload_path / stored_filename
+            content_type = "image/webp"
+            thumbnail_path = get_thumbnail_path(file_path)
+            with open(thumbnail_path, "wb") as f:
+                f.write(thumbnail_content)
 
     with open(file_path, "wb") as f:
-        f.write(content)
+        f.write(saved_content)
 
     db_file = UploadFile(
         user_id=current_user.id,
         original_filename=file.filename,
         stored_filename=stored_filename,
-        file_size=len(content),
-        content_type=file.content_type or "application/octet-stream",
+        file_size=len(saved_content),
+        content_type=content_type,
         upload_path=str(file_path),
     )
     db.add(db_file)
@@ -160,7 +175,15 @@ def get_file(file_uuid):
     if db_file is None:
         api_abort(404, "File not found")
 
+    variant = request.args.get("variant", "detail")
     file_path = Path(db_file.upload_path)
+    if variant == "thumbnail":
+        thumbnail_path = get_thumbnail_path(file_path)
+        if thumbnail_path.exists():
+            file_path = thumbnail_path
+    elif variant not in {"detail", "original"}:
+        api_abort(400, "Invalid file variant")
+
     if not file_path.exists():
         api_abort(404, "파일을 찾을 수 없습니다.")
 
@@ -207,6 +230,9 @@ def delete_file(file_uuid):
     file_path = Path(db_file.upload_path)
     if file_path.exists():
         file_path.unlink()
+    thumbnail_path = get_thumbnail_path(file_path)
+    if thumbnail_path.exists():
+        thumbnail_path.unlink()
 
     db.delete(db_file)
     db.commit()

@@ -1,17 +1,18 @@
 import { useEffect, useState } from 'react';
-import { fetchFileAsObjectUrl } from '../utils/api';
+import { fetchFileAsObjectUrl, type FileVariant } from '../utils/api';
 
 interface AuthImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'src'> {
   fileUuid: string;
+  variant?: FileVariant;
 }
 
-export default function AuthImage({ fileUuid, alt, ...props }: AuthImageProps) {
+export default function AuthImage({ fileUuid, variant = 'detail', alt, ...props }: AuthImageProps) {
   const [objectUrl, setObjectUrl] = useState<string | null>(null);
 
   useEffect(() => {
     let revoked = false;
     let url: string | null = null;
-    fetchFileAsObjectUrl(fileUuid)
+    fetchFileAsObjectUrl(fileUuid, variant)
       .then((u) => {
         if (revoked) {
           URL.revokeObjectURL(u);
@@ -25,7 +26,7 @@ export default function AuthImage({ fileUuid, alt, ...props }: AuthImageProps) {
       revoked = true;
       if (url) URL.revokeObjectURL(url);
     };
-  }, [fileUuid]);
+  }, [fileUuid, variant]);
 
   if (!objectUrl) return null;
 

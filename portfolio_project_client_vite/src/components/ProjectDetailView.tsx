@@ -1,11 +1,12 @@
 import type { ReactNode } from 'react';
 import type { Project } from '../types/project';
 import ProjectLinks from './ProjectLinks';
+import type { FileVariant } from '../utils/api';
 
 interface ProjectDetailViewProps {
   project: Project;
   actions?: ReactNode;
-  renderImage: (fileUuid: string, alt: string, className: string) => ReactNode;
+  renderImage: (fileUuid: string, alt: string, className: string, variant?: FileVariant) => ReactNode;
   onScreenshotSelect: (index: number) => void;
 }
 
@@ -54,7 +55,8 @@ export default function ProjectDetailView({
                   {renderImage(
                     screenshot.file_uuid,
                     screenshot.caption || `스크린샷 ${index + 1}`,
-                    'w-full h-full object-cover group-hover:scale-105 transition-transform'
+                    'w-full h-full object-cover group-hover:scale-105 transition-transform',
+                    'thumbnail'
                   )}
                   {screenshot.caption && (
                     <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-sm px-2 py-1">

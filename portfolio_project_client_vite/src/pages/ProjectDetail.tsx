@@ -5,12 +5,18 @@ import ProjectDetailView from '../components/ProjectDetailView';
 import ProjectEditForm from '../components/ProjectEditForm';
 import ProjectImageLightbox from '../components/ProjectImageLightbox';
 import { useProjectDetailPage } from '../hooks/useProjectDetailPage';
+import type { FileVariant } from '../utils/api';
 
 export default function ProjectDetail() {
   const page = useProjectDetailPage();
 
-  const renderAuthImage = (fileUuid: string, alt: string, className: string) => (
-    <AuthImage fileUuid={fileUuid} alt={alt} className={className} />
+  const renderAuthImage = (
+    fileUuid: string,
+    alt: string,
+    className: string,
+    variant: FileVariant = 'detail'
+  ) => (
+    <AuthImage fileUuid={fileUuid} variant={variant} alt={alt} className={className} />
   );
 
   if (page.isLoading) {
@@ -51,7 +57,8 @@ export default function ProjectDetail() {
               {renderAuthImage(
                 page.project.thumbnailFileUuid,
                 page.project.title,
-                'w-full h-full object-cover'
+                'w-full h-full object-cover',
+                'thumbnail'
               )}
             </div>
           ) : (

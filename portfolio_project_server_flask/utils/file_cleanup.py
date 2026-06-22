@@ -6,6 +6,7 @@ from typing import List
 from sqlalchemy.orm import Session
 
 from models import UploadFile, Portfolio, Project
+from utils.image_processing import get_thumbnail_path
 
 
 def _delete_upload_files(db: Session, file_uuids: List[str]) -> None:
@@ -18,6 +19,9 @@ def _delete_upload_files(db: Session, file_uuids: List[str]) -> None:
         path = Path(f.upload_path)
         if path.exists():
             path.unlink()
+        thumbnail_path = get_thumbnail_path(path)
+        if thumbnail_path.exists():
+            thumbnail_path.unlink()
         db.delete(f)
 
 
@@ -63,3 +67,6 @@ def cleanup_user_files(db: Session, user) -> None:
         path = Path(f.upload_path)
         if path.exists():
             path.unlink()
+        thumbnail_path = get_thumbnail_path(path)
+        if thumbnail_path.exists():
+            thumbnail_path.unlink()

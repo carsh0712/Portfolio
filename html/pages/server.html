@@ -42,6 +42,7 @@
             <li><code>pydantic</code>: 요청/응답 스키마 검증</li>
             <li><code>python-jose</code>, <code>passlib[bcrypt]</code>: JWT와 비밀번호 해시</li>
             <li><code>flasgger</code>: 개발 환경 Swagger UI</li>
+            <li><code>Pillow</code>: 업로드 이미지 리사이즈, WebP 변환, 썸네일 생성</li>
           </ul>
         </div>
       </div>
@@ -79,7 +80,7 @@
           <tr><td><code>user</code></td><td><code>/api/v1/user</code></td><td>현재 사용자 조회, 프로필 변경, 비밀번호 변경, 계정 삭제</td></tr>
           <tr><td><code>portfolios</code></td><td><code>/api/v1/portfolios</code></td><td>Portfolio 목록, 생성, 상세, 수정, 삭제</td></tr>
           <tr><td><code>projects</code></td><td><code>/api/v1/projects</code></td><td>Project 목록, 생성, 상세, 수정, 삭제, 검색</td></tr>
-          <tr><td><code>files</code></td><td><code>/api/v1/files</code></td><td>파일 업로드, 목록, 다운로드, 삭제</td></tr>
+          <tr><td><code>files</code></td><td><code>/api/v1/files</code></td><td>파일 업로드, 이미지 최적화, 썸네일 조회, 목록, 다운로드, 삭제</td></tr>
           <tr><td><code>public</code></td><td><code>/api/v1/public</code></td><td>인증 없는 공개 Project 목록/상세/파일 조회</td></tr>
         </tbody>
       </table>
@@ -109,13 +110,15 @@
           <tr><td>GET</td><td><code>/api/v1/projects/{portfolio_code}/{project_code}</code></td><td>필수</td><td>Project 상세</td></tr>
           <tr><td>PUT</td><td><code>/api/v1/projects/{portfolio_code}/{project_code}</code></td><td>필수</td><td>Project 수정</td></tr>
           <tr><td>DELETE</td><td><code>/api/v1/projects/{portfolio_code}/{project_code}</code></td><td>필수</td><td>Project 삭제와 연결 파일 정리</td></tr>
-          <tr><td>POST</td><td><code>/api/v1/files/upload</code></td><td>필수</td><td>multipart 파일 업로드</td></tr>
+          <tr><td>POST</td><td><code>/api/v1/files/upload</code></td><td>필수</td><td>multipart 파일 업로드. JPG/PNG/WebP는 긴 변 2048px 이하 WebP 상세 이미지와 480px 이하 썸네일을 생성</td></tr>
           <tr><td>GET</td><td><code>/api/v1/files/</code></td><td>필수</td><td>현재 사용자 업로드 파일 목록</td></tr>
-          <tr><td>GET</td><td><code>/api/v1/files/{file_uuid}</code></td><td>필수</td><td>파일 다운로드</td></tr>
+          <tr><td>GET</td><td><code>/api/v1/files/{file_uuid}</code></td><td>필수</td><td>상세 이미지 다운로드</td></tr>
+          <tr><td>GET</td><td><code>/api/v1/files/{file_uuid}?variant=thumbnail</code></td><td>필수</td><td>썸네일 이미지 다운로드</td></tr>
           <tr><td>DELETE</td><td><code>/api/v1/files/{file_uuid}</code></td><td>필수</td><td>파일 삭제</td></tr>
           <tr><td>GET</td><td><code>/api/v1/public/{username}/{portfolio_code}/</code></td><td>없음</td><td>공개 Project 목록</td></tr>
           <tr><td>GET</td><td><code>/api/v1/public/{username}/{portfolio_code}/{project_code}/</code></td><td>없음</td><td>공개 Project 상세</td></tr>
-          <tr><td>GET</td><td><code>/api/v1/public/{username}/file/{file_uuid}</code></td><td>없음</td><td>공개 페이지 파일 다운로드</td></tr>
+          <tr><td>GET</td><td><code>/api/v1/public/{username}/file/{file_uuid}</code></td><td>없음</td><td>공개 페이지 상세 이미지 다운로드</td></tr>
+          <tr><td>GET</td><td><code>/api/v1/public/{username}/file/{file_uuid}?variant=thumbnail</code></td><td>없음</td><td>공개 페이지 썸네일 이미지 다운로드</td></tr>
         </tbody>
       </table>
     </section>

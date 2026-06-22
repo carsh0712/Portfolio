@@ -1,11 +1,12 @@
 import type { ReactNode } from 'react';
 import type { Screenshot } from '../types/project';
 import ArrowLeftIcon from './svg/ArrowLeftIcon';
+import type { FileVariant } from '../utils/api';
 
 interface ProjectImageLightboxProps {
   images: Screenshot[];
   selectedIndex: number | null;
-  renderImage: (fileUuid: string, alt: string, className: string) => ReactNode;
+  renderImage: (fileUuid: string, alt: string, className: string, variant?: FileVariant) => ReactNode;
   onSelect: (index: number | null) => void;
 }
 
@@ -64,7 +65,8 @@ export default function ProjectImageLightbox({
           {renderImage(
             selectedImage.file_uuid,
             selectedImage.caption || '스크린샷',
-            'max-w-full max-h-[85vh] object-contain rounded-lg'
+            'max-w-full max-h-[85vh] object-contain rounded-lg',
+            'detail'
           )}
         </div>
         {selectedImage.caption && (

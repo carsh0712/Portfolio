@@ -232,16 +232,28 @@ export async function uploadImage(file: File): Promise<UploadFileResponse> {
   return response.json();
 }
 
-export function getFileUrl(fileUuid: string): string {
-  return `${API_BASE_URL}/api/v1/files/${fileUuid}`;
+export type FileVariant = 'detail' | 'thumbnail';
+
+export function getFileUrl(fileUuid: string, variant: FileVariant = 'detail'): string {
+  const query = variant === 'thumbnail' ? '?variant=thumbnail' : '';
+  return `${API_BASE_URL}/api/v1/files/${fileUuid}${query}`;
 }
 
-export function getPublicFileUrl(username: string, fileUuid: string): string {
-  return `${API_BASE_URL}/api/v1/public/${username}/file/${fileUuid}`;
+export function getPublicFileUrl(
+  username: string,
+  fileUuid: string,
+  variant: FileVariant = 'detail'
+): string {
+  const query = variant === 'thumbnail' ? '?variant=thumbnail' : '';
+  return `${API_BASE_URL}/api/v1/public/${username}/file/${fileUuid}${query}`;
 }
 
-export async function fetchFileAsObjectUrl(fileUuid: string): Promise<string> {
-  const response = await apiFetch(`/api/v1/files/${fileUuid}`);
+export async function fetchFileAsObjectUrl(
+  fileUuid: string,
+  variant: FileVariant = 'detail'
+): Promise<string> {
+  const query = variant === 'thumbnail' ? '?variant=thumbnail' : '';
+  const response = await apiFetch(`/api/v1/files/${fileUuid}${query}`);
   if (!response.ok) {
     throw new Error('파일을 불러오지 못했습니다.');
   }

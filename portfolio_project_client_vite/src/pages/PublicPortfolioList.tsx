@@ -83,7 +83,7 @@ export default function PublicPortfolioList() {
               linkPath={`/public/${username}/${portfolioCode}/${project.code}`}
               thumbnailUrl={
                 project.thumbnailFileUuid && username
-                  ? getPublicFileUrl(username, project.thumbnailFileUuid)
+                  ? getPublicFileUrl(username, project.thumbnailFileUuid, 'thumbnail')
                   : undefined
               }
             />
