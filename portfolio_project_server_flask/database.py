@@ -19,6 +19,8 @@ MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD")
 # DB 연결 재시도 설정
 MAX_RETRIES = int(os.getenv("DB_MAX_RETRIES", "2"))  # 기본 2회 (총 2번 시도)
 RETRY_DELAY = int(os.getenv("DB_RETRY_DELAY", "3"))  # 기본 3초 대기
+POOL_RECYCLE = int(os.getenv("DB_POOL_RECYCLE", "1800"))  # GoDaddy MySQL idle timeout 대비
+SQL_ECHO = os.getenv("DB_SQL_ECHO", "false").lower() in {"1", "true", "yes", "on"}
 
 if not MYSQL_PASSWORD:
     logger.error("MYSQL_PASSWORD 환경 변수가 설정되어 있지 않습니다. .env 파일 또는 실행 환경에 값을 지정하세요.")
@@ -29,6 +31,7 @@ DATABASE_URL = f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYS
 logger.info(f"데이터베이스 설정 - HOST: {MYSQL_HOST}, PORT: {MYSQL_PORT}, DB: {MYSQL_DB}, USER: {MYSQL_USER}")
 logger.info(f"데이터베이스 연결 URL: mysql+pymysql://{MYSQL_USER}:****@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}")
 logger.info(f"DB 연결 재시도 설정 - 최대 시도: {MAX_RETRIES}회, 재시도 대기: {RETRY_DELAY}초")
+logger.info(f"DB 커넥션 풀 설정 - pre_ping: true, recycle: {POOL_RECYCLE}초, echo: {SQL_ECHO}")
 
 # DB 연결 재시도 로직
 engine = None
@@ -37,7 +40,12 @@ last_error = None
 for attempt in range(1, MAX_RETRIES + 1):
     try:
         logger.info(f"[{attempt}/{MAX_RETRIES}] SQLAlchemy 엔진 생성 중...")
-        engine = create_engine(DATABASE_URL, echo=True)
+        engine = create_engine(
+            DATABASE_URL,
+            pool_pre_ping=True,
+            pool_recycle=POOL_RECYCLE,
+            echo=SQL_ECHO,
+        )
         logger.info(f"[{attempt}/{MAX_RETRIES}] SQLAlchemy 엔진 생성 완료, 연결 테스트 시작...")
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
