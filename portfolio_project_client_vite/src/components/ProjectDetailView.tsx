@@ -70,7 +70,9 @@ export default function ProjectDetailView({
         )}
 
         <h2 className="text-xl font-semibold text-gray-900 mb-4">프로젝트 설명</h2>
-        <p className="text-gray-700 leading-relaxed mb-8">{project.description}</p>
+        <p className="text-gray-700 leading-relaxed whitespace-pre-line mb-8">
+          {project.description}
+        </p>
 
         {project.techStack.length > 0 && (
           <>

@@ -157,6 +157,36 @@ npm run build
 npm run test:e2e</pre>
       <p>API 주소는 <code>VITE_API_BASE_URL</code> 환경 변수로 지정합니다. 값이 없으면 같은 origin의 <code>/api/v1/*</code> 경로를 사용합니다.</p>
     </section>
+
+    <section>
+      <div class="section-kicker">Environment</div>
+      <h2>클라이언트 .env 작성 방법</h2>
+      <p>
+        Vite 클라이언트에서 브라우저로 노출해야 하는 환경 변수는 반드시 <code>VITE_</code> 접두사를 사용합니다.
+        현재 클라이언트는 <code>src/utils/api.ts</code>에서 <code>VITE_API_BASE_URL</code>을 읽어 Flask API 서버 주소로 사용합니다.
+      </p>
+
+      <div class="grid two">
+        <div class="box">
+          <h3><code>.env</code></h3>
+          <p>모든 모드에서 공통으로 사용할 기본값입니다.</p>
+          <pre>VITE_API_BASE_URL=http://localhost:8000</pre>
+        </div>
+        <div class="box">
+          <h3><code>.env.development</code></h3>
+          <p><code>npm run dev</code>처럼 development 모드에서 기본값을 덮어씁니다.</p>
+          <pre>VITE_API_BASE_URL=http://localhost:8000</pre>
+        </div>
+      </div>
+
+      <ul>
+        <li>Vite 개발 서버는 보통 <code>http://localhost:5173</code>에서 실행됩니다.</li>
+        <li>Flask 서버가 <code>http://localhost:8000</code>에서 실행되면 위 설정으로 API 요청이 정상 연결됩니다.</li>
+        <li>운영 빌드에서 같은 도메인의 Flask 서버가 클라이언트 정적 파일도 함께 제공한다면 값을 비우거나 생략해도 됩니다.</li>
+        <li><code>.env</code>와 <code>.env.development</code>는 로컬 설정 파일이므로 저장소에 커밋하지 않습니다.</li>
+        <li>환경 변수 값을 바꾼 뒤에는 Vite 개발 서버를 재시작해야 반영됩니다.</li>
+      </ul>
+    </section>
   </main>
 </body>
 </html>
