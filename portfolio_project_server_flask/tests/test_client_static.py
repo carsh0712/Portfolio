@@ -14,6 +14,21 @@ def _create_dist(tmp_path):
     return dist
 
 
+def _create_manual(tmp_path):
+    manual = tmp_path / "html"
+    assets = manual / "assets"
+    pages = manual / "pages"
+    assets.mkdir(parents=True)
+    pages.mkdir(parents=True)
+    (manual / "index.html").write_text(
+        '<!doctype html><html><head><link rel="stylesheet" href="assets/styles.css"></head><body>Manual</body></html>',
+        encoding="utf-8",
+    )
+    (assets / "styles.css").write_text("body { color: black; }", encoding="utf-8")
+    (pages / "note.html").write_text("<!doctype html><html><body>Note</body></html>", encoding="utf-8")
+    return manual
+
+
 def test_root_serves_built_client_when_dist_exists(monkeypatch, tmp_path):
     import app as app_module
 
@@ -67,3 +82,41 @@ def test_serves_dist_assets_and_spa_fallback(monkeypatch, tmp_path):
     assert public_spa_response.status_code == 200
     assert public_spa_response.content_type.startswith("text/html")
     assert api_response.status_code == 404
+
+
+def test_manual_is_hidden_by_default(monkeypatch, tmp_path):
+    import app as app_module
+
+    monkeypatch.delenv("MANUAL_PUBLIC", raising=False)
+    monkeypatch.setattr(app_module, "MANUAL_DIR", _create_manual(tmp_path))
+    flask_app = app_module.create_app()
+
+    with flask_app.test_client() as client:
+        response = client.get("/manual")
+        asset_response = client.get("/manual/assets/styles.css")
+
+    assert response.status_code == 404
+    assert asset_response.status_code == 404
+
+
+def test_manual_serves_html_when_enabled(monkeypatch, tmp_path):
+    import app as app_module
+
+    monkeypatch.setenv("MANUAL_PUBLIC", "true")
+    monkeypatch.setattr(app_module, "MANUAL_DIR", _create_manual(tmp_path))
+    flask_app = app_module.create_app()
+
+    with flask_app.test_client() as client:
+        index_response = client.get("/manual")
+        trailing_response = client.get("/manual/")
+        css_response = client.get("/manual/assets/styles.css")
+        note_response = client.get("/manual/pages/note.html")
+
+    assert index_response.status_code == 200
+    assert index_response.content_type.startswith("text/html")
+    assert b"Manual" in index_response.data
+    assert trailing_response.status_code == 200
+    assert css_response.status_code == 200
+    assert b"color: black" in css_response.data
+    assert note_response.status_code == 200
+    assert b"Note" in note_response.data

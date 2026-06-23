@@ -30,6 +30,7 @@ from core.cors import handle_cors_preflight, add_cors_headers_after
 logger = setup_logger("app")
 SERVER_DIR = Path(__file__).resolve().parent
 DEFAULT_CLIENT_DIST_DIR = SERVER_DIR.parent / "portfolio_project_client_vite" / "dist"
+MANUAL_DIR = SERVER_DIR.parent / "html"
 
 
 def get_client_dist_dir() -> Path:
@@ -44,6 +45,11 @@ def get_client_dist_dir() -> Path:
 
 
 CLIENT_DIST_DIR = get_client_dist_dir()
+
+
+def is_manual_public() -> bool:
+    """환경변수로 운영 매뉴얼 공개 여부를 판별한다."""
+    return os.getenv("MANUAL_PUBLIC", "false").lower() in {"1", "true", "yes", "on"}
 
 
 def create_app():
@@ -424,9 +430,35 @@ def create_app():
             logger.error(f"Health check failed: {e}")
             return jsonify({"detail": "Database unavailable"}), 503
 
+    @app.route("/manual")
+    @app.route("/manual/")
+    def serve_manual_index():
+        if not is_manual_public():
+            return jsonify({"detail": "Not Found"}), 404
+
+        if (MANUAL_DIR / "index.html").is_file():
+            return send_from_directory(MANUAL_DIR, "index.html")
+
+        return jsonify({"detail": "Manual not found"}), 404
+
+    @app.route("/manual/<path:path>")
+    def serve_manual_file(path):
+        if not is_manual_public():
+            return jsonify({"detail": "Not Found"}), 404
+
+        manual_root = MANUAL_DIR.resolve()
+        file_path = (manual_root / path).resolve()
+        if not file_path.is_relative_to(manual_root):
+            return jsonify({"detail": "Not Found"}), 404
+
+        if file_path.is_file():
+            return send_from_directory(MANUAL_DIR, path)
+
+        return jsonify({"detail": "Not Found"}), 404
+
     @app.route("/<path:path>")
     def serve_client_app(path):
-        if path.startswith(("api/", "flasgger_static/")) or path in {"docs", "apispec.json"}:
+        if path.startswith(("api/", "flasgger_static/", "manual/")) or path in {"docs", "apispec.json", "manual"}:
             return jsonify({"detail": "Not Found"}), 404
 
         file_path = CLIENT_DIST_DIR / path

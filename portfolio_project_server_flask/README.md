@@ -59,10 +59,16 @@ JWT_REFRESH_TOKEN_EXPIRE_DAYS=7
 
 UPLOAD_DIR=./uploads
 CLIENT_DIST_DIR=../portfolio_project_client_vite/dist
+MANUAL_PUBLIC=false
 MAX_FILE_SIZE=10485760
 DB_MAX_RETRIES=2
 DB_RETRY_DELAY=3
+DB_POOL_RECYCLE=1800
+DB_SQL_ECHO=false
 ```
+
+`MANUAL_PUBLIC=true`로 설정하면 서버의 `/manual` 경로에서 프로젝트 HTML 매뉴얼을 공개합니다.
+기본값은 `false`이며, 운영 서버에서 공개가 필요한 경우에만 켜는 것을 권장합니다.
 
 ## 운영 배포 전 환경 체크
 
