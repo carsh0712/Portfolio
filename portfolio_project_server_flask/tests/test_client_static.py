@@ -107,15 +107,16 @@ def test_manual_serves_html_when_enabled(monkeypatch, tmp_path):
     flask_app = app_module.create_app()
 
     with flask_app.test_client() as client:
-        index_response = client.get("/manual")
+        redirect_response = client.get("/manual")
         trailing_response = client.get("/manual/")
         css_response = client.get("/manual/assets/styles.css")
         note_response = client.get("/manual/pages/note.html")
 
-    assert index_response.status_code == 200
-    assert index_response.content_type.startswith("text/html")
-    assert b"Manual" in index_response.data
+    assert redirect_response.status_code == 308
+    assert redirect_response.headers["Location"] == "/manual/"
     assert trailing_response.status_code == 200
+    assert trailing_response.content_type.startswith("text/html")
+    assert b"Manual" in trailing_response.data
     assert css_response.status_code == 200
     assert b"color: black" in css_response.data
     assert note_response.status_code == 200

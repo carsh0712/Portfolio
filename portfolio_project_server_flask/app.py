@@ -10,7 +10,7 @@ _boot_logger.info("=== 서버 시작 ===")
 
 try:
     _boot_logger.info("Flask 모듈 로딩...")
-    from flask import Flask, g, jsonify, send_from_directory
+    from flask import Flask, g, jsonify, redirect, send_from_directory
     from sqlalchemy import text
     _boot_logger.info("Flask 모듈 로딩 완료")
 
@@ -431,6 +431,12 @@ def create_app():
             return jsonify({"detail": "Database unavailable"}), 503
 
     @app.route("/manual")
+    def redirect_manual_index():
+        if not is_manual_public():
+            return jsonify({"detail": "Not Found"}), 404
+
+        return redirect("/manual/", code=308)
+
     @app.route("/manual/")
     def serve_manual_index():
         if not is_manual_public():
