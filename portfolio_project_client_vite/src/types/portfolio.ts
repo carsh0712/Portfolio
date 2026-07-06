@@ -46,3 +46,14 @@ export interface UpdatePortfolioRequest {
 
 export type UpdatePortfolioResponse = Portfolio;
 
+export interface PublicPortfolio {
+  id: number;
+  code: string;
+  name: string;
+  description: string;
+  screenshot: { file_uuid: string } | null;
+  is_public: boolean;
+  created_at: string;
+  updated_at: string;
+}
+

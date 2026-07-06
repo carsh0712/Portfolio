@@ -187,6 +187,14 @@ export const handlers = [
   }),
 
   // Public APIs
+  http.get('*/api/v1/public/:username/:portfolioCode/portfolio', () => {
+    return HttpResponse.json(mockPortfolio);
+  }),
+
+  http.get('*/api/v1/public/:username/:portfolioCode/profile', () => {
+    return HttpResponse.json(null);
+  }),
+
   http.get('*/api/v1/public/:username/:portfolioCode/', () => {
     return HttpResponse.json([mockPublicProjectItem]);
   }),

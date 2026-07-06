@@ -5,9 +5,15 @@ import PageState from '../components/PageState';
 import ProjectCard from '../components/ProjectCard';
 import ProjectFilterBar from '../components/ProjectFilterBar';
 import { useProjectFilters } from '../hooks/useProjectFilters';
+import type { PublicPortfolio } from '../types/portfolio';
 import type { Project } from '../types/project';
 import type { PublicProfile } from '../types/profile';
-import { getPublicFileUrl, getPublicPortfolioProfile, getPublicProjects } from '../utils/api';
+import {
+  getPublicFileUrl,
+  getPublicPortfolio,
+  getPublicPortfolioProfile,
+  getPublicProjects,
+} from '../utils/api';
 import { publicProjectItemToProject } from '../utils/projectMappers';
 
 export default function PublicPortfolioList() {
@@ -15,6 +21,7 @@ export default function PublicPortfolioList() {
   const publicUsername = username ?? '';
 
   const [projects, setProjects] = useState<Project[]>([]);
+  const [portfolio, setPortfolio] = useState<PublicPortfolio | null>(null);
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,8 +39,12 @@ export default function PublicPortfolioList() {
       setError(null);
 
       try {
-        const publicProjects = await getPublicProjects(username, portfolioCode);
-        const publicProfile = await getPublicPortfolioProfile(username, portfolioCode);
+        const [publicPortfolio, publicProjects, publicProfile] = await Promise.all([
+          getPublicPortfolio(username, portfolioCode),
+          getPublicProjects(username, portfolioCode),
+          getPublicPortfolioProfile(username, portfolioCode),
+        ]);
+        setPortfolio(publicPortfolio);
         setProfile(publicProfile);
         setProjects(
           publicProjects.filter((project) => project.is_public).map(publicProjectItemToProject)
@@ -69,8 +80,12 @@ export default function PublicPortfolioList() {
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">{username}의 Portfolio</h1>
-          <p className="text-xl text-gray-600">{portfolioCode}</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            {portfolio?.name ?? portfolioCode}
+          </h1>
+          {portfolio?.description && (
+            <p className="text-xl text-gray-600">{portfolio.description}</p>
+          )}
         </div>
 
         {profile && (

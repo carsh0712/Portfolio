@@ -4,6 +4,7 @@ import type {
   PortfolioListResponse,
   CreatePortfolioRequest,
   CreatePortfolioResponse,
+  PublicPortfolio,
   UpdatePortfolioRequest,
   UpdatePortfolioResponse,
 } from '../types/portfolio';
@@ -420,6 +421,25 @@ export async function getPublicProjects(
 
   if (!response.ok) {
     throw new Error(`공개 프로젝트 목록을 불러오지 못했습니다. ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+export async function getPublicPortfolio(
+  username: string,
+  portfolioCode: string
+): Promise<PublicPortfolio> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/public/${username}/${portfolioCode}/portfolio`,
+    {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`공개 포트폴리오를 불러오지 못했습니다. ${response.statusText}`);
   }
 
   return response.json();

@@ -13,6 +13,7 @@ import {
   getProjectDetail,
   createProject,
   updateProject,
+  getPublicPortfolio,
   getPublicProjects,
   getPublicProjectDetail,
   getPublicFileUrl,
@@ -351,6 +352,13 @@ describe('API 유틸리티', () => {
       const result = await getPublicProjects('testuser', 'web');
       expect(result).toHaveLength(1);
       expect(result[0].title).toBe('Test Project');
+    });
+  });
+
+  describe('getPublicPortfolio', () => {
+    it('공개 포트폴리오 정보를 가져와야 한다', async () => {
+      const result = await getPublicPortfolio('testuser', 'web');
+      expect(result.name).toBe('Web Projects');
     });
   });
 

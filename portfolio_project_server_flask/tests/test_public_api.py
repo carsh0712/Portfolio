@@ -215,6 +215,27 @@ class TestGetPublicProjects:
         assert len(resp.get_json()) == 1
 
 
+class TestGetPublicPortfolio:
+    def test_public_portfolio_name_is_returned(self, auth_client, db_session, test_user):
+        portfolio = Portfolio(
+            user_id=test_user.id,
+            code="NAMED",
+            name="Named Public Portfolio",
+            description="Portfolio description",
+            is_public=True,
+        )
+        db_session.add(portfolio)
+        db_session.commit()
+
+        resp = auth_client.get(f"/api/v1/public/{test_user.username}/NAMED/portfolio")
+
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert data["code"] == "NAMED"
+        assert data["name"] == "Named Public Portfolio"
+        assert data["description"] == "Portfolio description"
+
+
 class TestGetPublicPortfolioProfile:
     def test_success_with_linked_profile(self, auth_client, db_session, test_user):
         profile = Profile(

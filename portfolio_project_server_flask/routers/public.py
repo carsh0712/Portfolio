@@ -122,6 +122,42 @@ def get_public_projects(username, portfolio_code):
     return jsonify(result)
 
 
+@bp.route("/<username>/<portfolio_code>/portfolio", methods=["GET"])
+def get_public_portfolio(username, portfolio_code):
+    db = g.db
+
+    user = db.query(User).filter(User.username == username).first()
+    if user is None:
+        api_abort(404, "User not found")
+
+    portfolio = (
+        db.query(Portfolio)
+        .filter(
+            Portfolio.user_id == user.id,
+            Portfolio.code == portfolio_code,
+            Portfolio.is_public == True
+        )
+        .first()
+    )
+    if portfolio is None:
+        api_abort(404, "Public portfolio not found")
+
+    return jsonify({
+        "id": portfolio.id,
+        "code": portfolio.code,
+        "name": portfolio.name,
+        "description": portfolio.description,
+        "screenshot": (
+            {"file_uuid": portfolio.file_uuid}
+            if portfolio.file_uuid is not None
+            else None
+        ),
+        "is_public": portfolio.is_public,
+        "created_at": portfolio.created_at,
+        "updated_at": portfolio.updated_at,
+    })
+
+
 @bp.route("/<username>/<portfolio_code>/profile", methods=["GET"])
 def get_public_portfolio_profile(username, portfolio_code):
     db = g.db
