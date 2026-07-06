@@ -220,9 +220,28 @@ class TestGetPublicPortfolioProfile:
         profile = Profile(
             user_id=test_user.id,
             display_name="Public Name",
+            email="public@example.com",
             headline="Public headline",
             bio="Public bio",
             links=[],
+            extra_fields=[
+                {
+                    "key": "role",
+                    "label": "Role",
+                    "value": "Builder",
+                    "type": "text",
+                    "is_public": True,
+                    "order": 1,
+                },
+                {
+                    "key": "private_note",
+                    "label": "Private",
+                    "value": "Hidden in UI",
+                    "type": "text",
+                    "is_public": False,
+                    "order": 2,
+                },
+            ],
             is_default=True,
         )
         db_session.add(profile)
@@ -243,7 +262,10 @@ class TestGetPublicPortfolioProfile:
         assert resp.status_code == 200
         data = resp.get_json()
         assert data["display_name"] == "Public Name"
+        assert data["email"] == "public@example.com"
         assert data["headline"] == "Public headline"
+        assert data["extra_fields"][0]["key"] == "role"
+        assert len(data["extra_fields"]) == 1
 
     def test_returns_none_without_profile(self, auth_client, db_session, test_user):
         db_session.add(Portfolio(

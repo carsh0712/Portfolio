@@ -153,13 +153,21 @@ def get_public_portfolio_profile(username, portfolio_code):
     if profile is None:
         return jsonify(None)
 
+    public_extra_fields = [
+        field
+        for field in (profile.extra_fields or [])
+        if isinstance(field, dict) and field.get("is_public", True) is True
+    ]
+
     return jsonify({
         "id": profile.id,
         "display_name": profile.display_name,
+        "email": profile.email,
         "headline": profile.headline,
         "bio": profile.bio,
         "avatar_file_uuid": profile.avatar_file_uuid,
         "links": profile.links or [],
+        "extra_fields": public_extra_fields,
         "is_default": profile.is_default,
     })
 

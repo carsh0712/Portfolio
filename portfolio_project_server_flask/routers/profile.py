@@ -62,10 +62,12 @@ def create_profile():
     profile = Profile(
         user_id=current_user.id,
         display_name=data.display_name,
+        email=data.email,
         headline=data.headline,
         bio=data.bio,
         avatar_file_uuid=data.avatar_file_uuid,
         links=[link.model_dump(by_alias=True, exclude_none=True) for link in data.links],
+        extra_fields=[field.model_dump() for field in data.extra_fields],
         is_default=is_default,
     )
     db.add(profile)
@@ -108,6 +110,8 @@ def update_profile(profile_id):
     update_data = data.model_dump(exclude_unset=True)
     if "links" in update_data and data.links is not None:
         update_data["links"] = [link.model_dump(by_alias=True, exclude_none=True) for link in data.links]
+    if "extra_fields" in update_data and data.extra_fields is not None:
+        update_data["extra_fields"] = [field.model_dump() for field in data.extra_fields]
     if update_data.get("is_default") is True:
         _clear_other_defaults(db, current_user.id, except_profile_id=profile.id)
 

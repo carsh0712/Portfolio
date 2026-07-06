@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Modal from '../components/Modal';
 import { useParams } from 'react-router-dom';
 import PageState from '../components/PageState';
 import ProjectCard from '../components/ProjectCard';
@@ -15,9 +16,13 @@ export default function PublicPortfolioList() {
 
   const [projects, setProjects] = useState<Project[]>([]);
   const [profile, setProfile] = useState<PublicProfile | null>(null);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const filters = useProjectFilters(projects);
+  const publicExtraFields = (profile?.extra_fields ?? [])
+    .filter((field) => field.is_public && field.label && field.value)
+    .sort((a, b) => a.order - b.order);
 
   useEffect(() => {
     if (!username || !portfolioCode) return;
@@ -69,22 +74,87 @@ export default function PublicPortfolioList() {
         </div>
 
         {profile && (
-          <div className="max-w-3xl mx-auto mb-10 text-center bg-white border border-gray-200 rounded-lg p-6">
-            {profile.avatar_file_uuid && (
-              <img
-                src={getPublicFileUrl(publicUsername, profile.avatar_file_uuid, 'thumbnail')}
-                alt={profile.display_name}
-                className="w-20 h-20 rounded-full object-cover mx-auto mb-4 border border-gray-200"
-              />
-            )}
-            <h2 className="text-2xl font-bold text-gray-900">{profile.display_name}</h2>
-            {profile.headline && <p className="text-gray-600 mt-1">{profile.headline}</p>}
-            {profile.bio && (
-              <p className="text-gray-600 max-w-2xl mx-auto mt-4 whitespace-pre-wrap">{profile.bio}</p>
-            )}
-            {profile.links && profile.links.length > 0 && (
-              <div className="flex flex-wrap justify-center gap-2 mt-4">
-                {profile.links.map((link) => (
+          <div className="flex justify-center mb-8">
+            <button
+              type="button"
+              onClick={() => setIsProfileOpen(true)}
+              className="inline-flex items-center gap-3 px-4 py-3 text-left bg-white border border-gray-300 rounded-lg shadow-sm hover:border-blue-500 hover:shadow-md transition-all"
+            >
+              {profile.avatar_file_uuid && (
+                <img
+                  src={getPublicFileUrl(publicUsername, profile.avatar_file_uuid, 'thumbnail')}
+                  alt=""
+                  className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                />
+              )}
+              <span>
+                <span className="block text-sm font-semibold text-gray-900">프로필 보기</span>
+                <span className="block text-xs text-gray-500">
+                  {profile.display_name}
+                  {profile.headline ? ` · ${profile.headline}` : ''}
+                </span>
+              </span>
+            </button>
+          </div>
+        )}
+
+        {profile && (
+          <Modal
+            isOpen={isProfileOpen}
+            onClose={() => setIsProfileOpen(false)}
+            title="프로필"
+          >
+            <div className="text-center">
+              {profile.avatar_file_uuid && (
+                <img
+                  src={getPublicFileUrl(publicUsername, profile.avatar_file_uuid, 'thumbnail')}
+                  alt={profile.display_name}
+                  className="w-24 h-24 rounded-full object-cover mx-auto mb-4 border border-gray-200"
+                />
+              )}
+              <h2 className="text-2xl font-bold text-gray-900">{profile.display_name}</h2>
+              {profile.headline && <p className="text-gray-600 mt-1">{profile.headline}</p>}
+              {profile.bio && (
+                <p className="text-gray-600 max-w-2xl mx-auto mt-5 whitespace-pre-wrap text-left sm:text-center">
+                  {profile.bio}
+                </p>
+              )}
+              {publicExtraFields.length > 0 && (
+                <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6 text-left">
+                  {publicExtraFields.map((field) => (
+                    <div
+                      key={`${field.key}-${field.order}`}
+                      className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-3"
+                    >
+                      <dt className="text-xs font-semibold text-gray-500">{field.label}</dt>
+                      <dd className="text-sm text-gray-900 mt-1 whitespace-pre-wrap">
+                        {field.type === 'url' ? (
+                          <a
+                            href={field.value}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-blue-600 hover:text-blue-800"
+                          >
+                            {field.value}
+                          </a>
+                        ) : (
+                          field.value
+                        )}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+              <div className="flex flex-wrap justify-center gap-2 mt-6">
+                {profile.email && (
+                  <a
+                    href={`mailto:${profile.email}`}
+                    className="px-3 py-1.5 text-sm font-medium rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
+                  >
+                    e-mail
+                  </a>
+                )}
+                {profile.links?.map((link) => (
                   <a
                     key={`${link.name}-${link.url}`}
                     href={link.url}
@@ -92,12 +162,12 @@ export default function PublicPortfolioList() {
                     rel="noreferrer"
                     className="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:border-blue-500 hover:text-blue-600"
                   >
-                    {link.name}
+                    {link.name || link.url}
                   </a>
                 ))}
               </div>
-            )}
-          </div>
+            </div>
+          </Modal>
         )}
 
         <ProjectFilterBar

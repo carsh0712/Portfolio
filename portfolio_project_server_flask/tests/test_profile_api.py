@@ -5,15 +5,28 @@ class TestProfileApi:
     def test_create_profile_success(self, client):
         resp = client.post("/api/v1/profiles/", json={
             "display_name": "Main Profile",
+            "email": "main@example.com",
             "headline": "Builder",
             "bio": "Hello",
             "links": [],
+            "extra_fields": [
+                {
+                    "key": "role",
+                    "label": "Role",
+                    "value": "Frontend Developer",
+                    "type": "text",
+                    "is_public": True,
+                    "order": 1,
+                }
+            ],
         })
 
         assert resp.status_code == 200
         data = resp.get_json()
         assert data["display_name"] == "Main Profile"
+        assert data["email"] == "main@example.com"
         assert data["headline"] == "Builder"
+        assert data["extra_fields"][0]["key"] == "role"
         assert data["is_default"] is True
 
     def test_list_profiles_returns_own_profiles(self, client, db_session, test_user, other_user):
@@ -35,7 +48,9 @@ class TestProfileApi:
 
         resp = client.put(f"/api/v1/profiles/{p2.id}", json={
             "display_name": "B",
+            "email": "b@example.com",
             "links": [],
+            "extra_fields": [],
             "is_default": True,
         })
 
@@ -44,6 +59,7 @@ class TestProfileApi:
         db_session.refresh(p2)
         assert p1.is_default is False
         assert p2.is_default is True
+        assert resp.get_json()["email"] == "b@example.com"
 
     def test_delete_linked_profile_is_rejected(self, client, db_session, test_user):
         profile = Profile(user_id=test_user.id, display_name="Linked", is_default=True)

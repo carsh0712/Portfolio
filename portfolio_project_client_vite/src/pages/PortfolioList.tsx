@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import ActionCard from '../components/ActionCard';
 import PageState from '../components/PageState';
 import PortfolioCard from '../components/PortfolioCard';
@@ -27,8 +28,21 @@ export default function PortfolioList() {
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="text-center mb-12">
-          <div className="flex items-center justify-center gap-4 mb-4">
+          <div className="flex flex-col items-center justify-center gap-4 mb-4">
             <h1 className="text-4xl font-bold text-gray-900">Portfolio</h1>
+            {page.isCurator && (
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                <Link
+                  to="/profiles"
+                  className="inline-flex items-center px-4 py-2 text-sm font-semibold text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+                >
+                  프로필 관리
+                </Link>
+                <span className="text-sm text-gray-500">
+                  Portfolio마다 다른 소개 정보와 유동 항목을 연결할 수 있습니다.
+                </span>
+              </div>
+            )}
           </div>
         </div>
 

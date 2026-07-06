@@ -5,7 +5,7 @@ import ImagePreviewCard from '../components/ImagePreviewCard';
 import PageCard from '../components/PageCard';
 import PageState from '../components/PageState';
 import ProjectLinkEditor from '../components/ProjectLinkEditor';
-import type { Profile, ProfileRequest } from '../types/profile';
+import type { Profile, ProfileExtraField, ProfileRequest } from '../types/profile';
 import type { ProjectLink } from '../types/project';
 import {
   IMAGE_UPLOAD_ACCEPT,
@@ -20,29 +20,42 @@ import {
 
 interface ProfileFormState {
   displayName: string;
+  email: string;
   headline: string;
   bio: string;
   avatarFileUuid: string | null;
+  extraFields: ProfileExtraField[];
   links: ProjectLink[];
   isDefault: boolean;
 }
 
 const emptyForm: ProfileFormState = {
   displayName: '',
+  email: '',
   headline: '',
   bio: '',
   avatarFileUuid: null,
+  extraFields: [],
   links: [],
   isDefault: false,
 };
 
+const extraFieldPresets: Array<Pick<ProfileExtraField, 'key' | 'label' | 'type'>> = [
+  { key: 'role', label: '역할', type: 'text' },
+  { key: 'location', label: '활동 지역', type: 'text' },
+  { key: 'available_for', label: '가능한 작업', type: 'tag' },
+  { key: 'tech_focus', label: '관심 기술', type: 'tag' },
+];
+
 function toRequest(form: ProfileFormState): ProfileRequest {
   return {
     display_name: form.displayName,
+    email: form.email || null,
     headline: form.headline || null,
     bio: form.bio || null,
     avatar_file_uuid: form.avatarFileUuid,
     links: form.links,
+    extra_fields: form.extraFields,
     is_default: form.isDefault,
   };
 }
@@ -50,9 +63,11 @@ function toRequest(form: ProfileFormState): ProfileRequest {
 function fromProfile(profile: Profile): ProfileFormState {
   return {
     displayName: profile.display_name,
+    email: profile.email ?? '',
     headline: profile.headline ?? '',
     bio: profile.bio ?? '',
     avatarFileUuid: profile.avatar_file_uuid ?? null,
+    extraFields: profile.extra_fields ?? [],
     links: profile.links ?? [],
     isDefault: profile.is_default,
   };
@@ -159,6 +174,59 @@ export default function ProfileList() {
     updateField('links', [...form.links, { name: '', url: '' }]);
   };
 
+  const handleAddExtraField = () => {
+    const nextOrder = form.extraFields.length + 1;
+    updateField('extraFields', [
+      ...form.extraFields,
+      {
+        key: `field_${nextOrder}`,
+        label: '',
+        value: '',
+        type: 'text',
+        is_public: true,
+        order: nextOrder,
+      },
+    ]);
+  };
+
+  const handleAddPresetExtraField = (
+    preset: Pick<ProfileExtraField, 'key' | 'label' | 'type'>
+  ) => {
+    const suffix = form.extraFields.some((field) => field.key === preset.key)
+      ? `_${form.extraFields.length + 1}`
+      : '';
+    updateField('extraFields', [
+      ...form.extraFields,
+      {
+        ...preset,
+        key: `${preset.key}${suffix}`,
+        value: '',
+        is_public: true,
+        order: form.extraFields.length + 1,
+      },
+    ]);
+  };
+
+  const handleRemoveExtraField = (index: number) => {
+    updateField(
+      'extraFields',
+      form.extraFields.filter((_, itemIndex) => itemIndex !== index)
+    );
+  };
+
+  const handleChangeExtraField = <K extends keyof ProfileExtraField>(
+    index: number,
+    field: K,
+    value: ProfileExtraField[K]
+  ) => {
+    updateField(
+      'extraFields',
+      form.extraFields.map((item, itemIndex) =>
+        itemIndex === index ? { ...item, [field]: value } : item
+      )
+    );
+  };
+
   const handleRemoveLink = (index: number) => {
     updateField(
       'links',
@@ -258,14 +326,39 @@ export default function ProfileList() {
                             링크 {profile.links.length}개
                           </span>
                         )}
+                        {(profile.extra_fields?.length ?? 0) > 0 && (
+                          <span className="text-xs px-2 py-1 bg-emerald-50 text-emerald-700 rounded-full">
+                            항목 {profile.extra_fields.length}개
+                          </span>
+                        )}
                       </div>
                       {profile.headline && (
                         <p className="text-sm text-gray-600 mt-1">{profile.headline}</p>
+                      )}
+                      {profile.email && (
+                        <p className="text-sm text-blue-600 mt-1">{profile.email}</p>
                       )}
                       {profile.bio && (
                         <p className="text-sm text-gray-500 mt-2 whitespace-pre-wrap">
                           {profile.bio}
                         </p>
+                      )}
+                      {(profile.extra_fields?.length ?? 0) > 0 && (
+                        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+                          {profile.extra_fields.slice(0, 4).map((field) => (
+                            <div
+                              key={`${field.key}-${field.order}`}
+                              className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2"
+                            >
+                              <dt className="text-xs font-semibold text-gray-500">
+                                {field.label || field.key}
+                              </dt>
+                              <dd className="text-sm text-gray-800 truncate">
+                                {field.value || '값 없음'}
+                              </dd>
+                            </div>
+                          ))}
+                        </dl>
                       )}
                       {profile.links.length > 0 && (
                         <div className="flex flex-wrap gap-2 mt-3">
@@ -318,6 +411,18 @@ export default function ProfileList() {
                 value={form.displayName}
                 onChange={(event) => updateField('displayName', event.target.value)}
                 required
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1" htmlFor="email">
+                e-mail
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={form.email}
+                onChange={(event) => updateField('email', event.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
@@ -381,6 +486,119 @@ export default function ProfileList() {
             </div>
 
             <div className="-mx-2">
+              <section className="mb-8 px-2">
+                <div className="mb-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">유동 항목</h3>
+                      <p className="text-sm text-gray-500 mt-1">
+                        역할, 활동 지역, 가능한 작업처럼 프로필마다 달라지는 정보를 추가합니다.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleAddExtraField}
+                      className="shrink-0 px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100"
+                    >
+                      직접 추가
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {extraFieldPresets.map((preset) => (
+                      <button
+                        key={preset.key}
+                        type="button"
+                        onClick={() => handleAddPresetExtraField(preset)}
+                        className="px-3 py-1.5 text-xs font-semibold text-gray-700 bg-gray-100 border border-gray-200 rounded-full hover:border-blue-300 hover:text-blue-700"
+                      >
+                        {preset.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  {form.extraFields.map((field, index) => (
+                    <div key={`${field.key}-${index}`} className="border border-gray-200 rounded-lg p-4 bg-white">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-sm font-semibold text-gray-900">항목 #{index + 1}</h4>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveExtraField(index)}
+                          className="text-sm text-red-600 hover:text-red-800"
+                        >
+                          삭제
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">키 *</label>
+                          <input
+                            type="text"
+                            value={field.key}
+                            onChange={(event) => handleChangeExtraField(index, 'key', event.target.value)}
+                            required
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">라벨 *</label>
+                          <input
+                            type="text"
+                            value={field.label}
+                            onChange={(event) => handleChangeExtraField(index, 'label', event.target.value)}
+                            required
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">타입</label>
+                          <select
+                            value={field.type}
+                            onChange={(event) => handleChangeExtraField(index, 'type', event.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          >
+                            <option value="text">텍스트</option>
+                            <option value="tag">태그</option>
+                            <option value="url">URL</option>
+                            <option value="number">숫자</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">순서</label>
+                          <input
+                            type="number"
+                            value={field.order}
+                            onChange={(event) => handleChangeExtraField(index, 'order', Number(event.target.value))}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          />
+                        </div>
+                      </div>
+                      <div className="mt-3">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">값</label>
+                        <textarea
+                          rows={3}
+                          value={field.value}
+                          onChange={(event) => handleChangeExtraField(index, 'value', event.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        />
+                      </div>
+                      <label className="flex items-center gap-2 text-sm text-gray-700 mt-3">
+                        <input
+                          type="checkbox"
+                          checked={field.is_public}
+                          onChange={(event) => handleChangeExtraField(index, 'is_public', event.target.checked)}
+                          className="w-4 h-4"
+                        />
+                        공개 프로필에 표시
+                      </label>
+                    </div>
+                  ))}
+                  {form.extraFields.length === 0 && (
+                    <p className="text-sm text-gray-500">역할, 활동 지역, 가능한 작업처럼 프로필마다 달라지는 항목을 추가할 수 있습니다.</p>
+                  )}
+                </div>
+              </section>
+
               <ProjectLinkEditor
                 links={form.links}
                 onAdd={handleAddLink}
