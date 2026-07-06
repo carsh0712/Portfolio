@@ -5,13 +5,16 @@ import ProjectCard from '../components/ProjectCard';
 import ProjectFilterBar from '../components/ProjectFilterBar';
 import { useProjectFilters } from '../hooks/useProjectFilters';
 import type { Project } from '../types/project';
-import { getPublicFileUrl, getPublicProjects } from '../utils/api';
+import type { PublicProfile } from '../types/profile';
+import { getPublicFileUrl, getPublicPortfolioProfile, getPublicProjects } from '../utils/api';
 import { publicProjectItemToProject } from '../utils/projectMappers';
 
 export default function PublicPortfolioList() {
   const { username, portfolioCode } = useParams<{ username: string; portfolioCode: string }>();
+  const publicUsername = username ?? '';
 
   const [projects, setProjects] = useState<Project[]>([]);
+  const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const filters = useProjectFilters(projects);
@@ -25,6 +28,8 @@ export default function PublicPortfolioList() {
 
       try {
         const publicProjects = await getPublicProjects(username, portfolioCode);
+        const publicProfile = await getPublicPortfolioProfile(username, portfolioCode);
+        setProfile(publicProfile);
         setProjects(
           publicProjects.filter((project) => project.is_public).map(publicProjectItemToProject)
         );
@@ -63,6 +68,38 @@ export default function PublicPortfolioList() {
           <p className="text-xl text-gray-600">{portfolioCode}</p>
         </div>
 
+        {profile && (
+          <div className="max-w-3xl mx-auto mb-10 text-center bg-white border border-gray-200 rounded-lg p-6">
+            {profile.avatar_file_uuid && (
+              <img
+                src={getPublicFileUrl(publicUsername, profile.avatar_file_uuid, 'thumbnail')}
+                alt={profile.display_name}
+                className="w-20 h-20 rounded-full object-cover mx-auto mb-4 border border-gray-200"
+              />
+            )}
+            <h2 className="text-2xl font-bold text-gray-900">{profile.display_name}</h2>
+            {profile.headline && <p className="text-gray-600 mt-1">{profile.headline}</p>}
+            {profile.bio && (
+              <p className="text-gray-600 max-w-2xl mx-auto mt-4 whitespace-pre-wrap">{profile.bio}</p>
+            )}
+            {profile.links && profile.links.length > 0 && (
+              <div className="flex flex-wrap justify-center gap-2 mt-4">
+                {profile.links.map((link) => (
+                  <a
+                    key={`${link.name}-${link.url}`}
+                    href={link.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:border-blue-500 hover:text-blue-600"
+                  >
+                    {link.name}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         <ProjectFilterBar
           tagInput={filters.tagInput}
           selectedTags={filters.selectedTags}
@@ -83,7 +120,7 @@ export default function PublicPortfolioList() {
               linkPath={`/public/${username}/${portfolioCode}/${project.code}`}
               thumbnailUrl={
                 project.thumbnailFileUuid && username
-                  ? getPublicFileUrl(username, project.thumbnailFileUuid, 'thumbnail')
+                  ? getPublicFileUrl(publicUsername, project.thumbnailFileUuid, 'thumbnail')
                   : undefined
               }
             />

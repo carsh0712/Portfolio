@@ -9,12 +9,20 @@ from database import SessionLocal
 from models import CorsOrigin
 
 SERVER_CODE = os.getenv("SERVER_CODE", "PORTFOLIO_API")
+CORS_ALLOWED_ORIGINS = {
+    origin.strip()
+    for origin in os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+    if origin.strip()
+}
 
 
 def _is_origin_allowed(origin: str) -> bool:
     """DB에서 현재 서버 코드에 해당하는 origin인지 조회한다."""
     parsed_origin = urlparse(origin)
     if parsed_origin.netloc == request.host:
+        return True
+
+    if origin in CORS_ALLOWED_ORIGINS:
         return True
 
     db = SessionLocal()

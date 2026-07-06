@@ -22,6 +22,7 @@ export default function PortfolioEditDialog({
     name: portfolio.name,
     description: portfolio.description,
     screenshotFileUuid: portfolio.screenshot?.file_uuid ?? null,
+    profileId: portfolio.profile_id ?? null,
     order: portfolio.order,
     isPublic: portfolio.is_public,
   });
@@ -39,6 +40,7 @@ export default function PortfolioEditDialog({
         name: formData.name,
         description: formData.description,
         screenshot: formData.screenshotFileUuid ? { file_uuid: formData.screenshotFileUuid } : null,
+        profile_id: formData.profileId,
         order: formData.order ?? portfolio.order,
         is_public: formData.isPublic,
       });

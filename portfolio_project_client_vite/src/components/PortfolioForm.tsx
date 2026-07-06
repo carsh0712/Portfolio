@@ -1,5 +1,6 @@
-import { useRef, useState } from 'react';
-import { IMAGE_UPLOAD_ACCEPT, isAllowedUploadImage, uploadImage } from '../utils/api';
+import { useEffect, useRef, useState } from 'react';
+import type { Profile } from '../types/profile';
+import { IMAGE_UPLOAD_ACCEPT, getProfiles, isAllowedUploadImage, uploadImage } from '../utils/api';
 import FormTextField from './FormTextField';
 import FormTextarea from './FormTextarea';
 import ImagePreviewCard from './ImagePreviewCard';
@@ -10,6 +11,7 @@ export interface PortfolioFormData {
   code: string;
   description: string;
   screenshotFileUuid: string | null;
+  profileId: number | null;
   isPublic: boolean;
   order?: number;
 }
@@ -23,7 +25,27 @@ interface PortfolioFormProps {
 export default function PortfolioForm({ formData, onChange, showOrder }: PortfolioFormProps) {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [profileError, setProfileError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    let ignore = false;
+
+    getProfiles()
+      .then((response) => {
+        if (!ignore) setProfiles(response.items);
+      })
+      .catch((error) => {
+        if (!ignore) {
+          setProfileError(error instanceof Error ? error.message : '프로필 목록을 불러오지 못했습니다.');
+        }
+      });
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   const updateField = <K extends keyof PortfolioFormData>(
     field: K,
@@ -91,6 +113,34 @@ export default function PortfolioForm({ formData, onChange, showOrder }: Portfol
         required
         placeholder="포트폴리오에 대한 간단한 설명을 입력하세요."
       />
+
+      <div>
+        <label htmlFor="profileId" className="block text-sm font-medium text-gray-700 mb-2">
+          연결 프로필
+        </label>
+        <select
+          id="profileId"
+          value={formData.profileId ?? ''}
+          onChange={(event) =>
+            updateField('profileId', event.target.value ? Number(event.target.value) : null)
+          }
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="">프로필 연결 안 함</option>
+          {profiles.map((profile) => (
+            <option key={profile.id} value={profile.id}>
+              {profile.display_name}
+              {profile.is_default ? ' (기본)' : ''}
+            </option>
+          ))}
+        </select>
+        {profileError && <p className="text-sm text-red-600 mt-1">{profileError}</p>}
+        {!profileError && profiles.length === 0 && (
+          <p className="text-sm text-gray-500 mt-1">
+            프로필을 만들면 포트폴리오 공개 페이지에 자기소개를 연결할 수 있습니다.
+          </p>
+        )}
+      </div>
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">이미지 (선택)</label>

@@ -14,6 +14,7 @@ export default function PortfolioAdd() {
     name: '',
     description: '',
     screenshotFileUuid: null,
+    profileId: null,
     code: '',
     isPublic: false,
   });
@@ -37,6 +38,7 @@ export default function PortfolioAdd() {
         name: formData.name,
         description: formData.description,
         screenshot: formData.screenshotFileUuid ? { file_uuid: formData.screenshotFileUuid } : null,
+        profile_id: formData.profileId,
         order: maxOrder + 1,
         is_public: formData.isPublic,
       };

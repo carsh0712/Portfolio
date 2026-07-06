@@ -37,6 +37,7 @@ class PortfolioCreate(BaseModel):
     name: str
     description: str
     screenshot: Optional[FileReference] = None
+    profile_id: Optional[int] = None
     order: int = 0
     is_public: bool = True
 
@@ -47,6 +48,7 @@ class PortfolioUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     screenshot: Optional[FileReference] = None
+    profile_id: Optional[int] = None
     order: Optional[int] = None
     is_public: Optional[bool] = None
 
@@ -59,6 +61,7 @@ class PortfolioResponse(BaseModel):
     description: str
     file_uuid: Optional[str] = Field(None, exclude=True)
     screenshot: Optional[FileReference] = None
+    profile_id: Optional[int] = None
     order: int
     is_public: bool
     created_at: datetime

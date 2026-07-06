@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, g
 from pydantic import ValidationError
 
-from models import Portfolio
+from models import Portfolio, Profile
 from schemas.project import PortfolioCreate, PortfolioUpdate, PortfolioResponse
 from core.security import login_required
 from core.errors import api_abort
@@ -50,8 +50,17 @@ def create_portfolio():
     if existing:
         api_abort(400, "Portfolio code already exists for this user")
 
+    if portfolio.profile_id is not None:
+        profile = db.query(Profile).filter(
+            Profile.id == portfolio.profile_id,
+            Profile.user_id == current_user.id,
+        ).first()
+        if profile is None:
+            api_abort(400, "Profile not found")
+
     db_portfolio = Portfolio(
         user_id=current_user.id,
+        profile_id=portfolio.profile_id,
         code=portfolio.code,
         name=portfolio.name,
         description=portfolio.description,
@@ -197,6 +206,14 @@ def update_portfolio(code):
     if "screenshot" in update_data:
         screenshot = update_data.pop("screenshot")
         update_data["file_uuid"] = screenshot["file_uuid"] if screenshot else None
+
+    if "profile_id" in update_data and update_data["profile_id"] is not None:
+        profile = db.query(Profile).filter(
+            Profile.id == update_data["profile_id"],
+            Profile.user_id == current_user.id,
+        ).first()
+        if profile is None:
+            api_abort(400, "Profile not found")
 
     if "code" in update_data and update_data["code"] != portfolio.code:
         existing = db.query(Portfolio).filter(

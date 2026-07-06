@@ -1,7 +1,7 @@
 """/api/v1/public/* 엔드포인트 통합 테스트."""
 
 import pytest
-from models import Portfolio, Project, UploadFile
+from models import Portfolio, Profile, Project, UploadFile
 
 
 class TestGetPublicProjects:
@@ -213,6 +213,52 @@ class TestGetPublicProjects:
         resp = auth_client.get(f"/api/v1/public/{test_user.username}/NOAUTH/")
         assert resp.status_code == 200
         assert len(resp.get_json()) == 1
+
+
+class TestGetPublicPortfolioProfile:
+    def test_success_with_linked_profile(self, auth_client, db_session, test_user):
+        profile = Profile(
+            user_id=test_user.id,
+            display_name="Public Name",
+            headline="Public headline",
+            bio="Public bio",
+            links=[],
+            is_default=True,
+        )
+        db_session.add(profile)
+        db_session.flush()
+        portfolio = Portfolio(
+            user_id=test_user.id,
+            profile_id=profile.id,
+            code="PROFL",
+            name="Profile Portfolio",
+            description="D",
+            is_public=True,
+        )
+        db_session.add(portfolio)
+        db_session.commit()
+
+        resp = auth_client.get(f"/api/v1/public/{test_user.username}/PROFL/profile")
+
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert data["display_name"] == "Public Name"
+        assert data["headline"] == "Public headline"
+
+    def test_returns_none_without_profile(self, auth_client, db_session, test_user):
+        db_session.add(Portfolio(
+            user_id=test_user.id,
+            code="NOPRF",
+            name="No Profile",
+            description="D",
+            is_public=True,
+        ))
+        db_session.commit()
+
+        resp = auth_client.get(f"/api/v1/public/{test_user.username}/NOPRF/profile")
+
+        assert resp.status_code == 200
+        assert resp.get_json() is None
 
 
 class TestGetPublicProjectDetail:

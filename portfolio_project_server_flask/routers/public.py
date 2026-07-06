@@ -2,7 +2,7 @@ from pathlib import Path
 
 from flask import Blueprint, g, jsonify, request, send_file
 
-from models import Portfolio, Project, UploadFile, User
+from models import Portfolio, Project, Profile, UploadFile, User
 from schemas.project import ProjectResponse
 from core.errors import api_abort
 from utils.image_processing import get_thumbnail_path
@@ -23,6 +23,20 @@ def _has_public_file_reference(db, user_id, file_uuid):
         is not None
     )
     if portfolio_reference_exists:
+        return True
+
+    profile_reference_exists = (
+        db.query(Profile.id)
+        .join(Portfolio, Portfolio.profile_id == Profile.id)
+        .filter(
+            Portfolio.user_id == user_id,
+            Portfolio.is_public == True,
+            Profile.avatar_file_uuid == file_uuid,
+        )
+        .first()
+        is not None
+    )
+    if profile_reference_exists:
         return True
 
     public_projects = (
@@ -106,6 +120,48 @@ def get_public_projects(username, portfolio_code):
         for item in items
     ]
     return jsonify(result)
+
+
+@bp.route("/<username>/<portfolio_code>/profile", methods=["GET"])
+def get_public_portfolio_profile(username, portfolio_code):
+    db = g.db
+
+    user = db.query(User).filter(User.username == username).first()
+    if user is None:
+        api_abort(404, "User not found")
+
+    portfolio = (
+        db.query(Portfolio)
+        .filter(
+            Portfolio.user_id == user.id,
+            Portfolio.code == portfolio_code,
+            Portfolio.is_public == True
+        )
+        .first()
+    )
+    if portfolio is None:
+        api_abort(404, "Public portfolio not found")
+
+    profile = portfolio.profile
+    if profile is None:
+        profile = (
+            db.query(Profile)
+            .filter(Profile.user_id == user.id, Profile.is_default == True)
+            .first()
+        )
+
+    if profile is None:
+        return jsonify(None)
+
+    return jsonify({
+        "id": profile.id,
+        "display_name": profile.display_name,
+        "headline": profile.headline,
+        "bio": profile.bio,
+        "avatar_file_uuid": profile.avatar_file_uuid,
+        "links": profile.links or [],
+        "is_default": profile.is_default,
+    })
 
 
 @bp.route("/<username>/<portfolio_code>/<project_code>/", methods=["GET"])

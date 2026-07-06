@@ -97,6 +97,7 @@ def create_app():
     from routers.auth import bp as auth_bp
     from routers.public import bp as public_bp
     from routers.portfolio import bp as portfolio_bp
+    from routers.profile import bp as profile_bp
     from routers.project import bp as project_bp
     from routers.user import bp as user_bp
     from routers.upload import bp as upload_bp
@@ -106,6 +107,7 @@ def create_app():
     app.register_blueprint(user_bp, url_prefix="/api/v1/user")
     logger.info("  - user 라우터 등록")
     app.register_blueprint(public_bp, url_prefix="/api/v1/public")
+    app.register_blueprint(profile_bp, url_prefix="/api/v1/profiles")
     logger.info("  - public 라우터 등록")
     app.register_blueprint(portfolio_bp, url_prefix="/api/v1/portfolios")
     logger.info("  - portfolio 라우터 등록")

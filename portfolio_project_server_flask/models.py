@@ -24,7 +24,32 @@ class User(Base):
     updated_at = Column(TIMESTAMP, default=utc_now, onupdate=utc_now)
 
     portfolios = relationship("Portfolio", back_populates="user", cascade="all, delete-orphan")
+    profiles = relationship("Profile", back_populates="user", cascade="all, delete-orphan")
     files = relationship("UploadFile", back_populates="user", cascade="all, delete-orphan")
+
+
+class Profile(Base):
+    __tablename__ = "profile"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
+    display_name = Column(String(100), nullable=False)
+    headline = Column(String(200), nullable=True)
+    bio = Column(Text, nullable=True)
+    avatar_file_uuid = Column(String(32), ForeignKey("upload_file.uuid", ondelete="SET NULL"), nullable=True)
+    links = Column(JSON, nullable=False, default=list)
+    is_default = Column(Boolean, nullable=False, default=False)
+    created_at = Column(TIMESTAMP, default=utc_now)
+    updated_at = Column(TIMESTAMP, default=utc_now, onupdate=utc_now)
+
+    user = relationship("User", back_populates="profiles")
+    portfolios = relationship("Portfolio", back_populates="profile")
+
+    __table_args__ = (
+        Index("idx_profile_user", "user_id"),
+        Index("idx_profile_default", "user_id", "is_default"),
+        {"mysql_charset": "utf8mb4", "mysql_collate": "utf8mb4_unicode_ci"},
+    )
 
 
 class Portfolio(Base):
@@ -32,6 +57,7 @@ class Portfolio(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("user.id", ondelete="CASCADE"), nullable=False)
+    profile_id = Column(Integer, ForeignKey("profile.id", ondelete="SET NULL"), nullable=True)
     code = Column(String(50), nullable=False)
     name = Column(String(100), nullable=False)
     description = Column(Text, nullable=False)
@@ -42,6 +68,7 @@ class Portfolio(Base):
     updated_at = Column(TIMESTAMP, default=utc_now, onupdate=utc_now)
 
     user = relationship("User", back_populates="portfolios")
+    profile = relationship("Profile", back_populates="portfolios")
     items = relationship("Project", back_populates="portfolio", cascade="all, delete-orphan")
 
     __table_args__ = (

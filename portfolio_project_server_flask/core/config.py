@@ -20,10 +20,10 @@ def load_env():
     fallback_file = os.path.join(base_dir, ".env")
 
     if os.path.exists(env_file):
-        load_dotenv(env_file, override=True)
+        load_dotenv(env_file, override=False)
         return env_file
     elif os.path.exists(fallback_file):
-        load_dotenv(fallback_file, override=True)
+        load_dotenv(fallback_file, override=False)
         return fallback_file
     return None
 

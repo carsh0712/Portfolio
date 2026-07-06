@@ -1,6 +1,7 @@
 ﻿export interface Portfolio {
   id: number;
   user_id: number;
+  profile_id?: number | null;
   code: string;
   name: string;
   description: string;
@@ -26,6 +27,7 @@ export interface CreatePortfolioRequest {
   name: string;
   description: string;
   screenshot: { file_uuid: string } | null;
+  profile_id?: number | null;
   order: number;
   is_public: boolean;
 }
@@ -37,6 +39,7 @@ export interface UpdatePortfolioRequest {
   name: string;
   description: string;
   screenshot: { file_uuid: string } | null;
+  profile_id?: number | null;
   order: number;
   is_public: boolean;
 }

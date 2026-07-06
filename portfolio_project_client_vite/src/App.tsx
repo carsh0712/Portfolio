@@ -9,6 +9,7 @@ import { AuthProvider } from './contexts/AuthContext';
 const Login = lazy(() => import('./pages/Login'));
 const Register = lazy(() => import('./pages/Register'));
 const Profile = lazy(() => import('./pages/Profile'));
+const ProfileList = lazy(() => import('./pages/ProfileList'));
 const PortfolioList = lazy(() => import('./pages/PortfolioList'));
 const PortfolioAdd = lazy(() => import('./pages/PortfolioAdd'));
 const PortfolioEdit = lazy(() => import('./pages/PortfolioEdit'));
@@ -83,6 +84,14 @@ function App() {
               element={
                 <ProtectedPage>
                   <Profile />
+                </ProtectedPage>
+              }
+            />
+            <Route
+              path="/profiles"
+              element={
+                <ProtectedPage>
+                  <ProfileList />
                 </ProtectedPage>
               }
             />

@@ -7,6 +7,7 @@ import type {
   UpdatePortfolioRequest,
   UpdatePortfolioResponse,
 } from '../types/portfolio';
+import type { Profile, ProfileListResponse, ProfileRequest, PublicProfile } from '../types/profile';
 import type {
   ProjectListResponse,
   ProjectDetailResponse,
@@ -137,6 +138,57 @@ export async function getCurrentUser(): Promise<AuthUser> {
   }
 
   return response.json();
+}
+
+export async function getProfiles(
+  page: number = 1,
+  pageSize: number = 100
+): Promise<ProfileListResponse> {
+  const response = await apiFetch(`/api/v1/profiles/?page=${page}&page_size=${pageSize}`, {
+    method: 'GET',
+  });
+
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response, '프로필 목록을 불러오지 못했습니다.'));
+  }
+
+  return response.json();
+}
+
+export async function createProfile(data: ProfileRequest): Promise<Profile> {
+  const response = await apiFetch('/api/v1/profiles/', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response, '프로필 생성에 실패했습니다.'));
+  }
+
+  return response.json();
+}
+
+export async function updateProfile(profileId: number, data: ProfileRequest): Promise<Profile> {
+  const response = await apiFetch(`/api/v1/profiles/${profileId}`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response, '프로필 수정에 실패했습니다.'));
+  }
+
+  return response.json();
+}
+
+export async function deleteProfile(profileId: number): Promise<void> {
+  const response = await apiFetch(`/api/v1/profiles/${profileId}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response, '프로필 삭제에 실패했습니다.'));
+  }
 }
 
 export async function getPortfolios(
@@ -368,6 +420,25 @@ export async function getPublicProjects(
 
   if (!response.ok) {
     throw new Error(`공개 프로젝트 목록을 불러오지 못했습니다. ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+export async function getPublicPortfolioProfile(
+  username: string,
+  portfolioCode: string
+): Promise<PublicProfile | null> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/v1/public/${username}/${portfolioCode}/profile`,
+    {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`공개 프로필을 불러오지 못했습니다. ${response.statusText}`);
   }
 
   return response.json();
