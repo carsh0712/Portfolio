@@ -80,6 +80,7 @@
         <tbody>
           <tr><td><code>auth</code></td><td><code>/api/v1/auth</code></td><td>회원가입, 로그인, 토큰 갱신, 로그아웃</td></tr>
           <tr><td><code>user</code></td><td><code>/api/v1/user</code></td><td>현재 사용자 조회, 프로필 변경, 비밀번호 변경, 계정 삭제</td></tr>
+          <tr><td><code>profiles</code></td><td><code>/api/v1/profiles</code></td><td>사용자의 다중 Profile 목록, 생성, 상세, 수정, 삭제</td></tr>
           <tr><td><code>portfolios</code></td><td><code>/api/v1/portfolios</code></td><td>Portfolio 목록, 생성, 상세, 수정, 삭제</td></tr>
           <tr><td><code>projects</code></td><td><code>/api/v1/projects</code></td><td>Project 목록, 생성, 상세, 수정, 삭제, 검색</td></tr>
           <tr><td><code>files</code></td><td><code>/api/v1/files</code></td><td>파일 업로드, 이미지 최적화, 썸네일 조회, 목록, 다운로드, 삭제</td></tr>
@@ -102,6 +103,11 @@
           <tr><td>POST</td><td><code>/api/v1/auth/refresh</code></td><td>refresh token</td><td>access token 재발급</td></tr>
           <tr><td>POST</td><td><code>/api/v1/auth/logout</code></td><td>필수</td><td>access/refresh token 폐기</td></tr>
           <tr><td>GET</td><td><code>/api/v1/user/me</code></td><td>필수</td><td>현재 사용자 정보</td></tr>
+          <tr><td>GET</td><td><code>/api/v1/profiles/</code></td><td>필수</td><td>로그인 사용자의 Profile 목록</td></tr>
+          <tr><td>POST</td><td><code>/api/v1/profiles/</code></td><td>필수</td><td>Profile 생성</td></tr>
+          <tr><td>GET</td><td><code>/api/v1/profiles/{profile_id}</code></td><td>필수</td><td>Profile 상세</td></tr>
+          <tr><td>PUT</td><td><code>/api/v1/profiles/{profile_id}</code></td><td>필수</td><td>Profile 수정</td></tr>
+          <tr><td>DELETE</td><td><code>/api/v1/profiles/{profile_id}</code></td><td>필수</td><td>Profile 삭제. 연결된 Portfolio가 있으면 정책에 따라 거절하거나 연결 해제 필요</td></tr>
           <tr><td>GET</td><td><code>/api/v1/portfolios/</code></td><td>필수</td><td>로그인 사용자의 Portfolio 목록</td></tr>
           <tr><td>POST</td><td><code>/api/v1/portfolios/</code></td><td>필수</td><td>Portfolio 생성</td></tr>
           <tr><td>GET</td><td><code>/api/v1/portfolios/{code}</code></td><td>필수</td><td>Portfolio 상세</td></tr>
@@ -132,7 +138,8 @@
         <thead><tr><th>모델</th><th>주요 필드</th><th>관계와 제약</th></tr></thead>
         <tbody>
           <tr><td><code>User</code></td><td><code>id</code>, <code>username</code>, <code>email</code>, <code>password_hash</code></td><td><code>username</code>, <code>email</code> unique. Portfolio, UploadFile과 1:N.</td></tr>
-          <tr><td><code>Portfolio</code></td><td><code>user_id</code>, <code>code</code>, <code>name</code>, <code>description</code>, <code>file_uuid</code>, <code>order</code>, <code>is_public</code></td><td>사용자별 <code>code</code> unique. Project와 1:N.</td></tr>
+          <tr><td><code>Profile</code></td><td><code>id</code>, <code>user_id</code>, <code>display_name</code>, <code>bio</code>, <code>avatar_file_uuid</code>, <code>links</code>, <code>is_default</code></td><td>User와 1:N. Portfolio에 연결되어 공개 작성자 정보로 사용됩니다.</td></tr>
+          <tr><td><code>Portfolio</code></td><td><code>user_id</code>, <code>profile_id</code>, <code>code</code>, <code>name</code>, <code>description</code>, <code>file_uuid</code>, <code>order</code>, <code>is_public</code></td><td>사용자별 <code>code</code> unique. Profile과 N:1, Project와 1:N.</td></tr>
           <tr><td><code>Project</code></td><td><code>portfolio_id</code>, <code>code</code>, <code>title</code>, <code>summary</code>, <code>tags</code>, <code>tech_stack</code>, <code>screenshots</code>, <code>links</code></td><td>Portfolio별 <code>code</code> unique. JSON 필드로 태그, 기술 스택, 링크 등을 저장합니다.</td></tr>
           <tr><td><code>UploadFile</code></td><td><code>uuid</code>, <code>user_id</code>, <code>stored_filename</code>, <code>file_size</code>, <code>upload_path</code></td><td>사용자별 파일 소유권 검증에 사용됩니다.</td></tr>
           <tr><td><code>CorsOrigin</code></td><td><code>server_code</code>, <code>origin</code></td><td>DB 기반 CORS 허용 origin 목록입니다.</td></tr>

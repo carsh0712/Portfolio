@@ -34,6 +34,7 @@
         <thead><tr><th>개념</th><th>정의</th><th>대표 코드</th></tr></thead>
         <tbody>
           <tr><td>User</td><td>로그인 주체입니다. username, email, password hash를 가지며 Portfolio와 업로드 파일을 소유합니다.</td><td><code>User</code>, <code>AuthUser</code></td></tr>
+          <tr><td>Profile</td><td>공개 페이지에 보여 줄 이름, 소개, 대표 이미지, 링크, 연락 채널을 담는 자기소개 단위입니다. 한 User는 여러 Profile을 만들 수 있습니다.</td><td><code>Profile</code>, <code>Portfolio.profile_id</code></td></tr>
           <tr><td>Portfolio</td><td>Project를 묶는 상위 단위입니다. 클라이언트와 서버 모두 Portfolio 용어를 사용합니다.</td><td><code>Portfolio</code>, <code>PortfolioForm</code>, <code>getPortfolios</code></td></tr>
           <tr><td>Project</td><td>Portfolio 안에 포함되는 실제 작업물입니다. 설명, 기술 스택, 태그, 링크, 스크린샷을 가집니다.</td><td><code>Project</code>, <code>ProjectDetailResponse</code>, <code>ProjectCard</code></td></tr>
           <tr><td>UploadFile</td><td>대표 이미지, 썸네일, 스크린샷 등에 쓰이는 업로드 파일 메타데이터입니다.</td><td><code>UploadFile</code>, <code>uploadImage</code></td></tr>
@@ -77,6 +78,15 @@
         <li><code>/portfolio/:portfolioCode</code>에서 해당 Portfolio의 Project 목록을 봅니다.</li>
         <li>Project 상세 라우트는 <code>:projectCode</code>를 사용합니다. 실제 값은 Project id가 아니라 code입니다.</li>
         <li>목록 검색은 태그 입력과 선택 태그를 기반으로 서버의 <code>search</code> query parameter를 활용합니다.</li>
+      </ol>
+
+      <h3>다중 프로필 관리와 Portfolio 적용</h3>
+      <ol>
+        <li>사용자는 프로필 관리 화면에서 여러 Profile을 생성, 수정, 삭제할 수 있습니다.</li>
+        <li>Profile은 표시 이름, 한 줄 소개, 상세 소개, 대표 이미지, 외부 링크, 연락 채널처럼 공개 페이지에 노출될 자기소개 정보를 가집니다.</li>
+        <li>Portfolio 생성 또는 수정 시 사용자는 자신의 Profile 중 하나를 선택해 연결합니다.</li>
+        <li>Portfolio 하나에는 Profile 하나만 연결합니다. 연결하지 않으면 사용자 기본 정보 또는 기본 Profile을 fallback으로 사용할 수 있습니다.</li>
+        <li>공개 Portfolio 페이지는 연결된 Profile을 기준으로 작성자 영역, 공유 미리보기, 연락 링크를 표시합니다.</li>
       </ol>
 
       <h3>공개 페이지</h3>
