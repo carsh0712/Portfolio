@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>이미지 업로드 정책 - Portfolio 프로젝트</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <header>
+    <div class="inner">
+      <h1>이미지 업로드 정책</h1>
+      <p class="lead">포트폴리오 이미지와 프로젝트 스크린샷 업로드 기준을 운영자가 빠르게 확인할 수 있도록 정리한 문서입니다.</p>
+      <div class="meta">
+        <span class="pill">업데이트: 2026-07-07</span>
+        <span class="pill">원본 문서: docs/upload-policy.md</span>
+      </div>
+    </div>
+  </header>
+
+  <nav aria-label="문서 메뉴">
+    <div class="inner">
+      <a href="../index.html">요약</a>
+      <a href="common.html">공통 정보</a>
+      <a href="client.html">클라이언트</a>
+      <a href="server.html">서버</a>
+      <a href="upload-policy.html">업로드 정책</a>
+      <a href="improvements.html">개선 상태</a>
+      <a href="note.html">Note</a>
+    </div>
+  </nav>
+
+  <main>
+    <section>
+      <div class="section-kicker">Summary</div>
+      <h2>운영 기준 요약</h2>
+      <div class="grid three">
+        <div class="box">
+          <h3>허용 이미지</h3>
+          <p><code>jpg</code>, <code>jpeg</code>, <code>png</code>, <code>webp</code>만 허용합니다.</p>
+          <p class="muted">MIME 기준은 <code>image/jpeg</code>, <code>image/png</code>, <code>image/webp</code>입니다.</p>
+        </div>
+        <div class="box">
+          <h3>차단 이미지</h3>
+          <p><code>gif</code>는 업로드할 수 없습니다.</p>
+          <p class="muted">GIF는 리사이즈 및 WebP 변환 대상이 아니므로 운영 정책상 차단합니다.</p>
+        </div>
+        <div class="box">
+          <h3>최대 크기</h3>
+          <p><code>MAX_FILE_SIZE=10485760</code></p>
+          <p class="muted">기본 운영 기준은 10 MB입니다.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-kicker">Formats</div>
+      <h2>허용 형식</h2>
+      <table>
+        <thead><tr><th>구분</th><th>허용 값</th></tr></thead>
+        <tbody>
+          <tr><td>확장자</td><td><code>jpg</code>, <code>jpeg</code>, <code>png</code>, <code>webp</code></td></tr>
+          <tr><td>MIME 타입</td><td><code>image/jpeg</code>, <code>image/png</code>, <code>image/webp</code></td></tr>
+          <tr><td>차단</td><td><code>gif</code>, <code>image/gif</code></td></tr>
+        </tbody>
+      </table>
+      <div class="warning">
+        <strong>참고:</strong> 파일 업로드 API 자체는 문서와 압축 파일도 받을 수 있지만, 포트폴리오 이미지와 프로젝트 스크린샷 업로드 UI는 위 이미지 형식만 허용합니다.
+      </div>
+    </section>
+
+    <section>
+      <div class="section-kicker">Resize</div>
+      <h2>변환 및 리사이즈</h2>
+      <table>
+        <thead>
+          <tr><th>산출물</th><th>긴 변 제한</th><th>WebP 품질</th><th>파일명</th><th>용도</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>상세 이미지</td>
+            <td>2048 px 이하</td>
+            <td>82</td>
+            <td><code>{user_id}-{uuid}.webp</code></td>
+            <td>기본 조회, 상세 화면</td>
+          </tr>
+          <tr>
+            <td>썸네일</td>
+            <td>480 px 이하</td>
+            <td>78</td>
+            <td><code>{user_id}-{uuid}.thumb.webp</code></td>
+            <td><code>?variant=thumbnail</code>, 목록/미리보기</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>서버는 EXIF 방향 정보를 반영하고, Pillow WebP 저장 옵션 <code>method=6</code>을 사용합니다.</p>
+    </section>
+
+    <section>
+      <div class="section-kicker">Storage</div>
+      <h2>원본 보존 정책</h2>
+      <div class="ok">
+        <strong>운영 결정:</strong> 이미지 원본 바이너리는 별도로 보존하지 않습니다. 변환에 성공한 이미지는 상세 WebP와 썸네일 WebP만 저장합니다.
+      </div>
+      <ul>
+        <li>데이터베이스에는 사용자가 올린 원본 파일명인 <code>original_filename</code>을 메타데이터로 보존합니다.</li>
+        <li>다운로드 응답의 <code>download_name</code>은 원본 파일명을 사용합니다.</li>
+        <li>실제 저장 파일은 변환된 WebP 파일입니다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <div class="section-kicker">Failure</div>
+      <h2>실패 및 예외 기준</h2>
+      <ul>
+        <li>허용 확장자가 아니면 서버에서 <code>400</code> 응답으로 거절합니다.</li>
+        <li>GIF는 클라이언트 선택 단계와 업로드 요청 전에 차단하고, 서버에서도 허용하지 않습니다.</li>
+        <li><code>MAX_FILE_SIZE</code>를 초과하면 서버에서 <code>400</code> 응답으로 거절합니다.</li>
+        <li>썸네일 파일이 존재하면 <code>thumbnail</code> 변형으로 제공합니다.</li>
+        <li>파일 삭제 시 상세 파일과 썸네일 파일을 함께 삭제합니다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <div class="section-kicker">References</div>
+      <h2>관련 파일</h2>
+      <table>
+        <thead><tr><th>파일</th><th>역할</th></tr></thead>
+        <tbody>
+          <tr><td><code>docs/upload-policy.md</code></td><td>업로드 정책 원본 문서</td></tr>
+          <tr><td><code>portfolio_project_server_flask/routers/upload.py</code></td><td>서버 업로드 허용 확장자와 크기 제한</td></tr>
+          <tr><td><code>portfolio_project_server_flask/utils/image_processing.py</code></td><td>WebP 변환, 상세/썸네일 리사이즈 기준</td></tr>
+          <tr><td><code>portfolio_project_client_vite/src/utils/api.ts</code></td><td>클라이언트 이미지 업로드 허용 MIME 타입과 사전 검증</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

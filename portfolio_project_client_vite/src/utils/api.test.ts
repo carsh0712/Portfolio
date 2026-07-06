@@ -16,6 +16,8 @@ import {
   getPublicProjects,
   getPublicProjectDetail,
   getPublicFileUrl,
+  isAllowedUploadImage,
+  uploadImage,
   API_BASE_URL,
 } from './api';
 
@@ -363,6 +365,31 @@ describe('API 유틸리티', () => {
     it('공개 파일 URL을 올바르게 생성해야 한다', () => {
       const url = getPublicFileUrl('testuser', 'mock-uuid-123');
       expect(url).toBe(`${API_BASE_URL}/api/v1/public/testuser/file/mock-uuid-123`);
+    });
+  });
+
+  describe('uploadImage', () => {
+    it('JPG, PNG, WebP만 업로드 가능한 이미지로 허용해야 한다', () => {
+      expect(isAllowedUploadImage(new File(['jpg'], 'image.jpg', { type: 'image/jpeg' }))).toBe(
+        true
+      );
+      expect(isAllowedUploadImage(new File(['png'], 'image.png', { type: 'image/png' }))).toBe(
+        true
+      );
+      expect(isAllowedUploadImage(new File(['webp'], 'image.webp', { type: 'image/webp' }))).toBe(
+        true
+      );
+      expect(isAllowedUploadImage(new File(['gif'], 'animated.gif', { type: 'image/gif' }))).toBe(
+        false
+      );
+    });
+
+    it('GIF는 업로드 요청 전에 거절해야 한다', async () => {
+      const gif = new File(['gif'], 'animated.gif', { type: 'image/gif' });
+
+      await expect(uploadImage(gif)).rejects.toThrow(
+        'JPG, PNG, WebP 이미지만 업로드할 수 있습니다.'
+      );
     });
   });
 });

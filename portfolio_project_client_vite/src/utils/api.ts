@@ -216,7 +216,34 @@ export interface UploadFileResponse {
   created_at: string;
 }
 
+export const ALLOWED_IMAGE_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
+export const IMAGE_UPLOAD_ACCEPT = ALLOWED_IMAGE_MIME_TYPES.join(',');
+
+const ALLOWED_IMAGE_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'webp']);
+const IMAGE_UPLOAD_ERROR_MESSAGE =
+  'JPG, PNG, WebP 이미지만 업로드할 수 있습니다. GIF는 지원하지 않습니다.';
+
+function getFileExtension(filename: string): string {
+  return filename.includes('.') ? filename.split('.').pop()?.toLowerCase() ?? '' : '';
+}
+
+export function isAllowedUploadImage(file: File): boolean {
+  if (ALLOWED_IMAGE_MIME_TYPES.includes(file.type as (typeof ALLOWED_IMAGE_MIME_TYPES)[number])) {
+    return true;
+  }
+
+  if (file.type) {
+    return false;
+  }
+
+  return ALLOWED_IMAGE_EXTENSIONS.has(getFileExtension(file.name));
+}
+
 export async function uploadImage(file: File): Promise<UploadFileResponse> {
+  if (!isAllowedUploadImage(file)) {
+    throw new Error(IMAGE_UPLOAD_ERROR_MESSAGE);
+  }
+
   const formData = new FormData();
   formData.append('file', file);
 

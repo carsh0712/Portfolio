@@ -138,6 +138,15 @@ DB_SQL_ECHO=false
 VITE_API_BASE_URL=http://localhost:8000
 ```
 
+## 이미지 업로드 운영 정책
+
+포트폴리오 이미지와 프로젝트 스크린샷 업로드 정책은 [docs/upload-policy.md](docs/upload-policy.md)에 고정합니다.
+
+- 허용 이미지: `jpg`, `jpeg`, `png`, `webp`
+- 차단 이미지: `gif`
+- 최대 크기: `MAX_FILE_SIZE` 기본값 10 MB
+- 저장 방식: 상세 WebP와 썸네일 WebP를 저장하며 이미지 원본 바이너리는 별도 보존하지 않음
+
 운영 빌드를 Flask 서버와 같은 origin에서 제공할 경우 비워둘 수 있습니다.
 
 ```env

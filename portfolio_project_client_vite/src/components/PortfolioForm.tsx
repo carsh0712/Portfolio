@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { uploadImage } from '../utils/api';
+import { IMAGE_UPLOAD_ACCEPT, isAllowedUploadImage, uploadImage } from '../utils/api';
 import FormTextField from './FormTextField';
 import FormTextarea from './FormTextarea';
 import ImagePreviewCard from './ImagePreviewCard';
@@ -36,8 +36,8 @@ export default function PortfolioForm({ formData, onChange, showOrder }: Portfol
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      setUploadError('이미지 파일만 업로드할 수 있습니다.');
+    if (!isAllowedUploadImage(file)) {
+      setUploadError('JPG, PNG, WebP 이미지만 업로드할 수 있습니다. GIF는 지원하지 않습니다.');
       return;
     }
 
@@ -107,7 +107,7 @@ export default function PortfolioForm({ formData, onChange, showOrder }: Portfol
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
+              accept={IMAGE_UPLOAD_ACCEPT}
               onChange={handleFileUpload}
               className="hidden"
             />

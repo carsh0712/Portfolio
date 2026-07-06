@@ -16,7 +16,7 @@ bp = Blueprint("files", __name__)
 
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "./uploads")
 MAX_FILE_SIZE = int(os.getenv("MAX_FILE_SIZE", "10485760"))
-ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "gif", "webp", "pdf", "doc", "docx", "zip"}
+ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "webp", "pdf", "doc", "docx", "zip"}
 
 
 def _get_extension(filename: str) -> str:

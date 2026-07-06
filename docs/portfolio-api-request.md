@@ -13,6 +13,7 @@ POST /api/v1/files/upload
 ### Request
 
 - **Content-Type**: `multipart/form-data`
+- 이미지 업로드 운영 기준은 [upload-policy.md](upload-policy.md)를 따른다.
 
 | 필드 | 타입 | 필수 | 설명 |
 |------|------|------|------|

@@ -93,7 +93,7 @@ class TestUploadFile:
 
     def test_upload_various_extensions(self, client, tmp_path):
         """다양한 허용 확장자 테스트."""
-        for ext in ["jpg", "jpeg", "pdf", "docx", "zip", "webp", "gif"]:
+        for ext in ["jpg", "jpeg", "pdf", "docx", "zip", "webp"]:
             with patch("routers.upload.UPLOAD_DIR", str(tmp_path)):
                 response = client.post(
                     "/api/v1/files/upload",
@@ -101,6 +101,17 @@ class TestUploadFile:
                     content_type="multipart/form-data",
                 )
             assert response.status_code == 200, f"확장자 {ext} 업로드 실패"
+
+    def test_upload_gif_disallowed(self, client, tmp_path):
+        """리사이즈 대상이 아닌 GIF 업로드는 거절한다."""
+        with patch("routers.upload.UPLOAD_DIR", str(tmp_path)):
+            response = client.post(
+                "/api/v1/files/upload",
+                data=_file_data("animated.gif", b"gif content", "image/gif"),
+                content_type="multipart/form-data",
+            )
+        assert response.status_code == 400
+        assert "gif" not in response.get_json()["detail"].lower()
 
 
 class TestListFiles:

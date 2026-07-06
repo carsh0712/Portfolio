@@ -1,4 +1,5 @@
 import AuthImage from './AuthImage';
+import { IMAGE_UPLOAD_ACCEPT } from '../utils/api';
 import ImagePlaceholderIcon from './svg/ImagePlaceholderIcon';
 import StarIcon from './svg/StarIcon';
 import TrashIcon from './svg/TrashIcon';
@@ -73,7 +74,7 @@ export default function ScreenshotCard({
           <label className="block text-xs font-medium text-gray-700 mb-1">이미지 파일 *</label>
           <input
             type="file"
-            accept="image/*"
+            accept={IMAGE_UPLOAD_ACCEPT}
             onChange={(event) => {
               const file = event.target.files?.[0];
               if (file) onFileChange(file);
