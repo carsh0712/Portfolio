@@ -335,11 +335,6 @@ export default function ProfileList() {
                       {profile.email && (
                         <p className="text-sm text-blue-600 mt-1">{profile.email}</p>
                       )}
-                      {profile.bio && (
-                        <p className="text-sm text-gray-500 mt-2 whitespace-pre-wrap">
-                          {profile.bio}
-                        </p>
-                      )}
                       {profile.links.length > 0 && (
                         <div className="flex flex-wrap gap-2 mt-3">
                           {profile.links.map((link, index) => (
