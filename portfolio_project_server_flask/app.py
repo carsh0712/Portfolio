@@ -2,6 +2,7 @@ import sys
 import logging
 import traceback
 import os
+from html import escape
 from pathlib import Path
 
 logging.basicConfig(level=logging.INFO, format="[%(asctime)s] [%(levelname)s] %(message)s")
@@ -10,7 +11,7 @@ _boot_logger.info("=== 서버 시작 ===")
 
 try:
     _boot_logger.info("Flask 모듈 로딩...")
-    from flask import Flask, g, jsonify, redirect, send_from_directory
+    from flask import Flask, g, jsonify, redirect, request, send_from_directory, url_for
     from sqlalchemy import text
     _boot_logger.info("Flask 모듈 로딩 완료")
 
@@ -45,6 +46,60 @@ def get_client_dist_dir() -> Path:
 
 
 CLIENT_DIST_DIR = get_client_dist_dir()
+
+
+def _read_client_index() -> str | None:
+    index_path = CLIENT_DIST_DIR / "index.html"
+    if not index_path.is_file():
+        return None
+    return index_path.read_text(encoding="utf-8")
+
+
+def _absolute_public_file_url(username: str, file_uuid: str, variant: str = "thumbnail") -> str:
+    return url_for(
+        "public.get_public_file",
+        username=username,
+        file_uuid=file_uuid,
+        variant=variant,
+        _external=True,
+    )
+
+
+def _inject_share_meta(index_html: str, *, title: str, description: str, image_url: str | None) -> str:
+    page_url = request.url
+    safe_title = escape(title, quote=True)
+    safe_description = escape(description, quote=True)
+    safe_url = escape(page_url, quote=True)
+    safe_image = escape(image_url, quote=True) if image_url else ""
+
+    meta_tags = [
+        f"<title>{safe_title}</title>",
+        f'<link rel="canonical" href="{safe_url}" />',
+        f'<meta name="description" content="{safe_description}" />',
+        f'<meta property="og:title" content="{safe_title}" />',
+        f'<meta property="og:description" content="{safe_description}" />',
+        f'<meta property="og:url" content="{safe_url}" />',
+        '<meta property="og:type" content="website" />',
+        f'<meta name="twitter:title" content="{safe_title}" />',
+        f'<meta name="twitter:description" content="{safe_description}" />',
+        '<meta name="twitter:card" content="summary_large_image" />',
+    ]
+    if safe_image:
+        meta_tags.extend([
+            f'<meta property="og:image" content="{safe_image}" />',
+            f'<meta name="twitter:image" content="{safe_image}" />',
+        ])
+
+    rendered = index_html
+    title_start = rendered.lower().find("<title>")
+    title_end = rendered.lower().find("</title>")
+    if title_start != -1 and title_end != -1 and title_start < title_end:
+        rendered = rendered[:title_start] + rendered[title_end + len("</title>"):]
+
+    meta_html = "\n    " + "\n    ".join(meta_tags) + "\n"
+    if "</head>" in rendered:
+        return rendered.replace("</head>", f"{meta_html}</head>", 1)
+    return meta_html + rendered
 
 
 def is_manual_public() -> bool:
@@ -463,6 +518,107 @@ def create_app():
             return send_from_directory(MANUAL_DIR, path)
 
         return jsonify({"detail": "Not Found"}), 404
+
+    def _serve_client_index_with_meta(title: str | None = None, description: str | None = None, image_url: str | None = None):
+        index_html = _read_client_index()
+        if index_html is None:
+            return jsonify({"detail": "Not Found"}), 404
+
+        if title is None:
+            return send_from_directory(CLIENT_DIST_DIR, "index.html")
+
+        rendered = _inject_share_meta(
+            index_html,
+            title=title,
+            description=description or title,
+            image_url=image_url,
+        )
+        return app.response_class(rendered, mimetype="text/html")
+
+    def _get_public_portfolio_for_share(username: str, portfolio_code: str):
+        from models import Portfolio, User
+
+        user = g.db.query(User).filter(User.username == username).first()
+        if user is None:
+            return None, None
+
+        portfolio = (
+            g.db.query(Portfolio)
+            .filter(
+                Portfolio.user_id == user.id,
+                Portfolio.code == portfolio_code,
+                Portfolio.is_public == True,
+            )
+            .first()
+        )
+        return user, portfolio
+
+    def _get_first_public_project(portfolio_id: int):
+        from models import Project
+
+        return (
+            g.db.query(Project)
+            .filter(Project.portfolio_id == portfolio_id, Project.is_public == True)
+            .order_by(Project.order)
+            .first()
+        )
+
+    def _get_public_project_for_share(portfolio_id: int, project_code: str):
+        from models import Project
+
+        return (
+            g.db.query(Project)
+            .filter(
+                Project.portfolio_id == portfolio_id,
+                Project.code == project_code,
+                Project.is_public == True,
+            )
+            .first()
+        )
+
+    def _portfolio_share_image(username: str, portfolio) -> str | None:
+        if portfolio.file_uuid:
+            return _absolute_public_file_url(username, portfolio.file_uuid, "thumbnail")
+
+        project = _get_first_public_project(portfolio.id)
+        if project and project.thumbnail_file_uuid:
+            return _absolute_public_file_url(username, project.thumbnail_file_uuid, "thumbnail")
+
+        return None
+
+    @app.route("/public/<username>/<portfolio_code>", strict_slashes=False)
+    def serve_public_portfolio_app(username, portfolio_code):
+        user, portfolio = _get_public_portfolio_for_share(username, portfolio_code)
+        if user is None or portfolio is None:
+            return _serve_client_index_with_meta()
+
+        return _serve_client_index_with_meta(
+            title=portfolio.name,
+            description=portfolio.description,
+            image_url=_portfolio_share_image(username, portfolio),
+        )
+
+    @app.route("/public/<username>/<portfolio_code>/<project_code>", strict_slashes=False)
+    def serve_public_project_app(username, portfolio_code, project_code):
+        user, portfolio = _get_public_portfolio_for_share(username, portfolio_code)
+        if user is None or portfolio is None:
+            return _serve_client_index_with_meta()
+
+        project = _get_public_project_for_share(portfolio.id, project_code)
+        if project is None:
+            return _serve_client_index_with_meta()
+
+        image_url = (
+            _absolute_public_file_url(username, project.thumbnail_file_uuid, "thumbnail")
+            if project.thumbnail_file_uuid
+            else _portfolio_share_image(username, portfolio)
+        )
+
+        return _serve_client_index_with_meta(
+            title=project.title,
+            description=project.summary or portfolio.description,
+            image_url=image_url,
+        )
 
     @app.route("/<path:path>")
     def serve_client_app(path):
