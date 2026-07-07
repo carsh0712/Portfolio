@@ -1,5 +1,24 @@
+-- ============================================
+-- Migration: add profile schema and portfolio profile link
+-- Created: 2026-07-07
+--
+-- Source of truth:
+--   - portfolio_project_server_flask/models.py
+--
+-- Compared against MCP MySQL database `portfolio` on 2026-07-07:
+--   - Missing table: profile
+--   - Missing column: portfolio.profile_id
+--   - Missing FK: portfolio.profile_id -> profile.id ON DELETE SET NULL
+--
+-- Notes:
+--   - Idempotent for partially migrated databases.
+--   - Run against the selected portfolio database.
+-- ============================================
+
+SET NAMES utf8mb4;
+
 CREATE TABLE IF NOT EXISTS profile (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id INT NOT NULL AUTO_INCREMENT,
     user_id INT NOT NULL,
     display_name VARCHAR(100) NOT NULL,
     email VARCHAR(255) NULL,
@@ -8,107 +27,163 @@ CREATE TABLE IF NOT EXISTS profile (
     avatar_file_uuid VARCHAR(32) NULL,
     links JSON NOT NULL,
     extra_fields JSON NOT NULL,
-    is_default BOOLEAN NOT NULL DEFAULT FALSE,
-    created_at TIMESTAMP NULL,
-    updated_at TIMESTAMP NULL,
+    is_default TINYINT(1) NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NULL DEFAULT NULL,
+    updated_at TIMESTAMP NULL DEFAULT NULL,
+    PRIMARY KEY (id),
     KEY idx_profile_user (user_id),
     KEY idx_profile_default (user_id, is_default),
+    KEY avatar_file_uuid (avatar_file_uuid),
     CONSTRAINT profile_ibfk_1
-        FOREIGN KEY (user_id) REFERENCES user (id)
+        FOREIGN KEY (user_id) REFERENCES `user` (id)
         ON DELETE CASCADE,
     CONSTRAINT profile_ibfk_2
         FOREIGN KEY (avatar_file_uuid) REFERENCES upload_file (uuid)
         ON DELETE SET NULL
-) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-SET @profile_email_column_exists := (
-    SELECT COUNT(*)
-    FROM information_schema.columns
-    WHERE table_schema = DATABASE()
-      AND table_name = 'profile'
-      AND column_name = 'email'
-);
+DROP PROCEDURE IF EXISTS sync_profile_schema_20260707;
 
-SET @profile_email_sql := IF(
-    @profile_email_column_exists = 0,
-    'ALTER TABLE profile ADD COLUMN email VARCHAR(255) NULL AFTER display_name',
-    'SELECT 1'
-);
-PREPARE stmt FROM @profile_email_sql;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
+DELIMITER $$
 
-SET @profile_extra_fields_column_exists := (
-    SELECT COUNT(*)
-    FROM information_schema.columns
-    WHERE table_schema = DATABASE()
-      AND table_name = 'profile'
-      AND column_name = 'extra_fields'
-);
+CREATE PROCEDURE sync_profile_schema_20260707()
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = DATABASE()
+          AND table_name = 'profile'
+          AND column_name = 'email'
+    ) THEN
+        ALTER TABLE profile
+            ADD COLUMN email VARCHAR(255) NULL AFTER display_name;
+    END IF;
 
-SET @profile_extra_fields_sql := IF(
-    @profile_extra_fields_column_exists = 0,
-    'ALTER TABLE profile ADD COLUMN extra_fields JSON NULL AFTER links',
-    'SELECT 1'
-);
-PREPARE stmt FROM @profile_extra_fields_sql;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = DATABASE()
+          AND table_name = 'profile'
+          AND column_name = 'extra_fields'
+    ) THEN
+        ALTER TABLE profile
+            ADD COLUMN extra_fields JSON NULL AFTER links;
+    END IF;
 
-UPDATE profile
-SET extra_fields = JSON_ARRAY()
-WHERE extra_fields IS NULL;
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = DATABASE()
+          AND table_name = 'profile'
+          AND column_name = 'links'
+          AND is_nullable = 'YES'
+    ) THEN
+        UPDATE profile SET links = JSON_ARRAY() WHERE links IS NULL;
+        ALTER TABLE profile
+            MODIFY COLUMN links JSON NOT NULL;
+    END IF;
 
-ALTER TABLE profile MODIFY COLUMN extra_fields JSON NOT NULL;
+    UPDATE profile SET extra_fields = JSON_ARRAY() WHERE extra_fields IS NULL;
 
-SET @portfolio_profile_column_exists := (
-    SELECT COUNT(*)
-    FROM information_schema.columns
-    WHERE table_schema = DATABASE()
-      AND table_name = 'portfolio'
-      AND column_name = 'profile_id'
-);
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = DATABASE()
+          AND table_name = 'profile'
+          AND column_name = 'extra_fields'
+          AND is_nullable = 'YES'
+    ) THEN
+        ALTER TABLE profile
+            MODIFY COLUMN extra_fields JSON NOT NULL;
+    END IF;
 
-SET @portfolio_profile_sql := IF(
-    @portfolio_profile_column_exists = 0,
-    'ALTER TABLE portfolio ADD COLUMN profile_id INT NULL AFTER user_id',
-    'SELECT 1'
-);
-PREPARE stmt FROM @portfolio_profile_sql;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.statistics
+        WHERE table_schema = DATABASE()
+          AND table_name = 'profile'
+          AND index_name = 'idx_profile_user'
+    ) THEN
+        CREATE INDEX idx_profile_user ON profile (user_id);
+    END IF;
 
-SET @portfolio_profile_index_exists := (
-    SELECT COUNT(*)
-    FROM information_schema.statistics
-    WHERE table_schema = DATABASE()
-      AND table_name = 'portfolio'
-      AND index_name = 'idx_portfolio_profile'
-);
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.statistics
+        WHERE table_schema = DATABASE()
+          AND table_name = 'profile'
+          AND index_name = 'idx_profile_default'
+    ) THEN
+        CREATE INDEX idx_profile_default ON profile (user_id, is_default);
+    END IF;
 
-SET @portfolio_profile_index_sql := IF(
-    @portfolio_profile_index_exists = 0,
-    'CREATE INDEX idx_portfolio_profile ON portfolio (profile_id)',
-    'SELECT 1'
-);
-PREPARE stmt FROM @portfolio_profile_index_sql;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.statistics
+        WHERE table_schema = DATABASE()
+          AND table_name = 'profile'
+          AND index_name = 'avatar_file_uuid'
+    ) THEN
+        CREATE INDEX avatar_file_uuid ON profile (avatar_file_uuid);
+    END IF;
 
-SET @portfolio_profile_fk_exists := (
-    SELECT COUNT(*)
-    FROM information_schema.table_constraints
-    WHERE table_schema = DATABASE()
-      AND table_name = 'portfolio'
-      AND constraint_name = 'portfolio_profile_fk'
-      AND constraint_type = 'FOREIGN KEY'
-);
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.key_column_usage
+        WHERE constraint_schema = DATABASE()
+          AND table_name = 'profile'
+          AND column_name = 'user_id'
+          AND referenced_table_name = 'user'
+          AND referenced_column_name = 'id'
+    ) THEN
+        ALTER TABLE profile
+            ADD CONSTRAINT profile_ibfk_1
+            FOREIGN KEY (user_id) REFERENCES `user` (id)
+            ON DELETE CASCADE;
+    END IF;
 
-SET @portfolio_profile_fk_sql := IF(
-    @portfolio_profile_fk_exists = 0,
-    'ALTER TABLE portfolio ADD CONSTRAINT portfolio_profile_fk FOREIGN KEY (profile_id) REFERENCES profile (id) ON DELETE SET NULL',
-    'SELECT 1'
-);
-PREPARE stmt FROM @portfolio_profile_fk_sql;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.key_column_usage
+        WHERE constraint_schema = DATABASE()
+          AND table_name = 'profile'
+          AND column_name = 'avatar_file_uuid'
+          AND referenced_table_name = 'upload_file'
+          AND referenced_column_name = 'uuid'
+    ) THEN
+        ALTER TABLE profile
+            ADD CONSTRAINT profile_ibfk_2
+            FOREIGN KEY (avatar_file_uuid) REFERENCES upload_file (uuid)
+            ON DELETE SET NULL;
+    END IF;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = DATABASE()
+          AND table_name = 'portfolio'
+          AND column_name = 'profile_id'
+    ) THEN
+        ALTER TABLE portfolio
+            ADD COLUMN profile_id INT NULL AFTER user_id;
+    END IF;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.statistics
+        WHERE table_schema = DATABASE()
+          AND table_name = 'portfolio'
+          AND index_name = 'idx_portfolio_profile'
+    ) THEN
+        CREATE INDEX idx_portfolio_profile ON portfolio (profile_id);
+    END IF;
+
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.key_column_usage
+        WHERE constraint_schema = DATABASE()
+          AND table_name = 'portfolio'
+          AND column_name = 'profile_id'
+          AND referenced_table_name = 'profile'
+          AND referenced_column_name = 'id'
+    ) THEN
+        ALTER TABLE portfolio
+            ADD CONSTRAINT portfolio_profile_fk
+            FOREIGN KEY (profile_id) REFERENCES profile (id)
+            ON DELETE SET NULL;
+    END IF;
+END$$
+
+DELIMITER ;
+
+CALL sync_profile_schema_20260707();
+
+DROP PROCEDURE sync_profile_schema_20260707;
