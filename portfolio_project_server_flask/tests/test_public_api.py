@@ -282,11 +282,39 @@ class TestGetPublicPortfolioProfile:
 
         assert resp.status_code == 200
         data = resp.get_json()
-        assert data["display_name"] == "Public Name"
+        assert "display_name" not in data
         assert data["email"] == "public@example.com"
         assert data["headline"] == "Public headline"
         assert data["extra_fields"][0]["key"] == "role"
         assert len(data["extra_fields"]) == 1
+
+    def test_uses_user_email_when_profile_email_is_empty(self, auth_client, db_session, test_user):
+        profile = Profile(
+            user_id=test_user.id,
+            display_name="Public Name",
+            email=None,
+            headline="Public headline",
+            links=[],
+            extra_fields=[],
+            is_default=True,
+        )
+        db_session.add(profile)
+        db_session.flush()
+        portfolio = Portfolio(
+            user_id=test_user.id,
+            profile_id=profile.id,
+            code="PEMPTY",
+            name="Profile Portfolio",
+            description="D",
+            is_public=True,
+        )
+        db_session.add(portfolio)
+        db_session.commit()
+
+        resp = auth_client.get(f"/api/v1/public/{test_user.username}/PEMPTY/profile")
+
+        assert resp.status_code == 200
+        assert resp.get_json()["email"] == test_user.email
 
     def test_returns_none_without_profile(self, auth_client, db_session, test_user):
         db_session.add(Portfolio(

@@ -197,8 +197,7 @@ def get_public_portfolio_profile(username, portfolio_code):
 
     return jsonify({
         "id": profile.id,
-        "display_name": profile.display_name,
-        "email": profile.email,
+        "email": profile.email or user.email,
         "headline": profile.headline,
         "bio": profile.bio,
         "avatar_file_uuid": profile.avatar_file_uuid,

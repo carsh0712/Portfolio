@@ -287,10 +287,10 @@ export default function ProfileList() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-12">
+    <div className="max-w-7xl mx-auto px-4 py-12">
       <BackLink to="/home" label="홈으로 돌아가기" />
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_440px] gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,420px)_minmax(0,1fr)] gap-6">
         <PageCard>
           <h1 className="text-2xl font-bold text-gray-900 mb-6">프로필 관리</h1>
           <FormError message={error} />
@@ -302,18 +302,20 @@ export default function ProfileList() {
               profiles.map((profile) => (
                 <div
                   key={profile.id}
-                  className="border border-gray-200 rounded-lg p-4 flex items-start justify-between gap-4"
+                  className="border border-gray-200 rounded-lg p-4 space-y-3"
                 >
                   <div className="min-w-0 flex gap-3">
-                    {profile.avatar_file_uuid && (
+                    {profile.avatar_file_uuid ? (
                       <ProfileAvatar
                         fileUuid={profile.avatar_file_uuid}
                         alt={`${profile.display_name} 아바타`}
                       />
+                    ) : (
+                      <div className="w-16 h-16 rounded-full bg-gray-100 shrink-0" aria-hidden="true" />
                     )}
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h2 className="text-lg font-semibold text-gray-900">
+                        <h2 className="text-lg font-semibold text-gray-900 truncate">
                           {profile.display_name}
                         </h2>
                         {profile.is_default && (
@@ -344,7 +346,7 @@ export default function ProfileList() {
                         </p>
                       )}
                       {(profile.extra_fields?.length ?? 0) > 0 && (
-                        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-3">
+                        <dl className="grid grid-cols-1 gap-2 mt-3">
                           {profile.extra_fields.slice(0, 4).map((field) => (
                             <div
                               key={`${field.key}-${field.order}`}
@@ -374,7 +376,7 @@ export default function ProfileList() {
                       )}
                     </div>
                   </div>
-                  <div className="flex gap-2 shrink-0">
+                  <div className="flex justify-end gap-2 border-t border-gray-100 pt-3">
                     <button
                       type="button"
                       onClick={() => handleEdit(profile)}
@@ -518,7 +520,7 @@ export default function ProfileList() {
                 </div>
                 <div className="space-y-4">
                   {form.extraFields.map((field, index) => (
-                    <div key={`${field.key}-${index}`} className="border border-gray-200 rounded-lg p-4 bg-white">
+                    <div key={`extra-field-${index}`} className="border border-gray-200 rounded-lg p-4 bg-white">
                       <div className="flex items-center justify-between mb-3">
                         <h4 className="text-sm font-semibold text-gray-900">항목 #{index + 1}</h4>
                         <button

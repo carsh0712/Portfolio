@@ -10,6 +10,7 @@ interface ActionCardProps {
 export default function ActionCard({ icon, title, description, onClick }: ActionCardProps) {
   return (
     <button
+      type="button"
       onClick={onClick}
       className="group block bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 border-2 border-dashed border-gray-300 hover:border-blue-500"
     >

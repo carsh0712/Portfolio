@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import PageState from '../components/PageState';
 import ProjectCard from '../components/ProjectCard';
 import ProjectFilterBar from '../components/ProjectFilterBar';
+import ClipboardIcon from '../components/svg/ClipboardIcon';
 import { useProjectFilters } from '../hooks/useProjectFilters';
 import type { PublicPortfolio } from '../types/portfolio';
 import type { Project } from '../types/project';
@@ -26,7 +27,9 @@ export default function PublicPortfolioList() {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isEmailCopied, setIsEmailCopied] = useState(false);
   const filters = useProjectFilters(projects);
+  const publicEmail = profile?.email?.trim();
   const publicExtraFields = (profile?.extra_fields ?? [])
     .filter((field) => field.is_public && field.label && field.value)
     .sort((a, b) => a.order - b.order);
@@ -59,6 +62,19 @@ export default function PublicPortfolioList() {
 
     fetchData();
   }, [username, portfolioCode]);
+
+  const handleCopyEmail = async () => {
+    if (!publicEmail) return;
+
+    try {
+      await navigator.clipboard.writeText(publicEmail);
+      setIsEmailCopied(true);
+      window.setTimeout(() => setIsEmailCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy email:', err);
+      alert('이메일 복사에 실패했습니다.');
+    }
+  };
 
   if (isLoading) {
     return <PageState loading message="프로젝트를 불러오는 중..." />;
@@ -104,10 +120,12 @@ export default function PublicPortfolioList() {
               )}
               <span>
                 <span className="block text-sm font-semibold text-gray-900">프로필 보기</span>
-                <span className="block text-xs text-gray-500">
-                  {profile.display_name}
-                  {profile.headline ? ` · ${profile.headline}` : ''}
-                </span>
+                {profile.headline && (
+                  <span className="block text-xs text-gray-500">{profile.headline}</span>
+                )}
+                {publicEmail && (
+                  <span className="block text-xs text-blue-600">{publicEmail}</span>
+                )}
               </span>
             </button>
           </div>
@@ -123,19 +141,42 @@ export default function PublicPortfolioList() {
               {profile.avatar_file_uuid && (
                 <img
                   src={getPublicFileUrl(publicUsername, profile.avatar_file_uuid, 'thumbnail')}
-                  alt={profile.display_name}
+                  alt=""
                   className="w-24 h-24 rounded-full object-cover mx-auto mb-4 border border-gray-200"
                 />
               )}
-              <h2 className="text-2xl font-bold text-gray-900">{profile.display_name}</h2>
-              {profile.headline && <p className="text-gray-600 mt-1">{profile.headline}</p>}
+              {profile.headline && (
+                <p className="text-lg font-semibold text-gray-900">{profile.headline}</p>
+              )}
+              {publicEmail && (
+                <div className="mt-2 inline-flex items-center gap-2">
+                  <a
+                    href={`mailto:${publicEmail}`}
+                    className="text-sm font-medium text-blue-600 hover:text-blue-800"
+                  >
+                    {publicEmail}
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => void handleCopyEmail()}
+                    className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
+                    title="이메일 복사"
+                    aria-label="이메일 복사"
+                  >
+                    <ClipboardIcon className="w-4 h-4" />
+                  </button>
+                  {isEmailCopied && (
+                    <span className="text-xs font-medium text-blue-600">복사됨</span>
+                  )}
+                </div>
+              )}
               {profile.bio && (
                 <p className="text-gray-600 max-w-2xl mx-auto mt-5 whitespace-pre-wrap text-left sm:text-center">
                   {profile.bio}
                 </p>
               )}
               {publicExtraFields.length > 0 && (
-                <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6 text-left">
+                <dl className="grid grid-cols-1 gap-3 mt-6 text-left">
                   {publicExtraFields.map((field) => (
                     <div
                       key={`${field.key}-${field.order}`}
@@ -161,14 +202,6 @@ export default function PublicPortfolioList() {
                 </dl>
               )}
               <div className="flex flex-wrap justify-center gap-2 mt-6">
-                {profile.email && (
-                  <a
-                    href={`mailto:${profile.email}`}
-                    className="px-3 py-1.5 text-sm font-medium rounded-lg border border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100"
-                  >
-                    e-mail
-                  </a>
-                )}
                 {profile.links?.map((link) => (
                   <a
                     key={`${link.name}-${link.url}`}

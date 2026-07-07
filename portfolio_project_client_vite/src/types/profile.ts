@@ -47,7 +47,6 @@ export interface ProfileRequest {
 
 export interface PublicProfile {
   id: number;
-  display_name: string;
   email?: string | null;
   headline?: string | null;
   bio?: string | null;
