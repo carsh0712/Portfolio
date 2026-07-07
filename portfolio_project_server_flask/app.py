@@ -578,16 +578,19 @@ def create_app():
 
     def _portfolio_share_image(username: str, portfolio) -> str | None:
         if portfolio.file_uuid:
-            return _absolute_public_file_url(username, portfolio.file_uuid, "thumbnail")
+            return _absolute_public_file_url(username, portfolio.file_uuid, "detail")
 
         project = _get_first_public_project(portfolio.id)
         if project and project.thumbnail_file_uuid:
-            return _absolute_public_file_url(username, project.thumbnail_file_uuid, "thumbnail")
+            return _absolute_public_file_url(username, project.thumbnail_file_uuid, "detail")
 
         return None
 
     @app.route("/public/<username>/<portfolio_code>", strict_slashes=False)
     def serve_public_portfolio_app(username, portfolio_code):
+        if portfolio_code in {"file", "portfolio", "profile"}:
+            return _serve_client_index_with_meta()
+
         user, portfolio = _get_public_portfolio_for_share(username, portfolio_code)
         if user is None or portfolio is None:
             return _serve_client_index_with_meta()
@@ -600,6 +603,9 @@ def create_app():
 
     @app.route("/public/<username>/<portfolio_code>/<project_code>", strict_slashes=False)
     def serve_public_project_app(username, portfolio_code, project_code):
+        if portfolio_code in {"file", "portfolio", "profile"}:
+            return _serve_client_index_with_meta()
+
         user, portfolio = _get_public_portfolio_for_share(username, portfolio_code)
         if user is None or portfolio is None:
             return _serve_client_index_with_meta()
@@ -609,7 +615,7 @@ def create_app():
             return _serve_client_index_with_meta()
 
         image_url = (
-            _absolute_public_file_url(username, project.thumbnail_file_uuid, "thumbnail")
+            _absolute_public_file_url(username, project.thumbnail_file_uuid, "detail")
             if project.thumbnail_file_uuid
             else _portfolio_share_image(username, portfolio)
         )

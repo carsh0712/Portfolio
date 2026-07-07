@@ -10,7 +10,7 @@ def _create_dist(tmp_path):
     assets = dist / "assets"
     assets.mkdir(parents=True)
     (dist / "index.html").write_text(
-        '<!doctype html><html><head><script src="/assets/app.js"></script></head><body>Client</body></html>',
+        '<!doctype html><html><head><title>Default</title><script type="module" src="/assets/app.js"></script></head><body><div id="root"></div></body></html>',
         encoding="utf-8",
     )
     (dist / "red_potion.png").write_bytes(b"png")
@@ -44,7 +44,7 @@ def test_root_serves_built_client_when_dist_exists(monkeypatch, tmp_path):
 
     assert response.status_code == 200
     assert response.content_type.startswith("text/html")
-    assert b"Client" in response.data
+    assert b'<div id="root"></div>' in response.data
 
 
 def test_client_dist_dir_can_be_overridden_by_env(monkeypatch, tmp_path):
@@ -132,9 +132,11 @@ def test_public_portfolio_route_injects_open_graph_meta(monkeypatch, tmp_path, d
     html = response.get_data(as_text=True)
     assert response.status_code == 200
     assert response.content_type.startswith("text/html")
+    assert '<script type="module" src="/assets/app.js"></script>' in html
+    assert '<div id="root"></div>' in html
     assert '<meta property="og:title" content="공유 포트폴리오" />' in html
     assert '<meta property="og:description" content="카카오톡 미리보기 설명" />' in html
-    assert f"/api/v1/public/{test_user.username}/file/{db_file.uuid}?variant=thumbnail" in html
+    assert f"/api/v1/public/{test_user.username}/file/{db_file.uuid}" in html
 
 
 def test_public_project_route_injects_project_open_graph_meta(monkeypatch, tmp_path, db_session, test_user):
@@ -175,6 +177,8 @@ def test_public_project_route_injects_project_open_graph_meta(monkeypatch, tmp_p
 
     html = response.get_data(as_text=True)
     assert response.status_code == 200
+    assert '<script type="module" src="/assets/app.js"></script>' in html
+    assert '<div id="root"></div>' in html
     assert '<meta property="og:title" content="대표 프로젝트" />' in html
     assert '<meta property="og:description" content="프로젝트 미리보기 설명" />' in html
 
