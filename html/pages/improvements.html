@@ -12,7 +12,7 @@
       <h1>개선 항목</h1>
       <p class="lead">현재 코드에 반영된 개선과 앞으로 확인하면 좋은 항목을 기능, 운영, 보안 관점으로 정리합니다.</p>
       <div class="meta">
-        <span class="pill">업데이트: 2026-06-22</span>
+        <span class="pill">업데이트: 2026-07-07</span>
         <span class="pill">Client: React + Vite</span>
         <span class="pill">Server: Flask</span>
       </div>
@@ -25,6 +25,7 @@
       <a href="common.html">공통 정보</a>
       <a href="client.html">클라이언트</a>
       <a href="server.html">서버</a>
+      <a href="seo.html">SEO</a>
       <a href="upload-policy.html">업로드 정책</a>
       <a href="profile-plan.html">프로필 기획</a>
       <a href="improvements.html">개선 항목</a>
@@ -115,6 +116,16 @@
             <li>프론트 테스트와 빌드 검증을 통과했습니다.</li>
           </ul>
         </div>
+
+        <div class="box">
+          <h3>공개 페이지 SEO와 공유 미리보기</h3>
+          <ul>
+            <li>공개 Portfolio와 Project URL에 서버 사이드 HTML 메타 주입을 추가했습니다.</li>
+            <li><code>title</code>, <code>description</code>, <code>canonical</code>, Open Graph, Twitter card를 페이지별 데이터로 구성합니다.</li>
+            <li>카카오톡 같은 공유 봇이 JavaScript 실행 전 HTML만 읽어도 제목, 설명, 대표 이미지를 인식할 수 있게 했습니다.</li>
+            <li>기본 Vite <code>index.html</code>에도 fallback SEO 메타를 추가했습니다.</li>
+          </ul>
+        </div>
       </div>
     </section>
 
@@ -144,11 +155,6 @@
             <td><span class="tag red">높음</span></td>
             <td>사용자 노출 문구의 깨진 한글 복구</td>
             <td>페이지 품질과 오류 메시지 가독성을 바로 개선합니다.</td>
-          </tr>
-          <tr>
-            <td><span class="tag amber">중간</span></td>
-            <td>SEO 정책 수립</td>
-            <td>공개 Portfolio/Project 페이지의 title, description, canonical, Open Graph, robots, sitemap 기준을 정해 검색 노출과 공유 미리보기 품질을 안정화합니다.</td>
           </tr>
           <tr>
             <td><span class="tag amber">중간</span></td>

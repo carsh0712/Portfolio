@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SEO와 공유 미리보기 - Portfolio 프로젝트</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <header>
+    <div class="inner">
+      <h1>SEO와 공유 미리보기</h1>
+      <p class="lead">공개 Portfolio와 Project URL이 검색엔진과 카카오톡 같은 메신저에서 더 잘 읽히도록 적용한 HTML 메타 처리 기준입니다.</p>
+      <div class="meta">
+        <span class="pill">업데이트: 2026-07-07</span>
+        <span class="pill">Open Graph</span>
+        <span class="pill">Server-side HTML meta</span>
+      </div>
+    </div>
+  </header>
+
+  <nav aria-label="문서 메뉴">
+    <div class="inner">
+      <a href="../index.html">요약</a>
+      <a href="common.html">공통 정보</a>
+      <a href="client.html">클라이언트</a>
+      <a href="server.html">서버</a>
+      <a href="seo.html">SEO</a>
+      <a href="upload-policy.html">업로드 정책</a>
+      <a href="profile-plan.html">프로필 기획</a>
+      <a href="improvements.html">개선 상태</a>
+      <a href="note.html">Note</a>
+    </div>
+  </nav>
+
+  <main>
+    <section>
+      <div class="section-kicker">Goal</div>
+      <h2>왜 서버에서 처리했나</h2>
+      <p>
+        공개 페이지는 React SPA로 렌더링되지만, 카카오톡이나 검색엔진 크롤러는 JavaScript 실행 전의 HTML만 읽는 경우가 많습니다.
+        그래서 <code>/public/:username/:portfolioCode</code>와 <code>/public/:username/:portfolioCode/:projectCode</code> 요청에 대해
+        Flask가 <code>index.html</code>을 읽고 페이지별 메타 태그를 먼저 주입하도록 구성했습니다.
+      </p>
+      <div class="ok">
+        <strong>결과:</strong> 브라우저 사용자는 기존 SPA를 그대로 보고, 공유 봇은 HTML 응답 안의 title, description, Open Graph 이미지를 읽을 수 있습니다.
+      </div>
+    </section>
+
+    <section>
+      <div class="section-kicker">Meta Tags</div>
+      <h2>주입하는 HTML 메타</h2>
+      <p>공개 Portfolio와 Project 페이지에는 다음 정보를 HTML <code>&lt;head&gt;</code> 안에 추가합니다.</p>
+      <pre>&lt;title&gt;페이지 제목&lt;/title&gt;
+&lt;link rel="canonical" href="공개 URL" /&gt;
+&lt;meta name="description" content="페이지 설명" /&gt;
+&lt;meta property="og:title" content="페이지 제목" /&gt;
+&lt;meta property="og:description" content="페이지 설명" /&gt;
+&lt;meta property="og:url" content="공개 URL" /&gt;
+&lt;meta property="og:type" content="website" /&gt;
+&lt;meta property="og:image" content="대표 이미지 URL" /&gt;
+&lt;meta name="twitter:card" content="summary_large_image" /&gt;</pre>
+      <ul>
+        <li>Portfolio URL은 Portfolio 이름과 설명을 사용합니다.</li>
+        <li>Project URL은 Project 제목과 요약을 우선 사용합니다.</li>
+        <li>대표 이미지는 Portfolio 대표 이미지, Project 썸네일, 첫 공개 Project 이미지 순서로 선택합니다.</li>
+        <li>이미지가 없으면 이미지 메타는 생략하고 title/description 중심으로 노출합니다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <div class="section-kicker">Implementation</div>
+      <h2>서버 처리 흐름</h2>
+      <div class="flow">
+        <div class="step"><strong>1.</strong> 공개 URL 요청이 Flask로 들어옵니다.</div>
+        <div class="step"><strong>2.</strong> 서버가 사용자, Portfolio, Project 공개 여부를 확인합니다.</div>
+        <div class="step"><strong>3.</strong> <code>portfolio_project_client_vite/dist/index.html</code>을 UTF-8로 읽습니다.</div>
+        <div class="step"><strong>4.</strong> 기존 기본 <code>&lt;title&gt;</code>을 제거하고 페이지별 메타 태그를 삽입합니다.</div>
+        <div class="step"><strong>5.</strong> 원래의 <code>&lt;div id="root"&gt;</code>와 Vite script는 유지해 React 앱이 그대로 실행되게 합니다.</div>
+      </div>
+      <p>
+        구현 위치는 <code>portfolio_project_server_flask/app.py</code>입니다.
+        테스트는 <code>portfolio_project_server_flask/tests/test_client_static.py</code>에서 메타 태그와 SPA 루트 보존 여부를 확인합니다.
+      </p>
+    </section>
+
+    <section>
+      <div class="section-kicker">Default HTML</div>
+      <h2>기본 index.html fallback</h2>
+      <p>
+        공개 상세 URL처럼 서버가 동적으로 메타를 주입하는 경로가 아닌 일반 진입점도 최소한의 설명을 갖도록
+        Vite 기본 <code>index.html</code>에 description, Open Graph, Twitter card 기본값을 추가했습니다.
+      </p>
+      <div class="warning">
+        <strong>주의:</strong> 기본 <code>index.html</code>의 메타는 fallback입니다. 공개 Portfolio/Project 공유 품질은 서버 주입 메타가 우선 담당합니다.
+      </div>
+    </section>
+
+    <section>
+      <div class="section-kicker">Verification</div>
+      <h2>확인 방법</h2>
+      <ul>
+        <li>로컬에서는 HTML 응답의 <code>&lt;head&gt;</code>에 메타 태그가 들어갔는지 확인합니다.</li>
+        <li>카카오톡 미리보기는 공개 HTTPS URL 배포 후 Kakao Developers 공유 디버거에서 확인합니다.</li>
+        <li>카카오톡은 미리보기 캐시가 강하므로, 수정 후에는 공유 디버거에서 캐시를 갱신하거나 URL query를 바꿔 테스트합니다.</li>
+        <li>이미지가 나오지 않으면 <code>og:image</code> URL이 외부에서 인증 없이 접근 가능한지, 이미지 형식과 크기가 적절한지 확인합니다.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

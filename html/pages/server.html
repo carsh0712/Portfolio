@@ -20,6 +20,7 @@
       <a href="common.html">공통 정보</a>
       <a href="client.html">클라이언트</a>
       <a href="server.html">서버</a>
+      <a href="seo.html">SEO</a>
       <a href="upload-policy.html">업로드 정책</a>
       <a href="profile-plan.html">프로필 기획</a>
       <a href="improvements.html">개선 상태</a>
@@ -59,6 +60,7 @@
         <li><code>Base.metadata.create_all(bind=engine)</code>로 필요한 테이블을 생성합니다.</li>
         <li>CORS는 <code>core/cors.py</code>에서 처리하며, DB의 <code>cors_origin</code> 테이블을 기준으로 허용 origin을 확인합니다.</li>
         <li><code>CLIENT_DIST_DIR</code> 또는 기본값 <code>portfolio_project_client_vite/dist</code>에 <code>index.html</code>이 있으면 <code>/</code>와 SPA 경로에서 빌드된 클라이언트를 제공합니다.</li>
+        <li>공개 Portfolio/Project URL은 서버가 <code>index.html</code>에 페이지별 SEO와 Open Graph 메타를 주입해 제공합니다.</li>
         <li>기본 개발 실행 포트는 <code>8000</code>입니다.</li>
       </ul>
 
@@ -128,6 +130,8 @@
           <tr><td>GET</td><td><code>/api/v1/public/{username}/{portfolio_code}/{project_code}/</code></td><td>없음</td><td>공개 Project 상세</td></tr>
           <tr><td>GET</td><td><code>/api/v1/public/{username}/file/{file_uuid}</code></td><td>없음</td><td>공개 페이지 상세 이미지 다운로드</td></tr>
           <tr><td>GET</td><td><code>/api/v1/public/{username}/file/{file_uuid}?variant=thumbnail</code></td><td>없음</td><td>공개 페이지 썸네일 이미지 다운로드</td></tr>
+          <tr><td>GET</td><td><code>/public/{username}/{portfolio_code}</code></td><td>없음</td><td>공개 Portfolio SPA HTML 제공. 서버가 title, description, Open Graph 메타를 주입</td></tr>
+          <tr><td>GET</td><td><code>/public/{username}/{portfolio_code}/{project_code}</code></td><td>없음</td><td>공개 Project SPA HTML 제공. 서버가 Project 기준 공유 메타를 주입</td></tr>
         </tbody>
       </table>
     </section>
