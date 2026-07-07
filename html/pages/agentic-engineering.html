@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI 개발 방식 정리 - Portfolio 프로젝트</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <header>
+    <div class="inner">
+      <h1>AI 개발 방식 정리</h1>
+      <p class="lead">이번 Portfolio 프로젝트에서 사용한 프롬프트 엔지니어링, 바이브 코딩, 루프 엔지니어링, 에이전틱 엔지니어링, 서브 에이전트 분업 방식을 정리합니다.</p>
+      <div class="meta">
+        <span class="pill">업데이트: 2026-07-07</span>
+        <span class="pill">Prompt Engineering</span>
+        <span class="pill">Vibe Coding</span>
+        <span class="pill">Loop Engineering</span>
+        <span class="pill">Agentic Engineering</span>
+      </div>
+    </div>
+  </header>
+
+  <nav aria-label="문서 메뉴">
+    <div class="inner">
+      <a href="../index.html">요약</a>
+      <a href="common.html">공통 정보</a>
+      <a href="client.html">클라이언트</a>
+      <a href="server.html">서버</a>
+      <a href="seo.html">SEO</a>
+      <a href="agentic-engineering.html">AI 개발 방식</a>
+      <a href="upload-policy.html">업로드 정책</a>
+      <a href="profile-plan.html">프로필 기획</a>
+      <a href="improvements.html">개선 상태</a>
+      <a href="note.html">Note</a>
+    </div>
+  </nav>
+
+  <main>
+    <section>
+      <div class="section-kicker">Summary</div>
+      <h2>이번 작업을 어떻게 볼 수 있나</h2>
+      <p>
+        이번 프로젝트 작업은 하나의 이름으로만 설명하기보다 여러 방식이 함께 섞인 흐름으로 보는 편이 자연스럽습니다.
+        요구사항을 AI에게 전달하고 다듬은 면에서는 프롬프트 엔지니어링이고, 화면을 보며 감각적으로 개선한 면에서는 바이브 코딩이며,
+        피드백과 검증을 반복한 면에서는 루프 엔지니어링이고, 코드 탐색, 구현, 테스트, 문서화를 AI가 함께 수행한 면에서는 에이전틱 엔지니어링입니다.
+      </p>
+      <div class="ok">
+        <strong>정리:</strong> 프롬프트 엔지니어링으로 요구사항을 전달하고, 바이브 코딩 방식으로 사용성을 다듬었으며, 루프 엔지니어링으로 반복 개선했고, 실제 구현은 에이전틱 엔지니어링에 가깝게 진행했습니다.
+      </div>
+    </section>
+
+    <section>
+      <div class="section-kicker">Prompt Engineering</div>
+      <h2>프롬프트 엔지니어링</h2>
+      <p>
+        프롬프트 엔지니어링은 AI에게 원하는 결과를 얻기 위해 맥락, 제약, 목표를 잘 전달하는 방식입니다.
+        이번 작업에서는 사용자가 기능의 방향을 짧게 제시하고, AI가 코드베이스를 읽어 구체적인 변경으로 옮겼습니다.
+      </p>
+      <div class="grid two">
+        <div class="box">
+          <h3>이번 프로젝트의 예</h3>
+          <ul>
+            <li>프로필 카드에서 소개 글과 유동 항목을 생략하도록 요청했습니다.</li>
+            <li>Clipboard 아이콘을 lucide의 Copy 아이콘으로 바꾸도록 요청했습니다.</li>
+            <li>공개 화면에서 태그 입력폼을 숨기고 프로필 보기 배너를 키우도록 요청했습니다.</li>
+            <li>SEO 처리 내용을 HTML 문서와 개발 일지 Day 11에 남기도록 요청했습니다.</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h3>효과</h3>
+          <ul>
+            <li>작은 요구사항을 빠르게 코드 변경으로 연결할 수 있었습니다.</li>
+            <li>사용자가 모든 파일 위치를 알지 않아도 작업을 진행할 수 있었습니다.</li>
+            <li>대화 중 나온 판단과 이유를 문서화까지 이어갈 수 있었습니다.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-kicker">Vibe Coding</div>
+      <h2>바이브 코딩</h2>
+      <p>
+        바이브 코딩은 처음부터 완벽한 설계를 고정하기보다, 실제 화면과 사용자의 감각을 기준으로 만들고 다듬는 개발 흐름에 가깝습니다.
+        이번 프로젝트에서는 "사람이 그냥 넘길 수 있다", "설명을 추가해서 보강하자", "카카오톡에서 이미지가 보이면 좋겠다" 같은 감각적 피드백이 구현 방향을 이끌었습니다.
+      </p>
+      <table>
+        <thead>
+          <tr><th>피드백</th><th>구현으로 이어진 변화</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>프로필 보기 버튼이 눈에 잘 안 띈다.</td><td>공개 페이지의 프로필 보기 배너를 전체 폭에 가깝게 키우고 설명 문구를 추가했습니다.</td></tr>
+          <tr><td>공개 페이지에서 태그 입력폼은 필요 없다.</td><td>공개 Portfolio 화면에서 필터 입력 UI를 숨겼습니다.</td></tr>
+          <tr><td>프로필 카드에서는 소개 글을 생략해도 된다.</td><td>관리 화면 카드의 정보량을 줄여 목록 가독성을 높였습니다.</td></tr>
+          <tr><td>카카오톡 공유에서 이미지가 보이면 좋겠다.</td><td>공개 URL별 Open Graph 메타 주입을 구현했습니다.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <div class="section-kicker">Agentic Engineering</div>
+      <h2>에이전틱 엔지니어링</h2>
+      <p>
+        에이전틱 엔지니어링은 AI가 단순히 답변만 하는 것이 아니라, 목표를 이해하고 필요한 작업을 스스로 나누어 코드 탐색, 수정, 검증, 문서화를 수행하는 방식입니다.
+        이번 프로젝트에서는 완전한 자동 에이전트 조직까지는 아니었지만, 에이전틱 엔지니어링의 라이트 버전에 가까운 흐름이 있었습니다.
+      </p>
+      <div class="grid two">
+        <div class="box">
+          <h3>에이전틱했던 작업</h3>
+          <ul>
+            <li>코드베이스에서 관련 파일을 직접 탐색했습니다.</li>
+            <li>React, Flask, MySQL, 문서 영역을 오가며 변경 범위를 판단했습니다.</li>
+            <li>SEO 문제를 클라이언트 메타 태그만이 아니라 서버 HTML 주입 방식으로 풀었습니다.</li>
+            <li>테스트와 빌드로 변경 결과를 검증했습니다.</li>
+            <li>구현 내용을 HTML 문서와 개발 일지로 정리했습니다.</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h3>아직 완전 자동은 아니었던 점</h3>
+          <ul>
+            <li>여러 서브 에이전트를 실제로 병렬 운영하지는 않았습니다.</li>
+            <li>장기 목표를 생성해 자동으로 여러 턴을 이어가는 구조는 아니었습니다.</li>
+            <li>최종 의사결정은 사용자의 대화형 피드백을 중심으로 진행했습니다.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-kicker">Sub Agents</div>
+      <h2>서브 에이전트로 나눴다면</h2>
+      <p>
+        작업 규모가 커질수록 하나의 에이전트가 모든 일을 처리하는 것보다 역할별 서브 에이전트로 나누는 편이 좋습니다.
+        이 프로젝트에서는 다음과 같은 역할 분리가 자연스럽습니다.
+      </p>
+      <table>
+        <thead>
+          <tr><th>역할</th><th>담당 범위</th><th>예시 작업</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>기획 에이전트</td><td>요구사항 분석, 작업 단위 분해</td><td>프로필 카드, 공개 화면, SEO 목표를 작업 목록으로 정리</td></tr>
+          <tr><td>프론트엔드 에이전트</td><td>React, Vite, UI, index.html</td><td>프로필 배너, Copy 아이콘, 기본 메타 fallback 수정</td></tr>
+          <tr><td>백엔드/SEO 에이전트</td><td>Flask, 공개 URL, HTML 응답</td><td>공개 Portfolio/Project별 Open Graph 메타 주입</td></tr>
+          <tr><td>DB/운영 에이전트</td><td>모델, 마이그레이션, 실제 DB 비교</td><td>MySQL 서버 스키마와 SQLAlchemy 모델 차이 점검</td></tr>
+          <tr><td>문서 에이전트</td><td>HTML 문서, README, 개발 일지</td><td>SEO 문서와 Day 11 개발 일지 작성</td></tr>
+          <tr><td>검증 에이전트</td><td>테스트, 빌드, diff 리뷰</td><td>npm build, pytest, 문서 링크 확인</td></tr>
+        </tbody>
+      </table>
+      <pre>사용자 요청
+  -> 메인 에이전트가 작업 단위 분석
+  -> 프론트/백엔드/DB/문서 에이전트가 병렬 조사와 구현
+  -> 검증 에이전트가 테스트와 변경 검토
+  -> 메인 에이전트가 충돌 조정 후 최종 반영</pre>
+    </section>
+
+    <section>
+      <div class="section-kicker">Automatic Routing</div>
+      <h2>자동 분배형으로 하려면</h2>
+      <p>
+        사용자가 서브 에이전트에게 매번 직접 지시할 수도 있지만, 이상적인 방식은 메인 에이전트가 사용자의 목표를 분석해 필요한 역할로 자동 분배하는 것입니다.
+        이를 위해서는 사전 준비가 필요합니다.
+      </p>
+      <div class="grid two">
+        <div class="box">
+          <h3>사전 준비</h3>
+          <ul>
+            <li>작업 목표를 결과물 기준으로 정의합니다.</li>
+            <li>역할 분리 기준을 문서화합니다.</li>
+            <li>프로젝트 규칙과 금지 사항을 정리합니다.</li>
+            <li>완료 기준과 검증 명령을 미리 둡니다.</li>
+            <li>같은 파일을 여러 에이전트가 동시에 만질 때의 충돌 규칙을 정합니다.</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h3>요청 템플릿</h3>
+          <pre>이 작업은 자동 분배형 에이전틱 엔지니어링으로 진행해줘.
+
+목표:
+- ...
+
+완료 기준:
+- ...
+
+포함 범위:
+- 구현
+- 테스트
+- 문서
+- 개발 일지
+
+역할 분리는 네가 판단하고,
+마지막에 변경 파일과 검증 결과를 요약해줘.</pre>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-kicker">Project Rules</div>
+      <h2>이 프로젝트에 맞는 에이전트 규칙 초안</h2>
+      <p>자동 분배형 에이전틱 엔지니어링을 더 안정적으로 쓰려면 다음 규칙을 <code>AGENTS.md</code>나 별도 문서에 둘 수 있습니다.</p>
+      <pre>- 모든 문서는 UTF-8로 작성한다.
+- 사용자가 만든 변경은 되돌리지 않는다.
+- React 변경 후 npm run build를 실행한다.
+- Flask route 또는 API 변경 후 관련 pytest를 실행한다.
+- 공개 API는 비공개 Portfolio/Project를 노출하면 안 된다.
+- 문서 변경 시 html 문서와 docs/dev-logs를 함께 검토한다.
+- 한 파일은 가능하면 한 에이전트가 담당한다.
+- 공통 파일과 충돌 해결은 메인 에이전트가 최종 결정한다.
+- 테스트 실패 시 해당 영역 담당 에이전트에게 다시 넘긴다.
+- 최종 응답에는 변경 파일과 검증 결과를 짧게 요약한다.</pre>
+    </section>
+
+    <section>
+      <div class="section-kicker">Conclusion</div>
+      <h2>이번 프로젝트에 맞는 현실적인 방식</h2>
+      <p>
+        작은 UI 수정은 메인 에이전트 단독 처리로 충분합니다.
+        하지만 SEO, DB 점검, 문서화처럼 영역이 갈리는 작업은 자동 분배형 에이전틱 엔지니어링이 잘 맞습니다.
+      </p>
+      <div class="warning">
+        <strong>추천 흐름:</strong> 사용자는 목표와 완료 기준만 제시하고, 메인 에이전트가 역할 분리, 구현, 검증, 문서화를 조율하는 방식이 가장 실용적입니다.
+      </div>
+    </section>
+
+    <section>
+      <div class="section-kicker">Loop Engineering</div>
+      <h2>루프 엔지니어링</h2>
+      <p>
+        루프 엔지니어링은 AI에게 한 번 지시하고 끝내는 것이 아니라, 작업을 반복 가능한 순환 구조로 설계하는 방식입니다.
+        여기서 루프는 <strong>목표 설정, 실행, 관찰, 평가, 수정</strong>이 다시 이어지는 흐름을 뜻합니다.
+      </p>
+      <pre>목표 설정
+  -> 구현 또는 조사
+  -> 결과 관찰
+  -> 기준과 비교
+  -> 수정 지시 또는 자동 수정
+  -> 다시 검증</pre>
+      <p>
+        쉽게 말하면 "AI에게 일을 시킨다"에서 한 단계 더 나아가, "AI가 어떤 기준으로 반복해서 더 나아지게 할 것인가"를 설계하는 일입니다.
+      </p>
+    </section>
+
+    <section>
+      <div class="section-kicker">Loop Usage</div>
+      <h2>이번 프로젝트에서 사용했나</h2>
+      <p>
+        이번 프로젝트에서는 루프 엔지니어링을 부분적으로 사용했습니다.
+        다만 처음부터 명시적으로 "루프를 설계하자"라고 정한 것은 아니었고, 대화형 개발 과정에서 자연스럽게 반복 루프가 만들어졌습니다.
+      </p>
+      <table>
+        <thead>
+          <tr><th>루프</th><th>이번 프로젝트의 예</th><th>평가</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>요구사항 루프</td>
+            <td>프로필 카드, 공개 화면, 링크 색상, Copy 아이콘처럼 사용자가 보고 다시 방향을 조정했습니다.</td>
+            <td><span class="tag green">사용함</span></td>
+          </tr>
+          <tr>
+            <td>UI 개선 루프</td>
+            <td>프로필 보기 버튼이 잘 안 보인다는 판단 후, 배너 크기와 설명 문구를 보강했습니다.</td>
+            <td><span class="tag green">사용함</span></td>
+          </tr>
+          <tr>
+            <td>검증 루프</td>
+            <td>변경 후 <code>npm run build</code>, 백엔드 pytest, git diff 확인을 반복했습니다.</td>
+            <td><span class="tag green">사용함</span></td>
+          </tr>
+          <tr>
+            <td>문서화 루프</td>
+            <td>구현 후 HTML 문서와 개발 일지에 작업 이유와 결과를 정리했습니다.</td>
+            <td><span class="tag green">사용함</span></td>
+          </tr>
+          <tr>
+            <td>자동 자기 개선 루프</td>
+            <td>에이전트가 스스로 장기 목표를 만들고, 반복 실행하고, 기준 미달 시 재작업하는 구조는 만들지 않았습니다.</td>
+            <td><span class="tag amber">부분적</span></td>
+          </tr>
+          <tr>
+            <td>운영 관찰 루프</td>
+            <td>배포 후 카카오톡 공유 디버거 결과를 자동으로 다시 반영하는 구조는 아직 없습니다.</td>
+            <td><span class="tag red">아직 없음</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="warning">
+        <strong>판단:</strong> 이번 작업은 사람과 AI가 대화하며 반복 개선한 "수동 루프"는 충분히 있었지만, 자동으로 계속 관찰하고 재시도하는 "자동 루프"까지는 가지 않았습니다.
+      </div>
+    </section>
+
+    <section>
+      <div class="section-kicker">Loop Types</div>
+      <h2>루프 엔지니어링의 종류</h2>
+      <div class="grid two">
+        <div class="box">
+          <h3>1. 요구사항 루프</h3>
+          <p>사용자가 결과를 보고 방향을 다시 주는 루프입니다.</p>
+          <pre>요청
+  -> 구현
+  -> 사용자가 확인
+  -> "이건 빼자", "이건 키우자"
+  -> 재구현</pre>
+        </div>
+        <div class="box">
+          <h3>2. 검증 루프</h3>
+          <p>테스트와 빌드 결과를 기준으로 실패를 수정하는 루프입니다.</p>
+          <pre>코드 변경
+  -> 테스트 실행
+  -> 실패 분석
+  -> 수정
+  -> 테스트 재실행</pre>
+        </div>
+        <div class="box">
+          <h3>3. 품질 루프</h3>
+          <p>기능은 동작하지만 더 읽기 좋고 쓰기 좋게 다듬는 루프입니다.</p>
+          <pre>초안 구현
+  -> UI/문장/구조 검토
+  -> 과한 정보 제거
+  -> 설명 보강
+  -> 재검토</pre>
+        </div>
+        <div class="box">
+          <h3>4. 운영 루프</h3>
+          <p>배포 후 실제 결과를 보고 다시 제품에 반영하는 루프입니다.</p>
+          <pre>배포
+  -> 카카오톡 공유 디버거 확인
+  -> og:image 실패 확인
+  -> 이미지 형식 또는 URL 수정
+  -> 다시 확인</pre>
+        </div>
+        <div class="box">
+          <h3>5. 문서 루프</h3>
+          <p>구현 내용과 판단 이유가 문서에 남았는지 확인하는 루프입니다.</p>
+          <pre>구현 완료
+  -> 변경 이유 정리
+  -> HTML 문서 업데이트
+  -> 개발 일지 작성
+  -> 목차 링크 확인</pre>
+        </div>
+        <div class="box">
+          <h3>6. 에이전트 루프</h3>
+          <p>에이전트가 스스로 계획, 실행, 평가, 재작업을 반복하는 루프입니다.</p>
+          <pre>목표 수립
+  -> 서브 에이전트 분배
+  -> 결과 수집
+  -> 리뷰 에이전트 평가
+  -> 미달 항목 재작업</pre>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-kicker">How To Use</div>
+      <h2>루프 엔지니어링을 어떻게 쓰나</h2>
+      <p>
+        루프 엔지니어링을 쓰려면 단순히 "잘 만들어줘"라고 하기보다, 반복할 기준과 멈출 기준을 함께 줘야 합니다.
+        AI가 무엇을 보고 성공과 실패를 판단할지 알려주는 것이 핵심입니다.
+      </p>
+      <div class="grid two">
+        <div class="box">
+          <h3>좋은 요청 구조</h3>
+          <pre>목표:
+- 공개 페이지 공유 미리보기 개선
+
+반복 루프:
+1. 현재 HTML 응답을 확인한다.
+2. 부족한 meta를 추가한다.
+3. 테스트를 작성하거나 수정한다.
+4. 빌드와 테스트를 실행한다.
+5. 실패하면 원인을 고치고 다시 실행한다.
+
+멈출 기준:
+- 테스트 통과
+- build 통과
+- 문서 업데이트 완료
+- 변경 파일 요약 가능</pre>
+        </div>
+        <div class="box">
+          <h3>피해야 할 요청</h3>
+          <pre>SEO 잘 되게 해줘.</pre>
+          <p>
+            이 요청은 방향은 있지만 루프가 없습니다.
+            무엇을 확인하고, 어디까지 반복하고, 어떤 기준으로 멈출지 알 수 없습니다.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-kicker">Applied To This Project</div>
+      <h2>이 프로젝트에 적용한다면</h2>
+      <p>앞으로 이 프로젝트에서 루프 엔지니어링을 명시적으로 쓰려면 다음처럼 작업을 요청할 수 있습니다.</p>
+      <pre>이 작업은 루프 엔지니어링 방식으로 진행해줘.
+
+목표:
+- 공개 Portfolio/Project 공유 미리보기를 안정화한다.
+
+루프:
+1. 현재 공개 URL HTML 응답을 확인한다.
+2. Open Graph/Twitter meta 누락을 찾는다.
+3. 서버 또는 클라이언트 코드를 수정한다.
+4. 관련 테스트를 추가하거나 갱신한다.
+5. pytest와 npm build를 실행한다.
+6. 실패하면 원인을 분석하고 다시 3번으로 돌아간다.
+7. 통과하면 HTML 문서와 개발 일지를 업데이트한다.
+
+멈출 기준:
+- 테스트 통과
+- build 통과
+- 문서 링크 확인
+- 남은 위험 요약</pre>
+      <p>
+        이런 식으로 요청하면 AI는 단순 구현자가 아니라 반복 개선 루프를 수행하는 작업자로 움직이게 됩니다.
+      </p>
+    </section>
+
+    <section>
+      <div class="section-kicker">Loop vs Agent</div>
+      <h2>에이전틱 엔지니어링과의 차이</h2>
+      <table>
+        <thead>
+          <tr><th>구분</th><th>핵심 질문</th><th>이번 프로젝트 예시</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>프롬프트 엔지니어링</td>
+            <td>AI에게 어떻게 말할 것인가?</td>
+            <td>"Copy 아이콘으로 바꿔줘", "Day 11 개발 일지 작성해줘"</td>
+          </tr>
+          <tr>
+            <td>바이브 코딩</td>
+            <td>사용자가 보는 느낌이 어떤가?</td>
+            <td>프로필 보기 버튼을 더 잘 보이게 키움</td>
+          </tr>
+          <tr>
+            <td>루프 엔지니어링</td>
+            <td>어떤 기준으로 반복 개선할 것인가?</td>
+            <td>구현 후 빌드, 테스트, 문서 업데이트를 반복 확인</td>
+          </tr>
+          <tr>
+            <td>에이전틱 엔지니어링</td>
+            <td>AI가 어떤 역할과 도구를 가지고 자율 수행할 것인가?</td>
+            <td>코드 탐색, 파일 수정, 테스트 실행, 문서화까지 수행</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="ok">
+        <strong>관계:</strong> 루프 엔지니어링은 에이전틱 엔지니어링 안에 들어가는 반복 제어 장치처럼 볼 수 있습니다. 에이전트가 움직이는 힘이라면, 루프는 그 움직임을 개선으로 이어지게 하는 리듬입니다.
+      </div>
+    </section>
+  </main>
+</body>
+</html>
