@@ -15,6 +15,7 @@ import {
   getPublicPortfolioProfile,
   getPublicProjects,
 } from '../utils/api';
+import { renderIconByName } from '../utils/icons';
 import { publicProjectItemToProject } from '../utils/projectMappers';
 
 export default function PublicPortfolioList() {
@@ -209,7 +210,16 @@ export default function PublicPortfolioList() {
                     target="_blank"
                     rel="noreferrer"
                     className="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-700 hover:border-blue-500 hover:text-blue-600"
+                    style={{
+                      backgroundColor: link.backgroundColor || link.background_color || undefined,
+                      color: link.textColor || link.text_color || undefined,
+                    }}
                   >
+                    {link.icon && renderIconByName(link.icon) && (
+                      <span className="mr-1.5 inline-flex align-middle">
+                        {renderIconByName(link.icon)}
+                      </span>
+                    )}
                     {link.name || link.url}
                   </a>
                 ))}

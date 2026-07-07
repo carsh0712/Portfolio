@@ -328,11 +328,6 @@ export default function ProfileList() {
                             링크 {profile.links.length}개
                           </span>
                         )}
-                        {(profile.extra_fields?.length ?? 0) > 0 && (
-                          <span className="text-xs px-2 py-1 bg-emerald-50 text-emerald-700 rounded-full">
-                            항목 {profile.extra_fields.length}개
-                          </span>
-                        )}
                       </div>
                       {profile.headline && (
                         <p className="text-sm text-gray-600 mt-1">{profile.headline}</p>
@@ -344,23 +339,6 @@ export default function ProfileList() {
                         <p className="text-sm text-gray-500 mt-2 whitespace-pre-wrap">
                           {profile.bio}
                         </p>
-                      )}
-                      {(profile.extra_fields?.length ?? 0) > 0 && (
-                        <dl className="grid grid-cols-1 gap-2 mt-3">
-                          {profile.extra_fields.slice(0, 4).map((field) => (
-                            <div
-                              key={`${field.key}-${field.order}`}
-                              className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2"
-                            >
-                              <dt className="text-xs font-semibold text-gray-500">
-                                {field.label || field.key}
-                              </dt>
-                              <dd className="text-sm text-gray-800 truncate">
-                                {field.value || '값 없음'}
-                              </dd>
-                            </div>
-                          ))}
-                        </dl>
                       )}
                       {profile.links.length > 0 && (
                         <div className="flex flex-wrap gap-2 mt-3">
