@@ -3,7 +3,6 @@ import Modal from '../components/Modal';
 import { useParams } from 'react-router-dom';
 import PageState from '../components/PageState';
 import ProjectCard from '../components/ProjectCard';
-import ProjectFilterBar from '../components/ProjectFilterBar';
 import ClipboardIcon from '../components/svg/ClipboardIcon';
 import { useProjectFilters } from '../hooks/useProjectFilters';
 import type { PublicPortfolio } from '../types/portfolio';
@@ -31,6 +30,7 @@ export default function PublicPortfolioList() {
   const [isEmailCopied, setIsEmailCopied] = useState(false);
   const filters = useProjectFilters(projects);
   const publicEmail = profile?.email?.trim();
+  const profileDescription = profile?.bio?.trim().replace(/\s+/g, ' ');
   const publicExtraFields = (profile?.extra_fields ?? [])
     .filter((field) => field.is_public && field.label && field.value)
     .sort((a, b) => a.order - b.order);
@@ -106,28 +106,41 @@ export default function PublicPortfolioList() {
         </div>
 
         {profile && (
-          <div className="flex justify-center mb-8">
+          <div className="mb-8">
             <button
               type="button"
               onClick={() => setIsProfileOpen(true)}
-              className="inline-flex items-center gap-3 px-4 py-3 text-left bg-white border border-gray-300 rounded-lg shadow-sm hover:border-blue-500 hover:shadow-md transition-all"
+              className="flex w-full items-center gap-4 px-5 py-4 text-left bg-white border border-gray-300 rounded-lg shadow-sm hover:border-blue-500 hover:shadow-md transition-all"
             >
               {profile.avatar_file_uuid && (
                 <img
                   src={getPublicFileUrl(publicUsername, profile.avatar_file_uuid, 'thumbnail')}
                   alt=""
-                  className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                  className="w-14 h-14 rounded-full object-cover border border-gray-200"
                 />
               )}
-              <span>
-                <span className="block text-sm font-semibold text-gray-900">프로필 보기</span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-base font-semibold text-gray-900">프로필 보기</span>
                 {profile.headline && (
-                  <span className="block text-xs text-gray-500">{profile.headline}</span>
+                  <span className="block text-sm text-gray-500 truncate">{profile.headline}</span>
+                )}
+                {profileDescription && (
+                  <span
+                    className="mt-1 block overflow-hidden text-sm text-gray-600"
+                    style={{
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                    }}
+                  >
+                    {profileDescription}
+                  </span>
                 )}
                 {publicEmail && (
-                  <span className="block text-xs text-blue-600">{publicEmail}</span>
+                  <span className="block text-sm text-blue-600 truncate">{publicEmail}</span>
                 )}
               </span>
+              <span className="shrink-0 text-sm font-medium text-blue-600">열기</span>
             </button>
           </div>
         )}
@@ -227,18 +240,6 @@ export default function PublicPortfolioList() {
             </div>
           </Modal>
         )}
-
-        <ProjectFilterBar
-          tagInput={filters.tagInput}
-          selectedTags={filters.selectedTags}
-          suggestions={filters.suggestions}
-          filteredCount={filters.filteredProjects.length}
-          onTagInputChange={filters.setTagInput}
-          onAddTag={filters.addTag}
-          onRemoveTag={filters.removeTag}
-          onClearTags={() => filters.setSelectedTags([])}
-          onKeyDown={filters.handleKeyDown}
-        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filters.filteredProjects.map((project) => (
