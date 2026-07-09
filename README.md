@@ -41,6 +41,7 @@ React와 Flask로 만든 포트폴리오 관리 웹 애플리케이션입니다.
 .
 ├── portfolio_project_client_vite/   # React + Vite 클라이언트
 ├── portfolio_project_server_flask/   # Flask API 서버
+├── portfolio_mcp_server/             # 포트폴리오 API용 MCP 서버
 ├── scripts/                          # 개발/운영 보조 스크립트
 ├── docs/                             # 문서
 ├── html/                             # 수동 공개용 HTML 리소스
@@ -89,6 +90,15 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 cd ..
+```
+
+### 4. MCP 서버 의존성 설치 및 빌드
+
+Codex, Claude 등 MCP 클라이언트에서 포트폴리오 API를 도구로 사용하려면 MCP 서버를 준비합니다.
+
+```bash
+npm --prefix portfolio_mcp_server install
+npm --prefix portfolio_mcp_server run build
 ```
 
 ## 설정 방법
@@ -153,7 +163,46 @@ VITE_API_BASE_URL=http://localhost:8000
 VITE_API_BASE_URL=
 ```
 
-### 3. 데이터베이스 준비
+### 3. MCP 서버 환경 변수
+
+`portfolio_mcp_server/.env.example`을 참고해 `portfolio_mcp_server/.env`를 생성합니다.
+
+```env
+PORTFOLIO_API_BASE_URL=https://portpolio.susanghwan.vip
+PORTFOLIO_API_EMAIL=your-email@example.com
+PORTFOLIO_API_PASSWORD=your-password
+```
+
+`PORTFOLIO_API_BASE_URL`은 연결할 포트폴리오 API 주소입니다. 로컬 백엔드에 연결하려면 `http://localhost:8000`으로 설정합니다.
+
+### 4. MCP 클라이언트 설정
+
+Codex 또는 Claude의 MCP 설정 파일에 다음 서버를 추가합니다. `args`에는 이 저장소의 `portfolio_mcp_server/dist/index.js` 절대 경로를 사용합니다.
+
+```json
+{
+  "mcpServers": {
+    "portfolio-api": {
+      "command": "node",
+      "args": [
+        "/Users/carsh0712/Documents/work/susanghwan.vip/Portfolio/portfolio_mcp_server/dist/index.js"
+      ]
+    }
+  }
+}
+```
+
+설정 후 MCP 클라이언트를 재시작하면 `portfolio-api` 도구를 사용할 수 있습니다. MCP 서버는 인증이 필요한 첫 API 호출 시 로그인하고, `401` 응답을 받으면 토큰 갱신 후 재로그인을 시도합니다.
+
+MCP 서버를 직접 실행해 확인하려면 다음 명령을 사용합니다.
+
+```bash
+npm --prefix portfolio_mcp_server start
+```
+
+계정 변경이나 삭제 계열 도구는 안전을 위해 입력에 `confirm: true`가 필요합니다. 자세한 내용은 [portfolio_mcp_server/README.md](portfolio_mcp_server/README.md)를 참고하세요.
+
+### 5. 데이터베이스 준비
 
 MySQL에 환경 변수와 동일한 데이터베이스와 계정을 준비합니다.
 
