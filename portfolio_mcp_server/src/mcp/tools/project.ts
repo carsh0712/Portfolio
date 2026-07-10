@@ -45,12 +45,13 @@ export const projectTools = [
   },
   {
     name: "portfolio_delete_project",
-    description: "Delete a project.",
+    description:
+      "Deletion is disabled in MCP. Returns a message explaining that projects cannot be deleted through MCP.",
     inputSchema: objectSchema(
       {
         portfolio_code: text("Portfolio code."),
         project_code: text("Project code."),
-        confirm: boolean("Must be true to delete the project.", { default: false }),
+        confirm: boolean("Ignored. Deletion is disabled in MCP.", { default: false }),
       },
       ["portfolio_code", "project_code", "confirm"]
     ),

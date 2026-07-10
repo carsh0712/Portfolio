@@ -1,6 +1,6 @@
 import type { PortfolioApiClient } from "../../api/client.js";
 import type { ToolArgs } from "../schemas/builders.js";
-import { optionalString, requireConfirm, requiredString, withQuery } from "./utils.js";
+import { deletionDisabled, optionalString, requiredString, withQuery } from "./utils.js";
 
 export async function handleFileTool(
   client: PortfolioApiClient,
@@ -18,10 +18,7 @@ export async function handleFileTool(
         asBase64: args.as_base64 === true,
       });
     case "portfolio_delete_file":
-      requireConfirm(args, "delete file");
-      return client.authJson(`/api/v1/files/${encodeURIComponent(requiredString(args, "file_uuid"))}`, {
-        method: "DELETE",
-      });
+      return deletionDisabled("delete file");
     default:
       return undefined;
   }

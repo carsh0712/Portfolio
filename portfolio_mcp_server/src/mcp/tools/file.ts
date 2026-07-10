@@ -28,11 +28,12 @@ export const fileTools = [
   },
   {
     name: "portfolio_delete_file",
-    description: "Delete an uploaded file.",
+    description:
+      "Deletion is disabled in MCP. Returns a message explaining that files cannot be deleted through MCP.",
     inputSchema: objectSchema(
       {
         file_uuid: text("File UUID."),
-        confirm: boolean("Must be true to delete the file.", { default: false }),
+        confirm: boolean("Ignored. Deletion is disabled in MCP.", { default: false }),
       },
       ["file_uuid", "confirm"]
     ),

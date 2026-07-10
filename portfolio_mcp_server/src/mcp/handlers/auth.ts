@@ -1,6 +1,6 @@
 import type { PortfolioApiClient } from "../../api/client.js";
 import type { ToolArgs } from "../schemas/builders.js";
-import { omitConfirm, requireConfirm } from "./utils.js";
+import { deletionDisabled, omitConfirm, requireConfirm } from "./utils.js";
 
 export async function handleAuthTool(
   client: PortfolioApiClient,
@@ -26,11 +26,7 @@ export async function handleAuthTool(
         body: omitConfirm(args),
       });
     case "portfolio_delete_account":
-      requireConfirm(args, "delete account");
-      return client.authJson("/api/v1/user/account", {
-        method: "DELETE",
-        body: omitConfirm(args),
-      });
+      return deletionDisabled("delete account");
     default:
       return undefined;
   }

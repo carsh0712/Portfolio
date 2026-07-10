@@ -33,11 +33,12 @@ export const portfolioTools = [
   },
   {
     name: "portfolio_delete_portfolio",
-    description: "Delete a portfolio by code.",
+    description:
+      "Deletion is disabled in MCP. Returns a message explaining that portfolios cannot be deleted through MCP.",
     inputSchema: objectSchema(
       {
         code: text("Portfolio code."),
-        confirm: boolean("Must be true to delete the portfolio.", { default: false }),
+        confirm: boolean("Ignored. Deletion is disabled in MCP.", { default: false }),
       },
       ["code", "confirm"]
     ),

@@ -1,6 +1,6 @@
 import type { PortfolioApiClient } from "../../api/client.js";
 import type { ToolArgs } from "../schemas/builders.js";
-import { requireConfirm, requiredObject, requiredString, withQuery } from "./utils.js";
+import { deletionDisabled, requiredObject, requiredString, withQuery } from "./utils.js";
 
 export async function handleProjectTool(
   client: PortfolioApiClient,
@@ -28,13 +28,7 @@ export async function handleProjectTool(
         { method: "PUT", body: requiredObject(args, "data") }
       );
     case "portfolio_delete_project":
-      requireConfirm(args, "delete project");
-      return client.authJson(
-        `/api/v1/projects/${encodeURIComponent(requiredString(args, "portfolio_code"))}/${encodeURIComponent(
-          requiredString(args, "project_code")
-        )}`,
-        { method: "DELETE" }
-      );
+      return deletionDisabled("delete project");
     default:
       return undefined;
   }

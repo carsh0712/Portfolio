@@ -47,11 +47,12 @@ export const authTools = [
   },
   {
     name: "portfolio_delete_account",
-    description: "Delete the authenticated account and all owned data.",
+    description:
+      "Deletion is disabled in MCP. Returns a message explaining that accounts cannot be deleted through MCP.",
     inputSchema: objectSchema(
       {
         password: text("Current account password."),
-        confirm: boolean("Must be true to delete the account.", { default: false }),
+        confirm: boolean("Ignored. Deletion is disabled in MCP.", { default: false }),
       },
       ["password", "confirm"]
     ),

@@ -17,6 +17,16 @@ export function requireConfirm(args: ToolArgs, action: string): void {
   }
 }
 
+export function deletionDisabled(action: string): Record<string, unknown> {
+  return {
+    ok: false,
+    action,
+    error: "Deletion is disabled in the MCP server for security and stability.",
+    message:
+      "삭제는 보안 및 안정상의 이유로 MCP 서버에서 실행할 수 없습니다. 웹 애플리케이션의 삭제 화면에서 직접 확인 후 진행해 주세요.",
+  };
+}
+
 export function omitConfirm(args: ToolArgs): ToolArgs {
   const { confirm: _confirm, ...rest } = args;
   return rest;
