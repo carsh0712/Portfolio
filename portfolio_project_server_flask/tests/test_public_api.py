@@ -288,7 +288,7 @@ class TestGetPublicPortfolioProfile:
         assert data["extra_fields"][0]["key"] == "role"
         assert len(data["extra_fields"]) == 1
 
-    def test_uses_user_email_when_profile_email_is_empty(self, auth_client, db_session, test_user):
+    def test_returns_null_when_profile_email_is_empty(self, auth_client, db_session, test_user):
         profile = Profile(
             user_id=test_user.id,
             display_name="Public Name",
@@ -314,7 +314,7 @@ class TestGetPublicPortfolioProfile:
         resp = auth_client.get(f"/api/v1/public/{test_user.username}/PEMPTY/profile")
 
         assert resp.status_code == 200
-        assert resp.get_json()["email"] == test_user.email
+        assert resp.get_json()["email"] is None
 
     def test_returns_none_without_profile(self, auth_client, db_session, test_user):
         db_session.add(Portfolio(
