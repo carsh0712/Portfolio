@@ -101,6 +101,14 @@ export const handlers = [
     });
   }),
 
+  // Profiles
+  http.get('*/api/v1/profiles/', () => {
+    return HttpResponse.json({
+      items: [],
+      meta: { total: 0, page: 1, page_size: 20, total_pages: 0 },
+    });
+  }),
+
   // Portfolios
   http.get('*/api/v1/portfolios/:code', ({ params }) => {
     if (params.code === mockPortfolio.code) {

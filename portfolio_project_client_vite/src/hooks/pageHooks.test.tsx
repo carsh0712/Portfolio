@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthProvider } from '../contexts/AuthContext';
+import PortfolioEdit from '../pages/PortfolioEdit';
 import ProjectDetail from '../pages/ProjectDetail';
 import ProjectList from '../pages/ProjectList';
 import { server } from '../test/mocks/server';
@@ -349,5 +350,46 @@ describe('page hooks', () => {
 
     await waitFor(() => expect(deleteCalled).toBe(true));
     expect(await screen.findByText('프로젝트 목록 화면')).toBeInTheDocument();
+  });
+
+  it('deletes a portfolio from the edit danger zone after entering the portfolio code', async () => {
+    let deleteCalled = false;
+
+    server.use(
+      http.delete('*/api/v1/portfolios/:code', () => {
+        deleteCalled = true;
+        return new HttpResponse(null, { status: 204 });
+      })
+    );
+
+    render(
+      <MemoryRouter initialEntries={['/portfolio/web/edit']}>
+        <Routes>
+          <Route path="/portfolio/:portfolioCode/edit" element={<PortfolioEdit />} />
+          <Route path="/home" element={<div>홈 화면</div>} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    expect(await screen.findByText('포트폴리오 편집')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: '포트폴리오 삭제' }));
+    expect(screen.getByRole('heading', { name: '포트폴리오 삭제' })).toBeInTheDocument();
+
+    const permanentDeleteButton = screen.getByRole('button', { name: '영구 삭제' });
+    expect(permanentDeleteButton).toBeDisabled();
+
+    const confirmCodeInput = screen.getByLabelText(/삭제하려면 포트폴리오 코드/);
+
+    fireEvent.change(confirmCodeInput, { target: { value: 'wrong-code' } });
+    expect(permanentDeleteButton).toBeDisabled();
+
+    fireEvent.change(confirmCodeInput, { target: { value: 'web' } });
+    expect(permanentDeleteButton).toBeEnabled();
+
+    fireEvent.click(permanentDeleteButton);
+
+    await waitFor(() => expect(deleteCalled).toBe(true));
+    expect(await screen.findByText('홈 화면')).toBeInTheDocument();
   });
 });
