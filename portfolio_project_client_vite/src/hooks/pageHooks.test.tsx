@@ -1,4 +1,4 @@
-import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import type { ReactNode } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
@@ -298,5 +298,56 @@ describe('page hooks', () => {
     expect(result.current.project?.isPublic).toBe(false);
     expect(result.current.isEditing).toBe(false);
     expect(result.current.error).toBeNull();
+  });
+
+  it('deletes a project from the edit danger zone after entering the project code', async () => {
+    let deleteCalled = false;
+
+    server.use(
+      http.delete('*/api/v1/projects/:portfolioCode/:projectCode', () => {
+        deleteCalled = true;
+        return HttpResponse.json({ message: 'Project deleted successfully' });
+      })
+    );
+
+    render(
+      <MemoryRouter initialEntries={['/portfolio/web/project/test-project']}>
+        <Routes>
+          <Route
+            path="/portfolio/:portfolioCode/project/:projectCode"
+            element={
+              <AuthProvider>
+                <ProjectDetail />
+              </AuthProvider>
+            }
+          />
+          <Route path="/portfolio/:portfolioCode" element={<div>프로젝트 목록 화면</div>} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    expect(await screen.findByText('Test Project')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: '편집' }));
+    expect(screen.getByText('Danger Zone')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: '프로젝트 삭제' }));
+    expect(screen.getByRole('heading', { name: '프로젝트 삭제' })).toBeInTheDocument();
+
+    const permanentDeleteButton = screen.getByRole('button', { name: '영구 삭제' });
+    expect(permanentDeleteButton).toBeDisabled();
+
+    const confirmCodeInput = screen.getByLabelText(/삭제하려면 프로젝트 코드/);
+
+    fireEvent.change(confirmCodeInput, { target: { value: 'wrong-code' } });
+    expect(permanentDeleteButton).toBeDisabled();
+
+    fireEvent.change(confirmCodeInput, { target: { value: 'test-project' } });
+    expect(permanentDeleteButton).toBeEnabled();
+
+    fireEvent.click(permanentDeleteButton);
+
+    await waitFor(() => expect(deleteCalled).toBe(true));
+    expect(await screen.findByText('프로젝트 목록 화면')).toBeInTheDocument();
   });
 });

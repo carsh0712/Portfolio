@@ -73,6 +73,7 @@ export default function ProjectDetail() {
                 project={page.project}
                 onSave={page.saveProject}
                 onCancel={() => page.setIsEditing(false)}
+                onDelete={page.removeProject}
               />
             ) : (
               <ProjectDetailView

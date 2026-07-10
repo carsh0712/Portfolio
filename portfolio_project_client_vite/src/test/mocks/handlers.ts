@@ -186,6 +186,10 @@ export const handlers = [
     });
   }),
 
+  http.delete('*/api/v1/projects/:portfolioCode/:projectCode', () => {
+    return HttpResponse.json({ message: 'Project deleted successfully' });
+  }),
+
   // Public APIs
   http.get('*/api/v1/public/:username/:portfolioCode/portfolio', () => {
     return HttpResponse.json(mockPortfolio);
@@ -204,11 +208,15 @@ export const handlers = [
   }),
 
   // Public Files
+  http.get('*/api/v1/files/:fileUuid', () => {
+    return new HttpResponse(new Blob(['mock-image'], { type: 'image/png' }), {
+      headers: { 'Content-Type': 'image/png' },
+    });
+  }),
+
   http.get('*/api/v1/public/:username/file/:fileUuid', () => {
     return new HttpResponse(new Blob(['mock-image'], { type: 'image/png' }), {
       headers: { 'Content-Type': 'image/png' },
     });
   }),
 ];
-
-

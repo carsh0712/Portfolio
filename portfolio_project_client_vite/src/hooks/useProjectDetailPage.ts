@@ -1,9 +1,9 @@
 import { useEffect, useState, type ComponentProps } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import ProjectEditForm from '../components/ProjectEditForm';
 import type { Project, UpdateProjectRequest } from '../types/project';
-import { ApiError, getProjectDetail, updateProject } from '../utils/api';
+import { ApiError, deleteProject, getProjectDetail, updateProject } from '../utils/api';
 import { projectDetailToProject } from '../utils/projectMappers';
 
 type ProjectEditData = Parameters<ComponentProps<typeof ProjectEditForm>['onSave']>[0];
@@ -45,6 +45,7 @@ export function useProjectDetailPage() {
     portfolioCode: string;
     projectCode: string;
   }>();
+  const navigate = useNavigate();
   const { user } = useAuth();
 
   const [project, setProject] = useState<Project | null>(null);
@@ -117,6 +118,18 @@ export function useProjectDetailPage() {
     }
   };
 
+  const removeProject = async () => {
+    if (!projectCode || !portfolioCode) return;
+
+    setError(null);
+    try {
+      await deleteProject(portfolioCode, projectCode);
+      navigate(backPath);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '프로젝트 삭제에 실패했습니다.');
+    }
+  };
+
   return {
     user,
     portfolioCode,
@@ -133,5 +146,6 @@ export function useProjectDetailPage() {
     copied,
     shareProject,
     saveProject,
+    removeProject,
   };
 }

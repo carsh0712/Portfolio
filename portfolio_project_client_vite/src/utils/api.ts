@@ -413,6 +413,16 @@ export async function updateProject(
   return response.json();
 }
 
+export async function deleteProject(portfolioCode: string, projectCode: string): Promise<void> {
+  const response = await apiFetch(`/api/v1/projects/${portfolioCode}/${projectCode}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response, '프로젝트 삭제에 실패했습니다.'));
+  }
+}
+
 export async function createProject(data: CreateProjectRequest): Promise<ProjectDetailResponse> {
   const response = await apiFetch('/api/v1/projects/', {
     method: 'POST',
