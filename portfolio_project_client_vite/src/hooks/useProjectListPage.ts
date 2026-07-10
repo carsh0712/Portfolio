@@ -4,7 +4,7 @@ import { useProjectFilters } from './useProjectFilters';
 import type { AuthUser } from '../types/auth';
 import type { Portfolio } from '../types/portfolio';
 import type { Project } from '../types/project';
-import { getCurrentUser, getPortfolioDetail, getProjects } from '../utils/api';
+import { ApiError, getCurrentUser, getPortfolioDetail, getProjects } from '../utils/api';
 import { projectListItemToProject } from '../utils/projectMappers';
 
 export function useProjectListPage() {
@@ -15,6 +15,7 @@ export function useProjectListPage() {
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isPortfolioNotFound, setIsPortfolioNotFound] = useState(false);
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [showCopiedMessage, setShowCopiedMessage] = useState(false);
   const filters = useProjectFilters(projects);
@@ -32,10 +33,19 @@ export function useProjectListPage() {
 
     setIsLoading(true);
     setError(null);
+    setIsPortfolioNotFound(false);
+    setPortfolio(null);
     getPortfolioDetail(portfolioCode)
       .then(setPortfolio)
       .catch((err) => {
-        setError(err instanceof Error ? err.message : '포트폴리오를 불러오지 못했습니다.');
+        if (err instanceof ApiError && err.status === 404) {
+          setIsPortfolioNotFound(true);
+          setError(
+            '요청하신 포트폴리오를 찾을 수 없습니다. 주소가 맞는지 확인하거나 포트폴리오 목록에서 다시 선택해 주세요.'
+          );
+        } else {
+          setError(err instanceof Error ? err.message : '포트폴리오를 불러오지 못했습니다.');
+        }
         console.error('Failed to fetch portfolio:', err);
         setIsLoading(false);
       });
@@ -86,6 +96,7 @@ export function useProjectListPage() {
     filters,
     isLoading,
     error,
+    isPortfolioNotFound,
     isCurator,
     showCopiedMessage,
     sharePortfolio,

@@ -12,20 +12,24 @@ export default function ProjectList() {
   const page = useProjectListPage();
   const { filters } = page;
 
-  if (page.portfolio === null || (page.isLoading && filters.filteredProjects.length === 0)) {
-    return <PageState loading message="프로젝트를 불러오는 중..." />;
-  }
-
   if (page.error) {
     return (
       <PageState
-        title="오류가 발생했습니다"
+        title={
+          page.isPortfolioNotFound ? '포트폴리오를 찾을 수 없습니다' : '잠시 문제가 생겼습니다'
+        }
         message={page.error}
-        tone="error"
-        actionLabel="다시 시도"
-        onAction={page.reload}
+        tone={page.isPortfolioNotFound ? 'default' : 'error'}
+        actionLabel="포트폴리오 목록으로"
+        actionTo="/home"
+        secondaryActionLabel={page.isPortfolioNotFound ? undefined : '다시 시도'}
+        onSecondaryAction={page.isPortfolioNotFound ? undefined : page.reload}
       />
     );
+  }
+
+  if (page.portfolio === null || (page.isLoading && filters.filteredProjects.length === 0)) {
+    return <PageState loading message="프로젝트를 불러오는 중..." />;
   }
 
   if (!page.portfolio) {

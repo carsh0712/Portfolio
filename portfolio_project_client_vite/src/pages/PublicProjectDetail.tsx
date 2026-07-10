@@ -5,7 +5,7 @@ import ProjectDetailView from '../components/ProjectDetailView';
 import ProjectImageLightbox from '../components/ProjectImageLightbox';
 import ArrowLeftIcon from '../components/svg/ArrowLeftIcon';
 import type { Project } from '../types/project';
-import { getPublicFileUrl, getPublicProjectDetail, type FileVariant } from '../utils/api';
+import { ApiError, getPublicFileUrl, getPublicProjectDetail, type FileVariant } from '../utils/api';
 import { publicProjectDetailToProject } from '../utils/projectMappers';
 
 export default function PublicProjectDetail() {
@@ -18,6 +18,7 @@ export default function PublicProjectDetail() {
   const [project, setProject] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isProjectNotFound, setIsProjectNotFound] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const backPath = `/public/${username}/${portfolioCode}`;
 
@@ -27,12 +28,21 @@ export default function PublicProjectDetail() {
     const fetchData = async () => {
       setIsLoading(true);
       setError(null);
+      setIsProjectNotFound(false);
+      setProject(null);
 
       try {
         const detail = await getPublicProjectDetail(username, portfolioCode, projectCode);
         setProject(publicProjectDetailToProject(detail));
       } catch (err) {
-        setError(err instanceof Error ? err.message : '프로젝트를 불러오지 못했습니다.');
+        if (err instanceof ApiError && err.status === 404) {
+          setIsProjectNotFound(true);
+          setError(
+            '요청하신 공개 프로젝트를 찾을 수 없습니다. 주소가 맞는지 확인하거나 포트폴리오 목록에서 다시 선택해 주세요.'
+          );
+        } else {
+          setError(err instanceof Error ? err.message : '프로젝트를 불러오지 못했습니다.');
+        }
         console.error('Failed to fetch public project:', err);
       } finally {
         setIsLoading(false);
@@ -62,9 +72,9 @@ export default function PublicProjectDetail() {
   if (error) {
     return (
       <PageState
-        title="오류가 발생했습니다"
+        title={isProjectNotFound ? '프로젝트를 찾을 수 없습니다' : '잠시 문제가 생겼습니다'}
         message={error}
-        tone="error"
+        tone={isProjectNotFound ? 'default' : 'error'}
         actionLabel="목록으로 돌아가기"
         actionTo={backPath}
       />

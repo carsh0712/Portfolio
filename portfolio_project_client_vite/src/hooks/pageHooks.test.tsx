@@ -1,9 +1,11 @@
-import { act, renderHook, waitFor } from '@testing-library/react';
+import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { HttpResponse, http } from 'msw';
 import type { ReactNode } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AuthProvider } from '../contexts/AuthContext';
+import ProjectDetail from '../pages/ProjectDetail';
+import ProjectList from '../pages/ProjectList';
 import { server } from '../test/mocks/server';
 import { usePortfolioListPage } from './usePortfolioListPage';
 import { useProjectDetailPage } from './useProjectDetailPage';
@@ -154,6 +156,55 @@ describe('page hooks', () => {
         'alpha',
       ])
     );
+  });
+
+  it('shows a friendly not-found state for an unknown portfolio', async () => {
+    render(
+      <MemoryRouter initialEntries={['/portfolio/MYAPPS-ABC']}>
+        <Routes>
+          <Route path="/portfolio/:portfolioCode" element={<ProjectList />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText('프로젝트를 불러오는 중...')).toBeInTheDocument();
+
+    expect(await screen.findByText('포트폴리오를 찾을 수 없습니다')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        '요청하신 포트폴리오를 찾을 수 없습니다. 주소가 맞는지 확인하거나 포트폴리오 목록에서 다시 선택해 주세요.'
+      )
+    ).toBeInTheDocument();
+    expect(screen.queryByText('프로젝트를 불러오는 중...')).not.toBeInTheDocument();
+  });
+
+  it('shows a friendly not-found state for an unknown project', async () => {
+    server.use(
+      http.get('*/api/v1/projects/:portfolioCode/:projectCode', () =>
+        HttpResponse.json({ detail: 'Not found' }, { status: 404 })
+      )
+    );
+
+    render(
+      <MemoryRouter initialEntries={['/portfolio/web/project/ECOMM-aaa']}>
+        <AuthProvider>
+          <Routes>
+            <Route
+              path="/portfolio/:portfolioCode/project/:projectCode"
+              element={<ProjectDetail />}
+            />
+          </Routes>
+        </AuthProvider>
+      </MemoryRouter>
+    );
+
+    expect(await screen.findByText('프로젝트를 찾을 수 없습니다')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        '요청하신 프로젝트를 찾을 수 없습니다. 주소가 맞는지 확인하거나 프로젝트 목록에서 다시 선택해 주세요.'
+      )
+    ).toBeInTheDocument();
+    expect(screen.queryByText('오류가 발생했습니다')).not.toBeInTheDocument();
   });
 
   it('updates a project and exits edit mode after save', async () => {

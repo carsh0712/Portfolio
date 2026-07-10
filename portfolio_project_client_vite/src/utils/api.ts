@@ -20,6 +20,16 @@ import type {
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 
+export class ApiError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+  }
+}
+
 function getStoredTokens(): AuthTokens | null {
   const stored = localStorage.getItem('auth_tokens');
   return stored ? JSON.parse(stored) : null;
@@ -110,9 +120,15 @@ async function getErrorMessage(response: Response, fallback: string): Promise<st
   if (!errorData) return fallback;
   if (typeof errorData.detail === 'string') return errorData.detail;
   if (Array.isArray(errorData.detail)) {
-    return errorData.detail.map((detail: { msg?: string }) => detail.msg || String(detail)).join(', ');
+    return errorData.detail
+      .map((detail: { msg?: string }) => detail.msg || String(detail))
+      .join(', ');
   }
   return fallback;
+}
+
+async function getApiError(response: Response, fallback: string): Promise<ApiError> {
+  return new ApiError(await getErrorMessage(response, fallback), response.status);
 }
 
 export async function signup(data: SignupRequest): Promise<SignupResponse> {
@@ -228,7 +244,7 @@ export async function getPortfolioDetail(code: string): Promise<Portfolio> {
   });
 
   if (!response.ok) {
-    throw new Error(`포트폴리오를 불러오지 못했습니다. ${response.statusText}`);
+    throw await getApiError(response, '포트폴리오를 불러오지 못했습니다.');
   }
 
   return response.json();
@@ -277,7 +293,7 @@ const IMAGE_UPLOAD_ERROR_MESSAGE =
   'JPG, PNG, WebP 이미지만 업로드할 수 있습니다. GIF는 지원하지 않습니다.';
 
 function getFileExtension(filename: string): string {
-  return filename.includes('.') ? filename.split('.').pop()?.toLowerCase() ?? '' : '';
+  return filename.includes('.') ? (filename.split('.').pop()?.toLowerCase() ?? '') : '';
 }
 
 export function isAllowedUploadImage(file: File): boolean {
@@ -374,7 +390,7 @@ export async function getProjectDetail(
   });
 
   if (!response.ok) {
-    throw new Error(`프로젝트 상세 정보를 불러오지 못했습니다. ${response.statusText}`);
+    throw await getApiError(response, '프로젝트 상세 정보를 불러오지 못했습니다.');
   }
 
   return response.json();
@@ -478,9 +494,8 @@ export async function getPublicProjectDetail(
   );
 
   if (!response.ok) {
-    throw new Error(`공개 프로젝트 상세 정보를 불러오지 못했습니다. ${response.statusText}`);
+    throw await getApiError(response, '공개 프로젝트 상세 정보를 불러오지 못했습니다.');
   }
 
   return response.json();
 }
-

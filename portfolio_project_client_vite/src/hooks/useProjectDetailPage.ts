@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import ProjectEditForm from '../components/ProjectEditForm';
 import type { Project, UpdateProjectRequest } from '../types/project';
-import { getProjectDetail, updateProject } from '../utils/api';
+import { ApiError, getProjectDetail, updateProject } from '../utils/api';
 import { projectDetailToProject } from '../utils/projectMappers';
 
 type ProjectEditData = Parameters<ComponentProps<typeof ProjectEditForm>['onSave']>[0];
@@ -50,6 +50,7 @@ export function useProjectDetailPage() {
   const [project, setProject] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isProjectNotFound, setIsProjectNotFound] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [portfolioId, setPortfolioId] = useState<number | null>(null);
@@ -64,13 +65,22 @@ export function useProjectDetailPage() {
     const fetchData = async () => {
       setIsLoading(true);
       setError(null);
+      setIsProjectNotFound(false);
+      setProject(null);
 
       try {
         const detail = await getProjectDetail(portfolioCode, projectCode);
         setProject(projectDetailToProject(detail, portfolioCode));
         setPortfolioId(detail.portfolio_id);
       } catch (err) {
-        setError(err instanceof Error ? err.message : '프로젝트를 불러오지 못했습니다.');
+        if (err instanceof ApiError && err.status === 404) {
+          setIsProjectNotFound(true);
+          setError(
+            '요청하신 프로젝트를 찾을 수 없습니다. 주소가 맞는지 확인하거나 프로젝트 목록에서 다시 선택해 주세요.'
+          );
+        } else {
+          setError(err instanceof Error ? err.message : '프로젝트를 불러오지 못했습니다.');
+        }
         console.error('Failed to fetch project data:', err);
       } finally {
         setIsLoading(false);
@@ -113,6 +123,7 @@ export function useProjectDetailPage() {
     project,
     isLoading,
     error,
+    isProjectNotFound,
     selectedIndex,
     setSelectedIndex,
     isEditing,

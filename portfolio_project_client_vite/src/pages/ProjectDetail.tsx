@@ -15,9 +15,7 @@ export default function ProjectDetail() {
     alt: string,
     className: string,
     variant: FileVariant = 'detail'
-  ) => (
-    <AuthImage fileUuid={fileUuid} variant={variant} alt={alt} className={className} />
-  );
+  ) => <AuthImage fileUuid={fileUuid} variant={variant} alt={alt} className={className} />;
 
   if (page.isLoading) {
     return <PageState loading message="프로젝트를 불러오는 중..." />;
@@ -26,9 +24,9 @@ export default function ProjectDetail() {
   if (page.error) {
     return (
       <PageState
-        title="오류가 발생했습니다"
+        title={page.isProjectNotFound ? '프로젝트를 찾을 수 없습니다' : '잠시 문제가 생겼습니다'}
         message={page.error}
-        tone="error"
+        tone={page.isProjectNotFound ? 'default' : 'error'}
         actionLabel="목록으로 돌아가기"
         actionTo={page.backPath}
       />
