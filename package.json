@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "setup": "node scripts/setup.mjs",
     "dev": "node scripts/dev.mjs",
     "dev:frontend": "npm --prefix portfolio_project_client_vite run dev",
     "dev:backend": "node scripts/dev.mjs backend",

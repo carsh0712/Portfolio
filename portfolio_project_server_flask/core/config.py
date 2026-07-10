@@ -15,16 +15,19 @@ def load_env():
     """환경에 맞는 .env 파일을 로드한다."""
     env = get_environment()
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    root_dir = os.path.dirname(base_dir)
 
-    env_file = os.path.join(base_dir, f".env.{env}")
-    fallback_file = os.path.join(base_dir, ".env")
+    candidate_files = [
+        os.path.join(base_dir, f".env.{env}"),
+        os.path.join(base_dir, ".env"),
+        os.path.join(root_dir, f".env.{env}"),
+        os.path.join(root_dir, ".env"),
+    ]
 
-    if os.path.exists(env_file):
-        load_dotenv(env_file, override=False)
-        return env_file
-    elif os.path.exists(fallback_file):
-        load_dotenv(fallback_file, override=False)
-        return fallback_file
+    for env_file in candidate_files:
+        if os.path.exists(env_file):
+            load_dotenv(env_file, override=False)
+            return env_file
     return None
 
 

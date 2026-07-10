@@ -54,7 +54,8 @@ React와 Flask로 만든 포트폴리오 관리 웹 애플리케이션입니다.
 - Node.js 20 이상 권장
 - npm
 - Python 3.11 이상 권장
-- MySQL 8.x 또는 호환 DB
+- Docker Desktop 또는 Docker Compose
+- MySQL 8.x 또는 호환 DB (Docker를 쓰지 않는 경우)
 
 ## 설치 방법
 
@@ -65,14 +66,32 @@ git clone <repository-url>
 cd Portfolio
 ```
 
-### 2. 프론트엔드 의존성 설치
+### 2. 개발 환경 자동 설정
+
+루트에서 다음 명령을 실행하면 기본 `.env`, 프론트엔드 `.env.development`, MySQL Docker 컨테이너, 백엔드 가상환경, DB 초기화를 한 번에 준비합니다.
+
+```bash
+npm run setup
+```
+
+완료 후 개발 서버를 실행합니다.
+
+```bash
+npm run dev
+```
+
+### 3. 수동 설치가 필요한 경우
+
+자동 설정을 쓰지 않는 경우 아래 순서로 직접 준비합니다.
+
+#### 프론트엔드 의존성 설치
 
 ```bash
 npm install
 npm --prefix portfolio_project_client_vite install
 ```
 
-### 3. 백엔드 가상환경 및 의존성 설치
+#### 백엔드 가상환경 및 의존성 설치
 
 ```bash
 cd portfolio_project_server_flask
@@ -92,7 +111,7 @@ pip install -r requirements.txt
 cd ..
 ```
 
-### 4. MCP 서버 의존성 설치 및 빌드
+#### MCP 서버 의존성 설치 및 빌드
 
 Codex, Claude 등 MCP 클라이언트에서 포트폴리오 API를 도구로 사용하려면 MCP 서버를 준비합니다.
 
